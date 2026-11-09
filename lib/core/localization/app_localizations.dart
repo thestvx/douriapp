@@ -331,6 +331,11 @@ class AppLocalizations {
   String get closeShop => _t('closeShop');
   String get actionFailed => _t('actionFailed');
   String get queueAdvanced => _t('queueAdvanced');
+  String get liveQueue => _t('liveQueue');
+  String get noCustomersYet => _t('noCustomersYet');
+  String get noCustomersYetMessage => _t('noCustomersYetMessage');
+  String get queueProgress => _t('queueProgress');
+  String get minutesShort => _t('minutesShort');
 
   static const Map<String, Map<String, String>> _strings = {
     'ar': {
@@ -624,6 +629,11 @@ class AppLocalizations {
       'closeShop': 'إغلاق الصالون',
       'actionFailed': 'تعذّر تنفيذ الإجراء، حاول مجدداً.',
       'queueAdvanced': 'تم تقديم الطابور',
+      'liveQueue': 'الطابور المباشر',
+      'noCustomersYet': 'لا يوجد عملاء بعد',
+      'noCustomersYetMessage': 'ستظهر الحجوزات المقبولة هنا فور بدء الطابور.',
+      'queueProgress': 'تقدّم الطابور',
+      'minutesShort': 'دقيقة',
     },
     'en': {
       'appName': 'DOURI',
@@ -916,6 +926,11 @@ class AppLocalizations {
       'closeShop': 'Close shop',
       'actionFailed': 'Action failed, please try again.',
       'queueAdvanced': 'Queue advanced',
+      'liveQueue': 'Live queue',
+      'noCustomersYet': 'No customers yet',
+      'noCustomersYetMessage': 'Accepted bookings will appear here once the queue starts.',
+      'queueProgress': 'Queue progress',
+      'minutesShort': 'min',
     },
   };
 }
