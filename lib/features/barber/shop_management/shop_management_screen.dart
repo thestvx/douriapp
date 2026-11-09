@@ -6,11 +6,13 @@ import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/cloudinary_service.dart';
 import '../../../core/services/repository_providers.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/douri_button.dart';
 import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_chrome.dart';
 import '../../../core/widgets/douri_feedback.dart';
 import '../../../core/widgets/douri_fields.dart';
+import '../../../core/widgets/douri_motion.dart';
 import '../../../shared/models/barber_shop.dart';
 import '../../../shared/models/shop_service.dart';
 import '../../authentication/auth_providers.dart';
@@ -255,41 +257,28 @@ class _ShopManagementScreenState extends ConsumerState<ShopManagementScreen> {
 
   Widget _buildForm(BuildContext context, BarberShop? shop, String? uid) {
     final l10n = AppLocalizations.of(context);
+    // SingleChildScrollView with no fixed heights; the Scaffold keeps its
+    // default resizeToAvoidBottomInset so the keyboard never covers the
+    // field being edited.
     return SingleChildScrollView(
-      padding: const EdgeInsets.all(DouriSpacing.page),
+      keyboardDismissBehavior: ScrollViewKeyboardDismissBehavior.onDrag,
+      padding: const EdgeInsets.fromLTRB(
+        DouriSpacing.page,
+        DouriSpacing.page,
+        DouriSpacing.page,
+        DouriSpacing.xxxl,
+      ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
-          DouriEntrance(
+          // 0 — Photos hero: cover + logo with upload affordance.
+          DouriStagger(
             index: 0,
-            child: DouriTextField(controller: _nameController, label: l10n.shopName),
+            child: DouriSectionHeader(title: l10n.shopPhotos),
           ),
           const SizedBox(height: DouriSpacing.md),
-          DouriEntrance(
-            index: 1,
-            child: DouriTextField(
-              controller: _descriptionController,
-              label: l10n.shopDescription,
-              maxLines: 3,
-            ),
-          ),
-          const SizedBox(height: DouriSpacing.md),
-          DouriEntrance(
-            index: 2,
-            child: DouriTextField(controller: _addressController, label: l10n.shopAddress),
-          ),
-          const SizedBox(height: DouriSpacing.md),
-          DouriEntrance(
-            index: 3,
-            child: DouriTextField(
-              controller: _phoneController,
-              label: l10n.shopPhone,
-              keyboardType: TextInputType.phone,
-            ),
-          ),
-          const SizedBox(height: DouriSpacing.md),
-          DouriEntrance(
-            index: 4,
+          DouriStagger(
+            index: 0,
             child: _buildImageUpload(
               controller: _coverController,
               label: l10n.coverImageUrl,
@@ -299,8 +288,8 @@ class _ShopManagementScreenState extends ConsumerState<ShopManagementScreen> {
             ),
           ),
           const SizedBox(height: DouriSpacing.md),
-          DouriEntrance(
-            index: 5,
+          DouriStagger(
+            index: 1,
             child: _buildImageUpload(
               controller: _logoController,
               label: l10n.logoImageUrl,
@@ -309,57 +298,113 @@ class _ShopManagementScreenState extends ConsumerState<ShopManagementScreen> {
               isLogo: true,
             ),
           ),
-          const SizedBox(height: DouriSpacing.md),
-          Row(
-            children: [
-              Expanded(
-                child: DouriTextField(
-                  controller: _durationController,
-                  label: l10n.appointmentDuration,
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-              const SizedBox(width: DouriSpacing.md),
-              Expanded(
-                child: DouriTextField(
-                  controller: _maxBookingsController,
-                  label: l10n.maxDailyBookings,
-                  keyboardType: TextInputType.number,
-                ),
-              ),
-            ],
+          const SizedBox(height: DouriSpacing.xl),
+          // 1 — Shop details.
+          DouriStagger(
+            index: 2,
+            child: DouriSectionHeader(title: l10n.shopDetails),
           ),
           const SizedBox(height: DouriSpacing.md),
-          DouriCard(
+          DouriStagger(
+            index: 2,
+            child: DouriTextField(controller: _nameController, label: l10n.shopName),
+          ),
+          const SizedBox(height: DouriSpacing.md),
+          DouriStagger(
+            index: 2,
+            child: DouriTextField(
+              controller: _descriptionController,
+              label: l10n.shopDescription,
+              maxLines: 3,
+            ),
+          ),
+          const SizedBox(height: DouriSpacing.md),
+          DouriStagger(
+            index: 3,
+            child: DouriTextField(controller: _addressController, label: l10n.shopAddress),
+          ),
+          const SizedBox(height: DouriSpacing.md),
+          DouriStagger(
+            index: 3,
+            child: DouriTextField(
+              controller: _phoneController,
+              label: l10n.shopPhone,
+              keyboardType: TextInputType.phone,
+            ),
+          ),
+          const SizedBox(height: DouriSpacing.xl),
+          // 2 — Working settings. There is no working-hours editor here:
+          // the BarberShop model exposes no working-hours field (the
+          // signup wizard's working_hours JSON is not on the model), so
+          // no hours UI is invented — duration, capacity and the
+          // open/closed switch are the real settings that exist.
+          DouriStagger(
+            index: 4,
+            child: DouriSectionHeader(title: l10n.shopSettings),
+          ),
+          const SizedBox(height: DouriSpacing.md),
+          DouriStagger(
+            index: 4,
             child: Row(
               children: [
                 Expanded(
-                  child: Text(
-                    _isOpen ? l10n.shopOpen : l10n.shopClosed,
-                    style: Theme.of(context).textTheme.titleMedium,
+                  child: DouriTextField(
+                    controller: _durationController,
+                    label: l10n.appointmentDuration,
+                    keyboardType: TextInputType.number,
                   ),
                 ),
-                Switch(
-                  value: _isOpen,
-                  onChanged: (v) => setState(() => _isOpen = v),
-                  activeColor: AppColors.primaryAccent,
+                const SizedBox(width: DouriSpacing.md),
+                Expanded(
+                  child: DouriTextField(
+                    controller: _maxBookingsController,
+                    label: l10n.maxDailyBookings,
+                    keyboardType: TextInputType.number,
+                  ),
                 ),
               ],
             ),
           ),
+          const SizedBox(height: DouriSpacing.md),
+          DouriStagger(
+            index: 4,
+            child: DouriCard(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Text(
+                      _isOpen ? l10n.shopOpen : l10n.shopClosed,
+                      style: Theme.of(context).textTheme.titleMedium,
+                    ),
+                  ),
+                  Switch(
+                    value: _isOpen,
+                    onChanged: (v) => setState(() => _isOpen = v),
+                    activeColor: AppColors.primaryAccent,
+                  ),
+                ],
+              ),
+            ),
+          ),
           const SizedBox(height: DouriSpacing.xl),
-          DouriButton(
-            label: l10n.saveChanges,
-            icon: Icons.save_outlined,
-            onPressed: _saving ? null : () => _save(shop, uid),
-            loading: _saving,
+          DouriStagger(
+            index: 5,
+            child: DouriButton(
+              label: l10n.saveChanges,
+              icon: Icons.save_outlined,
+              onPressed: _saving ? null : () => _save(shop, uid),
+              loading: _saving,
+            ),
           ),
           if (shop != null) ...[
             const SizedBox(height: DouriSpacing.xxl),
-            DouriSectionHeader(
-              title: l10n.servicesManagement,
-              actionLabel: l10n.addService,
-              onAction: () => _showAddService(shop.id),
+            DouriStagger(
+              index: 6,
+              child: DouriSectionHeader(
+                title: l10n.servicesManagement,
+                actionLabel: l10n.addService,
+                onAction: () => _showAddService(shop.id),
+              ),
             ),
             const SizedBox(height: DouriSpacing.md),
             _buildServices(shop.id),
@@ -371,6 +416,8 @@ class _ShopManagementScreenState extends ConsumerState<ShopManagementScreen> {
 
   /// Cover/logo section: live preview + URL field + gallery upload
   /// button (Cloudinary). The preview follows the field's text.
+  /// Cover is a full-width hero with the upload button overlaid on it;
+  /// the logo is a 72dp circle beside its upload button.
   Widget _buildImageUpload({
     required TextEditingController controller,
     required String label,
@@ -383,59 +430,117 @@ class _ShopManagementScreenState extends ConsumerState<ShopManagementScreen> {
       builder: (context, value, _) {
         final url = value.text.trim();
         final hasImage = url.startsWith('http');
+        if (isLogo) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Row(
+                children: [
+                  ClipOval(
+                    child: hasImage
+                        ? Image.network(
+                            url,
+                            width: 72,
+                            height: 72,
+                            fit: BoxFit.cover,
+                            errorBuilder: (_, __, ___) =>
+                                _logoFallback(context),
+                          )
+                        : _logoFallback(context),
+                  ),
+                  const SizedBox(width: DouriSpacing.md),
+                  Expanded(
+                    child: DouriButton(
+                      label: uploadLabel,
+                      icon: Icons.upload_outlined,
+                      expanded: false,
+                      loading: uploading,
+                      onPressed: uploading
+                          ? null
+                          : () => _uploadShopImage(isLogo: true),
+                    ),
+                  ),
+                ],
+              ),
+              const SizedBox(height: DouriSpacing.sm),
+              DouriTextField(
+                controller: controller,
+                label: label,
+                keyboardType: TextInputType.url,
+              ),
+            ],
+          );
+        }
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            if (hasImage) ...[
-              ClipRRect(
-                borderRadius: BorderRadius.circular(DouriRadius.md),
-                child: isLogo
-                    ? Image.network(
+            ClipRRect(
+              borderRadius: BorderRadius.circular(DouriRadius.md),
+              child: Container(
+                height: 160,
+                width: double.infinity,
+                color: context.douriColors.elevated,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    if (hasImage)
+                      Image.network(
                         url,
-                        width: 72,
-                        height: 72,
                         fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            const SizedBox.shrink(),
+                        errorBuilder: (_, __, ___) => const SizedBox.shrink(),
                       )
-                    : Image.network(
-                        url,
-                        width: double.infinity,
-                        height: 140,
-                        fit: BoxFit.cover,
-                        errorBuilder: (_, __, ___) =>
-                            const SizedBox.shrink(),
+                    else
+                      const Center(
+                        child: Icon(
+                          Icons.image_outlined,
+                          size: 44,
+                          color: AppColors.primaryAccent,
+                        ),
                       ),
+                    PositionedDirectional(
+                      bottom: DouriSpacing.md,
+                      end: DouriSpacing.md,
+                      child: DouriButton(
+                        label: uploadLabel,
+                        icon: Icons.upload_outlined,
+                        variant: DouriButtonVariant.secondary,
+                        expanded: false,
+                        loading: uploading,
+                        onPressed: uploading
+                            ? null
+                            : () => _uploadShopImage(isLogo: false),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-              const SizedBox(height: DouriSpacing.sm),
-            ],
-            Row(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Expanded(
-                  child: DouriTextField(
-                    controller: controller,
-                    label: label,
-                    keyboardType: TextInputType.url,
-                  ),
-                ),
-                const SizedBox(width: DouriSpacing.sm),
-                DouriButton(
-                  label: uploadLabel,
-                  icon: Icons.upload_outlined,
-                  expanded: false,
-                  loading: uploading,
-                  onPressed: uploading
-                      ? null
-                      : () => _uploadShopImage(isLogo: isLogo),
-                ),
-              ],
+            ),
+            const SizedBox(height: DouriSpacing.sm),
+            DouriTextField(
+              controller: controller,
+              label: label,
+              keyboardType: TextInputType.url,
             ),
           ],
         );
       },
     );
   }
+
+  Widget _logoFallback(BuildContext context) => Container(
+        width: 72,
+        height: 72,
+        alignment: Alignment.center,
+        decoration: BoxDecoration(
+          color: context.douriColors.elevated,
+          shape: BoxShape.circle,
+        ),
+        child: const Icon(
+          Icons.store_outlined,
+          size: 32,
+          color: AppColors.primaryAccent,
+        ),
+      );
 
   Widget _buildServices(String shopId) {
     final l10n = AppLocalizations.of(context);
@@ -455,8 +560,10 @@ class _ShopManagementScreenState extends ConsumerState<ShopManagementScreen> {
       children: [
         for (var i = 0; i < _services.length; i++)
           Padding(
+            // Key on the list-level child so list updates reuse the row.
+            key: ValueKey(_services[i].id),
             padding: const EdgeInsets.only(bottom: DouriSpacing.md),
-            child: DouriEntrance(
+            child: DouriStagger(
               index: i,
               child: _ServiceRow(
                 service: _services[i],
@@ -479,35 +586,84 @@ class _ServiceRow extends StatelessWidget {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final details = <String>['${service.durationMinutes} ${l10n.min}'];
-    if (service.price != null) details.add(service.price!.toStringAsFixed(0));
     return DouriCard(
       child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Expanded(
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Text(
-                  service.serviceName,
-                  style: Theme.of(context).textTheme.titleMedium,
-                  maxLines: 1,
-                  overflow: TextOverflow.ellipsis,
+                Row(
+                  children: [
+                    Expanded(
+                      child: Text(
+                        service.serviceName,
+                        style: Theme.of(context).textTheme.titleMedium,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                      ),
+                    ),
+                    if (service.price != null) ...[
+                      const SizedBox(width: DouriSpacing.sm),
+                      Directionality(
+                        textDirection: TextDirection.ltr,
+                        child: Text(
+                          service.price!.toStringAsFixed(0),
+                          style: DouriTextStyles.price(context),
+                        ),
+                      ),
+                    ],
+                  ],
                 ),
-                SizedBox(height: 2),
-                Text(
-                  details.join(' · '),
-                  style: Theme.of(context)
-                      .textTheme
-                      .bodySmall
-                      ?.copyWith(color: context.douriColors.textSecondary),
+                if (service.description != null &&
+                    service.description!.isNotEmpty) ...[
+                  const SizedBox(height: 2),
+                  Text(
+                    service.description!,
+                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                          color: context.douriColors.textSecondary,
+                        ),
+                    maxLines: 2,
+                    overflow: TextOverflow.ellipsis,
+                  ),
+                ],
+                const SizedBox(height: 4),
+                Row(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
+                    Icon(
+                      Icons.access_time,
+                      size: 14,
+                      color: context.douriColors.textSecondary,
+                    ),
+                    const SizedBox(width: 4),
+                    Flexible(
+                      child: Text(
+                        details.join(' · '),
+                        style: Theme.of(context)
+                            .textTheme
+                            .bodySmall
+                            ?.copyWith(color: context.douriColors.textSecondary),
+                      ),
+                    ),
+                  ],
                 ),
               ],
             ),
           ),
-          DouriIconButton(
-            icon: Icons.delete_outline,
-            onPressed: onDelete,
-            tooltip: l10n.deleteService,
+          const SizedBox(width: DouriSpacing.sm),
+          // 48dp hit area around the 44dp icon button.
+          SizedBox(
+            width: 48,
+            height: 48,
+            child: Center(
+              child: DouriIconButton(
+                icon: Icons.delete_outline,
+                onPressed: onDelete,
+                tooltip: l10n.deleteService,
+              ),
+            ),
           ),
         ],
       ),
