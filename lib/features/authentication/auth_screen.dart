@@ -24,7 +24,7 @@ class AuthScreen extends ConsumerStatefulWidget {
 
 class _AuthScreenState extends ConsumerState<AuthScreen> {
   final _phoneController = TextEditingController();
-  String? _verificationId;
+  bool _codeSent = false;
   String _otpCode = '';
   bool _sending = false;
   String? _error;
@@ -32,7 +32,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   int _resendSeconds = 0;
   int _otpResetKey = 0; // bumped on resend/back so DouriOtpField rebuilds empty
 
-  bool get _isOtpStep => _verificationId != null;
+  bool get _isOtpStep => _codeSent;
 
   @override
   void dispose() {
@@ -69,30 +69,29 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       _error = null;
     });
     final repo = ref.read(authRepositoryProvider);
-    await repo.sendOtp(
-      phoneNumber: '+213$digits',
-      onCodeSent: (id) {
-        if (!mounted) return;
-        setState(() {
-          _verificationId = id;
-          _sending = false;
-          _otpCode = '';
-          _otpResetKey++;
-        });
-        _startResendCountdown();
-      },
-      onFailed: (e) {
-        if (!mounted) return;
-        setState(() {
-          _error = e.message;
-          _sending = false;
-        });
-      },
-    );
+    try {
+      // Supabase Auth generates the code; the send-whatsapp-otp Edge
+      // Function (Send SMS hook) delivers it to the user's WhatsApp.
+      await repo.sendOtp(phoneNumber: '+213$digits');
+      if (!mounted) return;
+      setState(() {
+        _codeSent = true;
+        _sending = false;
+        _otpCode = '';
+        _otpResetKey++;
+      });
+      _startResendCountdown();
+    } catch (e) {
+      if (!mounted) return;
+      setState(() {
+        _error = e.toString();
+        _sending = false;
+      });
+    }
   }
 
   Future<void> _verify() async {
-    if (_verificationId == null) return;
+    if (!_codeSent) return;
     if (_otpCode.length != 6) {
       setState(() => _error = AppLocalizations.of(context).invalidOtp);
       return;
@@ -102,11 +101,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       _error = null;
     });
     try {
-      final cred = await ref.read(authRepositoryProvider).verifyOtp(
-            verificationId: _verificationId!,
+      final uid = await ref.read(authRepositoryProvider).verifyOtp(
+            phoneNumber: '+213${_phoneController.text.trim()}',
             smsCode: _otpCode,
           );
-      final uid = cred.user!.uid;
       final profileRepo = ref.read(profileRepositoryProvider);
       final profile = await profileRepo.getProfile(uid);
       try {
@@ -130,7 +128,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   void _backToPhone() {
     _resendTimer?.cancel();
     setState(() {
-      _verificationId = null;
+      _codeSent = false;
       _otpCode = '';
       _otpResetKey++;
       _resendSeconds = 0;
