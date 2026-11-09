@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 
 import '../../../core/constants/app_colors.dart';
 import '../../../core/localization/app_localizations.dart';
+import '../../../core/services/cloudinary_service.dart';
 import '../../../core/services/repository_providers.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/douri_button.dart';
@@ -38,6 +39,8 @@ class _ShopManagementScreenState extends ConsumerState<ShopManagementScreen> {
 
   bool _isOpen = false;
   bool _saving = false;
+  bool _uploadingLogo = false;
+  bool _uploadingCover = false;
   String? _prefilledShopId;
   List<ShopService> _services = [];
   bool _servicesLoading = false;
@@ -87,11 +90,62 @@ class _ShopManagementScreenState extends ConsumerState<ShopManagementScreen> {
     }
   }
 
-  void _showFailed() {
+  void _showFailed([Object? error]) {
     if (!mounted) return;
+    final l10n = AppLocalizations.of(context);
+    var message = l10n.actionFailed;
+    if (error != null) {
+      final detail = error.toString();
+      message = detail.length > 220 ? '${detail.substring(0, 220)}…' : detail;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context).actionFailed)),
+      SnackBar(content: Text(message)),
     );
+  }
+
+  /// Picks a photo from the gallery, uploads it to Cloudinary and puts
+  /// the returned URL in the matching field. The URL is only saved to
+  /// the shop when the user presses Save below.
+  Future<void> _uploadShopImage({required bool isLogo}) async {
+    final l10n = AppLocalizations.of(context);
+    final picked = await pickGalleryImage();
+    if (picked == null) return;
+    setState(() {
+      if (isLogo) {
+        _uploadingLogo = true;
+      } else {
+        _uploadingCover = true;
+      }
+    });
+    try {
+      final url = await CloudinaryService.uploadImage(
+        picked,
+        folder: isLogo ? 'douri/logos' : 'douri/covers',
+      );
+      if (!mounted) return;
+      setState(() {
+        if (isLogo) {
+          _logoController.text = url;
+        } else {
+          _coverController.text = url;
+        }
+      });
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(l10n.uploadDone)),
+      );
+    } catch (e) {
+      _showFailed(e);
+    } finally {
+      if (mounted) {
+        setState(() {
+          if (isLogo) {
+            _uploadingLogo = false;
+          } else {
+            _uploadingCover = false;
+          }
+        });
+      }
+    }
   }
 
   Future<void> _save(BarberShop? shop, String? uid) async {
@@ -235,19 +289,23 @@ class _ShopManagementScreenState extends ConsumerState<ShopManagementScreen> {
           const SizedBox(height: DouriSpacing.md),
           DouriEntrance(
             index: 4,
-            child: DouriTextField(
+            child: _buildImageUpload(
               controller: _coverController,
               label: l10n.coverImageUrl,
-              keyboardType: TextInputType.url,
+              uploadLabel: l10n.uploadCover,
+              uploading: _uploadingCover,
+              isLogo: false,
             ),
           ),
           const SizedBox(height: DouriSpacing.md),
           DouriEntrance(
             index: 5,
-            child: DouriTextField(
+            child: _buildImageUpload(
               controller: _logoController,
               label: l10n.logoImageUrl,
-              keyboardType: TextInputType.url,
+              uploadLabel: l10n.uploadLogo,
+              uploading: _uploadingLogo,
+              isLogo: true,
             ),
           ),
           const SizedBox(height: DouriSpacing.md),
@@ -307,6 +365,74 @@ class _ShopManagementScreenState extends ConsumerState<ShopManagementScreen> {
           ],
         ],
       ),
+    );
+  }
+
+  /// Cover/logo section: live preview + URL field + gallery upload
+  /// button (Cloudinary). The preview follows the field's text.
+  Widget _buildImageUpload({
+    required TextEditingController controller,
+    required String label,
+    required String uploadLabel,
+    required bool uploading,
+    required bool isLogo,
+  }) {
+    return ValueListenableBuilder<TextEditingValue>(
+      valueListenable: controller,
+      builder: (context, value, _) {
+        final url = value.text.trim();
+        final hasImage = url.startsWith('http');
+        return Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            if (hasImage) ...[
+              ClipRRect(
+                borderRadius: BorderRadius.circular(DouriRadius.md),
+                child: isLogo
+                    ? Image.network(
+                        url,
+                        width: 72,
+                        height: 72,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) =>
+                            const SizedBox.shrink(),
+                      )
+                    : Image.network(
+                        url,
+                        width: double.infinity,
+                        height: 140,
+                        fit: BoxFit.cover,
+                        errorBuilder: (_, __, ___) =>
+                            const SizedBox.shrink(),
+                      ),
+              ),
+              const SizedBox(height: DouriSpacing.sm),
+            ],
+            Row(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Expanded(
+                  child: DouriTextField(
+                    controller: controller,
+                    label: label,
+                    keyboardType: TextInputType.url,
+                  ),
+                ),
+                const SizedBox(width: DouriSpacing.sm),
+                DouriButton(
+                  label: uploadLabel,
+                  icon: Icons.upload_outlined,
+                  expanded: false,
+                  loading: uploading,
+                  onPressed: uploading
+                      ? null
+                      : () => _uploadShopImage(isLogo: isLogo),
+                ),
+              ],
+            ),
+          ],
+        );
+      },
     );
   }
 
