@@ -2,12 +2,14 @@ import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:flutter_riverpod/legacy.dart';
 
 import 'core/localization/app_localizations.dart';
 import 'core/localization/locale_controller.dart';
 import 'core/routing/app_router.dart';
 import 'core/services/supabase_service.dart';
 import 'core/theme/app_theme.dart';
+import 'core/theme/theme_controller.dart';
 import 'firebase_options.dart';
 
 Future<void> main() async {
@@ -16,7 +18,17 @@ Future<void> main() async {
     options: DefaultFirebaseOptions.currentPlatform,
   );
   await SupabaseService.initialize();
-  runApp(const ProviderScope(child: DouriApp()));
+  // Saved appearance (system/dark/light) loads before the first frame so
+  // the app never flashes the wrong theme.
+  final savedTheme = await loadSavedThemeMode();
+  runApp(
+    ProviderScope(
+      overrides: [
+        themeModeProvider.overrideWith((ref) => savedTheme),
+      ],
+      child: const DouriApp(),
+    ),
+  );
 }
 
 class DouriApp extends ConsumerWidget {
@@ -25,6 +37,7 @@ class DouriApp extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final locale = ref.watch(localeProvider);
+    final themeMode = ref.watch(themeModeProvider).material;
     final router = ref.watch(routerProvider);
     return MaterialApp.router(
       title: 'DOURI',
@@ -39,7 +52,7 @@ class DouriApp extends ConsumerWidget {
       ],
       theme: AppTheme.light(locale),
       darkTheme: AppTheme.dark(locale),
-      themeMode: ThemeMode.dark,
+      themeMode: themeMode,
       routerConfig: router,
       builder: (context, child) {
         return Directionality(

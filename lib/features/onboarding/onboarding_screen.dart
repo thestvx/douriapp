@@ -6,9 +6,11 @@ import 'package:go_router/go_router.dart';
 import '../../core/constants/app_colors.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_controller.dart';
+import '../../core/services/app_prefs.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/widgets/douri_feedback.dart';
 import '../../core/widgets/douri_visual.dart';
+import '../../core/theme/douri_colors.dart';
 
 /// Stylize-style onboarding (DOURI skin): full-bleed visual panel on top,
 /// bold title + subtitle at the bottom, animated dots and a round lime
@@ -34,7 +36,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
   void _next() {
     if (_page == 2) {
-      context.go('/auth');
+      _finish();
     } else {
       _pageController.animateToPage(
         _page + 1,
@@ -42,6 +44,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
         curve: DouriCurves.standard,
       );
     }
+  }
+
+  Future<void> _finish() async {
+    await AppPrefs.saveOnboardingSeen();
+    if (mounted) context.go('/auth');
   }
 
   @override
@@ -56,7 +63,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     ];
 
     return Scaffold(
-      backgroundColor: AppColors.primaryBackground,
+      backgroundColor: context.douriColors.background,
       body: Stack(
         children: [
           PageView.builder(
@@ -90,14 +97,14 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                               style: Theme.of(context).textTheme.headlineMedium,
                             ),
                           ),
-                          const SizedBox(height: DouriSpacing.md),
+                          SizedBox(height: DouriSpacing.md),
                           DouriEntrance(
                             key: ValueKey('desc-$index'),
                             index: 1,
                             child: Text(
                               slide.desc,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.secondaryText,
+                                    color: context.douriColors.textSecondary,
                                   ),
                             ),
                           ),
@@ -131,7 +138,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                                     width: active ? 24 : 8,
                                     height: 8,
                                     decoration: BoxDecoration(
-                                      color: active ? AppColors.primaryAccent : AppColors.border,
+                                      color: active ? AppColors.primaryAccent : context.douriColors.border,
                                       borderRadius: BorderRadius.circular(4),
                                     ),
                                   );
@@ -168,11 +175,11 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   ),
                   if (_page < 2)
                     TextButton(
-                      onPressed: () => context.go('/auth'),
+                      onPressed: _finish,
                       child: Text(
                         l10n.skip,
                         style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                              color: AppColors.secondaryText,
+                              color: context.douriColors.textSecondary,
                             ),
                       ),
                     ),
@@ -204,12 +211,12 @@ class _LanguageChip extends StatelessWidget {
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
             borderRadius: BorderRadius.circular(DouriRadius.pill),
-            border: Border.all(color: selected ? AppColors.primaryAccent : AppColors.border),
+            border: Border.all(color: selected ? AppColors.primaryAccent : context.douriColors.border),
           ),
           child: Text(
             label,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: selected ? AppColors.primaryAccent : AppColors.secondaryText,
+                  color: selected ? AppColors.primaryAccent : context.douriColors.textSecondary,
                 ),
           ),
         ),
