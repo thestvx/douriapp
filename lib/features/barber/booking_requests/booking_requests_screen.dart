@@ -11,6 +11,7 @@ import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_feedback.dart';
 import '../../../core/widgets/douri_fields.dart';
 import '../../../shared/models/booking.dart';
+import '../../../core/theme/douri_colors.dart';
 
 class BookingRequestsScreen extends ConsumerStatefulWidget {
   const BookingRequestsScreen({super.key, required this.shopId});
@@ -111,7 +112,7 @@ class _BookingRequestsScreenState extends ConsumerState<BookingRequestsScreen>
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Container(
-      color: AppColors.primaryBackground,
+      color: context.douriColors.background,
       child: StreamBuilder<List<Booking>>(
         stream: _stream,
         builder: (context, snapshot) {
@@ -134,7 +135,7 @@ class _BookingRequestsScreenState extends ConsumerState<BookingRequestsScreen>
                 controller: _tabController,
                 isScrollable: true,
                 labelColor: AppColors.primaryAccent,
-                unselectedLabelColor: AppColors.secondaryText,
+                unselectedLabelColor: context.douriColors.textSecondary,
                 indicatorColor: AppColors.primaryAccent,
                 tabs: [
                   Tab(text: l10n.pending),
@@ -170,7 +171,7 @@ class _BookingRequestsScreenState extends ConsumerState<BookingRequestsScreen>
     if (bookings.isEmpty) {
       return RefreshIndicator(
         color: AppColors.primaryAccent,
-        backgroundColor: AppColors.elevatedSurface,
+        backgroundColor: context.douriColors.elevated,
         onRefresh: _refresh,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
@@ -187,7 +188,7 @@ class _BookingRequestsScreenState extends ConsumerState<BookingRequestsScreen>
     }
     return RefreshIndicator(
       color: AppColors.primaryAccent,
-      backgroundColor: AppColors.elevatedSurface,
+      backgroundColor: context.douriColors.elevated,
       onRefresh: _refresh,
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -246,8 +247,8 @@ class _BookingRequestsScreenState extends ConsumerState<BookingRequestsScreen>
         'CONFIRMED' => (l10n.bookingConfirmed, AppColors.success),
         'COMPLETED' => (l10n.bookingCompleted, AppColors.success),
         'REJECTED' => (l10n.bookingRejected, AppColors.danger),
-        'CANCELLED' => (l10n.bookingCancelled, AppColors.mutedText),
-        _ => (status, AppColors.secondaryText),
+        'CANCELLED' => (l10n.bookingCancelled, context.douriColors.textMuted),
+        _ => (status, context.douriColors.textSecondary),
       };
 }
 

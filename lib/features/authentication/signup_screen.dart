@@ -14,6 +14,7 @@ import '../../core/widgets/douri_fields.dart';
 import '../../core/widgets/douri_visual.dart';
 import '../../shared/models/profile.dart';
 import 'auth_providers.dart';
+import '../../core/theme/douri_colors.dart';
 
 /// Account creation.
 ///
@@ -91,7 +92,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: AppColors.primaryBackground,
+      backgroundColor: context.douriColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(DouriSpacing.page),
@@ -109,7 +110,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: DouriSpacing.xxl),
+              SizedBox(height: DouriSpacing.xxl),
               DouriEntrance(
                 index: 1,
                 child: Text(
@@ -117,7 +118,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),
-              const SizedBox(height: DouriSpacing.sm),
+              SizedBox(height: DouriSpacing.sm),
               DouriEntrance(
                 index: 2,
                 child: Text(
@@ -125,7 +126,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                       ? l10n.customerSignupDesc
                       : l10n.chooseAccountType,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.secondaryText,
+                        color: context.douriColors.textSecondary,
                       ),
                 ),
               ),
@@ -151,23 +152,23 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                 l10n.signupAsCustomer,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
-                              const SizedBox(height: 2),
+                              SizedBox(height: 2),
                               Text(
                                 l10n.customerSignupDesc,
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
                                     ?.copyWith(
-                                      color: AppColors.secondaryText,
+                                      color: context.douriColors.textSecondary,
                                     ),
                               ),
                             ],
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           Icons.arrow_forward_ios,
                           size: 16,
-                          color: AppColors.mutedText,
+                          color: context.douriColors.textMuted,
                         ),
                       ],
                     ),
@@ -194,23 +195,23 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                 l10n.signupAsBarber,
                                 style: Theme.of(context).textTheme.titleMedium,
                               ),
-                              const SizedBox(height: 2),
+                              SizedBox(height: 2),
                               Text(
                                 l10n.barberSignupDesc,
                                 style: Theme.of(context)
                                     .textTheme
                                     .bodySmall
                                     ?.copyWith(
-                                      color: AppColors.secondaryText,
+                                      color: context.douriColors.textSecondary,
                                     ),
                               ),
                             ],
                           ),
                         ),
-                        const Icon(
+                        Icon(
                           Icons.arrow_forward_ios,
                           size: 16,
-                          color: AppColors.mutedText,
+                          color: context.douriColors.textMuted,
                         ),
                       ],
                     ),
@@ -293,7 +294,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                   ? Icons.visibility_outlined
                                   : Icons.visibility_off_outlined,
                               size: 20,
-                              color: AppColors.secondaryText,
+                              color: context.douriColors.textSecondary,
                             ),
                             onPressed: () => setState(
                               () => _obscurePassword = !_obscurePassword,
@@ -307,7 +308,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                           },
                         ),
                       ),
-                      const SizedBox(height: DouriSpacing.md),
+                      SizedBox(height: DouriSpacing.md),
                       DouriEntrance(
                         index: 6,
                         child: DouriTextField(
@@ -322,7 +323,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                                   ? Icons.visibility_outlined
                                   : Icons.visibility_off_outlined,
                               size: 20,
-                              color: AppColors.secondaryText,
+                              color: context.douriColors.textSecondary,
                             ),
                             onPressed: () => setState(
                               () => _obscureConfirm = !_obscureConfirm,
@@ -372,7 +373,17 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
               const SizedBox(height: DouriSpacing.md),
               Center(
                 child: GestureDetector(
-                  onTap: _saving ? null : () => context.go('/auth'),
+                  // Came here via push from login: pop back to it. If the
+                  // screen was opened directly, fall back to /auth.
+                  onTap: _saving
+                      ? null
+                      : () {
+                          if (context.canPop()) {
+                            context.pop();
+                          } else {
+                            context.go('/auth');
+                          }
+                        },
                   child: Text(
                     l10n.alreadyHaveAccount,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(

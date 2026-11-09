@@ -12,6 +12,7 @@ import '../../core/widgets/douri_feedback.dart';
 import '../../core/widgets/douri_fields.dart';
 import '../../core/widgets/douri_visual.dart';
 import 'auth_providers.dart';
+import '../../core/theme/douri_colors.dart';
 
 /// Email + password login (Firebase Auth).
 ///
@@ -81,7 +82,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     return Scaffold(
-      backgroundColor: AppColors.primaryBackground,
+      backgroundColor: context.douriColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(DouriSpacing.page),
@@ -113,7 +114,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                         ),
                   ),
                 ),
-                const SizedBox(height: DouriSpacing.sm),
+                SizedBox(height: DouriSpacing.sm),
                 DouriEntrance(
                   index: 3,
                   child: Text(
@@ -121,13 +122,13 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     style: Theme.of(context).textTheme.headlineMedium,
                   ),
                 ),
-                const SizedBox(height: DouriSpacing.sm),
+                SizedBox(height: DouriSpacing.sm),
                 DouriEntrance(
                   index: 4,
                   child: Text(
                     l10n.loginSubtitle,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.secondaryText,
+                          color: context.douriColors.textSecondary,
                         ),
                   ),
                 ),
@@ -149,7 +150,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                     },
                   ),
                 ),
-                const SizedBox(height: DouriSpacing.md),
+                SizedBox(height: DouriSpacing.md),
                 DouriEntrance(
                   index: 6,
                   child: DouriTextField(
@@ -165,7 +166,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                             ? Icons.visibility_outlined
                             : Icons.visibility_off_outlined,
                         size: 20,
-                        color: AppColors.secondaryText,
+                        color: context.douriColors.textSecondary,
                       ),
                       onPressed: () => setState(
                         () => _obscurePassword = !_obscurePassword,

@@ -14,6 +14,7 @@ import '../../core/widgets/douri_fields.dart';
 import '../../core/widgets/douri_visual.dart';
 import '../../shared/models/profile.dart';
 import 'auth_providers.dart';
+import '../../core/theme/douri_colors.dart';
 
 /// Barber signup wizard (5 steps):
 ///   1. Email → 2. Password → 3. Salon + location → 4. Chairs + hours →
@@ -252,7 +253,7 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
       l10n.ownerInfo,
     ];
     return Scaffold(
-      backgroundColor: AppColors.primaryBackground,
+      backgroundColor: context.douriColors.background,
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(DouriSpacing.page),
@@ -270,7 +271,7 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
                   ),
                 ),
               ),
-              const SizedBox(height: DouriSpacing.xxl),
+              SizedBox(height: DouriSpacing.xxl),
               DouriEntrance(
                 index: 1,
                 child: Text(
@@ -278,17 +279,17 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
                   style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),
-              const SizedBox(height: DouriSpacing.sm),
+              SizedBox(height: DouriSpacing.sm),
               DouriEntrance(
                 index: 2,
                 child: Text(
                   '${l10n.step} ${_step + 1} / $_totalSteps — ${titles[_step]}',
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: AppColors.secondaryText,
+                        color: context.douriColors.textSecondary,
                       ),
                 ),
               ),
-              const SizedBox(height: DouriSpacing.sm),
+              SizedBox(height: DouriSpacing.sm),
               // Step progress dots.
               Row(
                 children: List.generate(
@@ -303,7 +304,7 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
                         borderRadius: BorderRadius.circular(2),
                         color: i <= _step
                             ? AppColors.primaryAccent
-                            : AppColors.border,
+                            : context.douriColors.border,
                       ),
                     ),
                   ),
@@ -381,14 +382,14 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
                   size: 20,
-                  color: AppColors.secondaryText,
+                  color: context.douriColors.textSecondary,
                 ),
                 onPressed: () => setState(
                   () => _obscurePassword = !_obscurePassword,
                 ),
               ),
             ),
-            const SizedBox(height: DouriSpacing.md),
+            SizedBox(height: DouriSpacing.md),
             DouriTextField(
               controller: _confirmController,
               label: l10n.confirmPassword,
@@ -401,7 +402,7 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
                       ? Icons.visibility_outlined
                       : Icons.visibility_off_outlined,
                   size: 20,
-                  color: AppColors.secondaryText,
+                  color: context.douriColors.textSecondary,
                 ),
                 onPressed: () => setState(
                   () => _obscureConfirm = !_obscureConfirm,

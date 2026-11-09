@@ -3,6 +3,7 @@ import 'package:flutter/services.dart';
 
 import '../constants/app_colors.dart';
 import '../theme/app_tokens.dart';
+import '../theme/douri_colors.dart';
 
 /// Standard DOURI text field — dark surface, lime focus border.
 class DouriTextField extends StatelessWidget {
@@ -50,7 +51,7 @@ class DouriTextField extends StatelessWidget {
       decoration: InputDecoration(
         labelText: label,
         hintText: hint,
-        prefixIcon: prefixIcon == null ? null : Icon(prefixIcon, size: 20, color: AppColors.secondaryText),
+        prefixIcon: prefixIcon == null ? null : Icon(prefixIcon, size: 20, color: context.douriColors.textSecondary),
         suffixIcon: suffixIcon,
       ),
     );
@@ -75,13 +76,13 @@ class DouriSearchField extends StatelessWidget {
       style: Theme.of(context).textTheme.bodyMedium,
       decoration: InputDecoration(
         hintText: hint,
-        prefixIcon: const Icon(Icons.search, size: 20, color: AppColors.secondaryText),
+        prefixIcon: Icon(Icons.search, size: 20, color: context.douriColors.textSecondary),
         suffixIcon: ValueListenableBuilder<TextEditingValue>(
           valueListenable: controller,
           builder: (_, value, __) => value.text.isEmpty
               ? const SizedBox.shrink()
               : IconButton(
-                  icon: const Icon(Icons.clear, size: 18, color: AppColors.secondaryText),
+                  icon: Icon(Icons.clear, size: 18, color: context.douriColors.textSecondary),
                   onPressed: () {
                     controller.clear();
                     onChanged?.call('');
@@ -109,9 +110,9 @@ class DouriPhoneField extends StatelessWidget {
         Container(
           padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 15),
           decoration: BoxDecoration(
-            color: AppColors.elevatedSurface,
+            color: context.douriColors.elevated,
             borderRadius: DouriRadius.button,
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.douriColors.border),
           ),
           child: Row(
             mainAxisSize: MainAxisSize.min,
@@ -201,10 +202,10 @@ class _DouriOtpFieldState extends State<DouriOtpField> {
             width: 48,
             height: 56,
             decoration: BoxDecoration(
-              color: filled ? AppColors.elevatedSurface : AppColors.secondaryBackground,
+              color: filled ? context.douriColors.elevated : context.douriColors.surface,
               borderRadius: BorderRadius.circular(DouriRadius.md),
               border: Border.all(
-                color: active || filled ? AppColors.primaryAccent : AppColors.border,
+                color: active || filled ? AppColors.primaryAccent : context.douriColors.border,
                 width: active ? 1.5 : 1,
               ),
             ),

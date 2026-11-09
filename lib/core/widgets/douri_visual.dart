@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../theme/app_tokens.dart';
 import 'douri_chrome.dart';
+import '../theme/douri_colors.dart';
 
 /// Stylize-style visual panels (DOURI skin: lime on #111111).
 ///
@@ -39,8 +40,8 @@ class DouriVisualPanel extends StatelessWidget {
           begin: Alignment.topCenter,
           end: Alignment.bottomCenter,
           colors: [
-            AppColors.elevatedSurface,
-            AppColors.primaryBackground,
+            context.douriColors.elevated,
+            context.douriColors.background,
           ],
         ),
       ),
@@ -105,8 +106,8 @@ class DouriVisualPanel extends StatelessWidget {
                   end: Alignment.bottomCenter,
                   colors: [
                     Colors.transparent,
-                    AppColors.primaryBackground.withValues(alpha: 0.55),
-                    AppColors.primaryBackground,
+                    context.douriColors.background.withValues(alpha: 0.55),
+                    context.douriColors.background,
                   ],
                   stops: const [0.45, 0.8, 1.0],
                 ),
@@ -119,7 +120,7 @@ class DouriVisualPanel extends StatelessWidget {
               height: iconSize + 72,
               decoration: BoxDecoration(
                 shape: BoxShape.circle,
-                color: AppColors.primaryBackground.withValues(alpha: 0.55),
+                color: context.douriColors.background.withValues(alpha: 0.55),
                 border: Border.all(
                   color: AppColors.primaryAccent.withValues(alpha: 0.5),
                   width: 1.5,
@@ -147,17 +148,17 @@ class DouriRoundArrowButton extends StatelessWidget {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
     return Material(
       color: AppColors.primaryAccent,
-      shape: const CircleBorder(),
+      shape: CircleBorder(),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onPressed,
-        customBorder: const CircleBorder(),
+        customBorder: CircleBorder(),
         child: SizedBox(
           width: size,
           height: size,
           child: Icon(
             isRtl ? Icons.arrow_back : Icons.arrow_forward,
-            color: AppColors.primaryBackground,
+            color: context.douriColors.background,
             size: 26,
           ),
         ),
@@ -207,7 +208,7 @@ class DouriPromoBanner extends StatelessWidget {
           child: Container(
             height: 190,
             width: double.infinity,
-            color: AppColors.elevatedSurface,
+            color: context.douriColors.elevated,
             child: Stack(
               fit: StackFit.expand,
               children: [
@@ -233,8 +234,8 @@ class DouriPromoBanner extends StatelessWidget {
                         end: Alignment.bottomCenter,
                         colors: [
                           Colors.transparent,
-                          AppColors.primaryBackground.withValues(alpha: 0.35),
-                          AppColors.primaryBackground.withValues(alpha: 0.92),
+                          context.douriColors.background.withValues(alpha: 0.35),
+                          context.douriColors.background.withValues(alpha: 0.92),
                         ],
                         stops: const [0.35, 0.65, 1.0],
                       ),
@@ -261,7 +262,7 @@ class DouriPromoBanner extends StatelessWidget {
                           children: [
                             if (rating != null)
                               DouriRating(value: rating!, count: reviewCount),
-                            const SizedBox(height: 4),
+                            SizedBox(height: 4),
                             Text(
                               name,
                               style: Theme.of(context).textTheme.titleLarge,
@@ -269,11 +270,11 @@ class DouriPromoBanner extends StatelessWidget {
                               overflow: TextOverflow.ellipsis,
                             ),
                             if (address != null && address!.isNotEmpty) ...[
-                              const SizedBox(height: 2),
+                              SizedBox(height: 2),
                               Text(
                                 address!,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppColors.secondaryText,
+                                      color: context.douriColors.textSecondary,
                                     ),
                                 maxLines: 1,
                                 overflow: TextOverflow.ellipsis,
@@ -298,7 +299,7 @@ class DouriPromoBanner extends StatelessWidget {
                               child: Text(
                                 bookLabel!,
                                 style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                      color: AppColors.primaryBackground,
+                                      color: context.douriColors.background,
                                       fontWeight: FontWeight.w700,
                                     ),
                               ),
