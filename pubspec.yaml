@@ -46,6 +46,7 @@ dependencies:
   cached_network_image: ^4.0.6
   image_picker: ^1.2.4
   geolocator: ^14.1.2
+  flutter_animate: ^4.5.0
 
 dev_dependencies:
   flutter_test:
@@ -92,7 +93,7 @@ flutter:
           weight: 500
         - asset: fonts/ar/alfont_com_IBMPlexSansArabic-SemiBold.ttf
           weight: 600
-        - asset: fonts/ar/alfont_com_IBMplexSansArabic-Bold.ttf
+        - asset: fonts/ar/alfont_com_IBMPlexSansArabic-Bold.ttf
           weight: 700
 
   # To add assets to your application, add an assets section, like this:
