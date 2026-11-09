@@ -40,8 +40,8 @@ class _BarberDashboardScreenState extends ConsumerState<BarberDashboardScreen> {
           padding: EdgeInsets.all(DouriSpacing.page),
           child: DouriSkeletonList(),
         ),
-        error: (_, __) => DouriErrorState(
-          message: l10n.actionFailed,
+        error: (e, __) => DouriErrorState(
+          message: e.toString(),
           onRetry: () => ref.invalidate(currentShopProvider),
         ),
         data: (shop) {

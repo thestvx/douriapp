@@ -313,6 +313,9 @@ class AppLocalizations {
   String get confirmDeleteMsg => _t('confirmDeleteMsg');
   String get coverImageUrl => _t('coverImageUrl');
   String get logoImageUrl => _t('logoImageUrl');
+  String get uploadLogo => _t('uploadLogo');
+  String get uploadCover => _t('uploadCover');
+  String get uploadDone => _t('uploadDone');
   String get workingHours => _t('workingHours');
   String get shopOpen => _t('shopOpen');
   String get shopClosed => _t('shopClosed');
@@ -595,6 +598,9 @@ class AppLocalizations {
       'confirmDeleteMsg': 'سيتم حذف هذا العنصر نهائياً.',
       'coverImageUrl': 'رابط صورة الغلاف',
       'logoImageUrl': 'رابط الشعار',
+      'uploadLogo': 'رفع اللوغو',
+      'uploadCover': 'رفع الغلاف',
+      'uploadDone': 'تم الرفع — اضغط حفظ التغييرات.',
       'workingHours': 'أوقات العمل',
       'shopOpen': 'الصالون مفتوح',
       'shopClosed': 'الصالون مغلق',
@@ -876,6 +882,9 @@ class AppLocalizations {
       'confirmDeleteMsg': 'This item will be permanently deleted.',
       'coverImageUrl': 'Cover image URL',
       'logoImageUrl': 'Logo image URL',
+      'uploadLogo': 'Upload logo',
+      'uploadCover': 'Upload cover',
+      'uploadDone': 'Uploaded — press Save to keep it.',
       'workingHours': 'Working hours',
       'shopOpen': 'Shop is open',
       'shopClosed': 'Shop is closed',

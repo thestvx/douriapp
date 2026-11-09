@@ -55,10 +55,18 @@ class _QueueManagementScreenState extends ConsumerState<QueueManagementScreen> {
 
   void _refreshStream() => setState(() => _streamVersion++);
 
-  void _showFailed() {
+  /// Shows the real error instead of a generic message, so a failed
+  /// queue action can actually be diagnosed (PostgREST error text is
+  /// truncated to keep the snackbar readable).
+  void _showFailed([Object? error]) {
     if (!mounted) return;
+    var message = AppLocalizations.of(context).actionFailed;
+    if (error != null) {
+      final detail = error.toString();
+      message = detail.length > 220 ? '${detail.substring(0, 220)}…' : detail;
+    }
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(content: Text(AppLocalizations.of(context).actionFailed)),
+      SnackBar(content: Text(message)),
     );
   }
 
@@ -68,8 +76,8 @@ class _QueueManagementScreenState extends ConsumerState<QueueManagementScreen> {
       await ref.read(queueRepositoryProvider).startTodayQueue(widget.shopId);
       await _loadQueue();
       _refreshStream();
-    } catch (_) {
-      _showFailed();
+    } catch (e) {
+      _showFailed(e);
     } finally {
       if (mounted) setState(() => _busyAction = null);
     }
@@ -99,8 +107,8 @@ class _QueueManagementScreenState extends ConsumerState<QueueManagementScreen> {
           SnackBar(content: Text(l10n.queueAdvanced)),
         );
       }
-    } catch (_) {
-      _showFailed();
+    } catch (e) {
+      _showFailed(e);
     } finally {
       if (mounted) setState(() => _busyAction = null);
     }
@@ -128,8 +136,8 @@ class _QueueManagementScreenState extends ConsumerState<QueueManagementScreen> {
           .eq('id', entry.id);
       await _loadQueue();
       _refreshStream();
-    } catch (_) {
-      _showFailed();
+    } catch (e) {
+      _showFailed(e);
     } finally {
       if (mounted) setState(() => _busyAction = null);
     }
@@ -151,8 +159,8 @@ class _QueueManagementScreenState extends ConsumerState<QueueManagementScreen> {
       await ref.read(queueRepositoryProvider).endTodayQueue(widget.shopId);
       await _loadQueue();
       _refreshStream();
-    } catch (_) {
-      _showFailed();
+    } catch (e) {
+      _showFailed(e);
     } finally {
       if (mounted) setState(() => _busyAction = null);
     }
@@ -185,7 +193,7 @@ class _QueueManagementScreenState extends ConsumerState<QueueManagementScreen> {
         builder: (context, snapshot) {
           if (snapshot.hasError) {
             return DouriErrorState(
-              message: l10n.actionFailed,
+              message: snapshot.error?.toString() ?? l10n.actionFailed,
               onRetry: () => setState(() => _streamVersion++),
             );
           }
