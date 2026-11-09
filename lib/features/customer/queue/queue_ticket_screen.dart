@@ -113,7 +113,7 @@ class _TicketLoaded extends ConsumerWidget {
     final l10n = AppLocalizations.of(context);
     final number = entry?.queueNumber ?? booking.queueNumber ?? fallbackNumber;
     final status = entry?.status ?? booking.status;
-    final (label, color) = _statusLabelColor(l10n, status);
+    final (label, color) = _statusLabelColor(context, l10n, status);
     final isApproaching = status == 'APPROACHING' || status == 'CURRENT';
     final shopAsync = ref.watch(shopByIdProvider(booking.barberShopId));
     final shop = shopAsync.value;
@@ -321,7 +321,8 @@ class _TicketLoaded extends ConsumerWidget {
   }
 }
 
-(String, Color) _statusLabelColor(AppLocalizations l10n, String status) {
+(String, Color) _statusLabelColor(
+    BuildContext context, AppLocalizations l10n, String status) {
   switch (status) {
     case 'WAITING':
       return (l10n.queueWaiting, context.douriColors.textSecondary);

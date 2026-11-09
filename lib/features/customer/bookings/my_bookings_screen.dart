@@ -14,7 +14,7 @@ import '../../authentication/auth_providers.dart';
 import '../home/shop_providers.dart';
 import '../../../core/theme/douri_colors.dart';
 
-Color _statusColor(String status) {
+Color _statusColor(BuildContext context, String status) {
   switch (status) {
     case 'PENDING':
       return AppColors.warning;
@@ -219,7 +219,7 @@ class _BookingRow extends ConsumerWidget {
       title: shop?.shopName ?? booking.customerName,
       subtitle: booking.customerName,
       statusLabel: _statusLabel(l10n, booking.status),
-      statusColor: _statusColor(booking.status),
+      statusColor: _statusColor(context, booking.status),
       queueNumber: booking.queueNumber,
       dateLabel: '${d.day}/${d.month}/${d.year}',
       timeLabel: booking.bookingTime,
