@@ -13,8 +13,10 @@ import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_chrome.dart';
 import '../../../core/widgets/douri_feedback.dart';
 import '../../../core/widgets/douri_fields.dart';
+import '../../../core/widgets/douri_theme_picker.dart';
 import '../../../shared/models/profile.dart';
 import '../../authentication/auth_providers.dart';
+import '../../../core/theme/douri_colors.dart';
 
 class CustomerProfileScreen extends ConsumerStatefulWidget {
   const CustomerProfileScreen({super.key, required this.onShowBookings});
@@ -129,19 +131,19 @@ class _CustomerProfileScreenState extends ConsumerState<CustomerProfileScreen> {
                     child: Row(
                       children: [
                         DouriAvatar(name: name, imageUrl: profile?.avatarUrl, radius: 30),
-                        const SizedBox(width: DouriSpacing.lg),
+                        SizedBox(width: DouriSpacing.lg),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
                               Text(name, style: Theme.of(context).textTheme.titleLarge),
-                              const SizedBox(height: 4),
+                              SizedBox(height: 4),
                               if (profile?.phoneNumber != null &&
                                   profile!.phoneNumber!.isNotEmpty)
                                 Text(
                                   profile.phoneNumber!,
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        color: AppColors.secondaryText,
+                                        color: context.douriColors.textSecondary,
                                       ),
                                 ),
                             ],
@@ -158,12 +160,12 @@ class _CustomerProfileScreenState extends ConsumerState<CustomerProfileScreen> {
                 );
               },
             ),
-            const SizedBox(height: DouriSpacing.xl),
+            SizedBox(height: DouriSpacing.xl),
             DouriEntrance(
               index: 2,
               child: DouriSectionHeader(title: l10n.preferences),
             ),
-            const SizedBox(height: DouriSpacing.md),
+            SizedBox(height: DouriSpacing.md),
             DouriEntrance(
               index: 3,
               child: DouriCard(
@@ -176,13 +178,13 @@ class _CustomerProfileScreenState extends ConsumerState<CustomerProfileScreen> {
                       activeThumbColor: AppColors.primaryAccent,
                       onChanged: (v) => setState(() => _notifications = v),
                     ),
-                    const Divider(height: 1, color: AppColors.border),
+                    Divider(height: 1, color: context.douriColors.border),
                     _LanguageRow(
                       label: 'العربية',
                       selected: locale.languageCode == 'ar',
                       onTap: () => ref.read(localeProvider.notifier).state = const Locale('ar'),
                     ),
-                    const Divider(height: 1, color: AppColors.border),
+                    Divider(height: 1, color: context.douriColors.border),
                     _LanguageRow(
                       label: 'English',
                       selected: locale.languageCode == 'en',
@@ -192,32 +194,11 @@ class _CustomerProfileScreenState extends ConsumerState<CustomerProfileScreen> {
                 ),
               ),
             ),
-            const SizedBox(height: DouriSpacing.lg),
+            SizedBox(height: DouriSpacing.lg),
             DouriEntrance(
               index: 4,
               child: DouriCard(
-                child: Row(
-                  children: [
-                    const Icon(Icons.dark_mode_outlined, color: AppColors.secondaryText),
-                    const SizedBox(width: DouriSpacing.md),
-                    Expanded(
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          Text(l10n.themeSettings,
-                              style: Theme.of(context).textTheme.titleMedium),
-                          const SizedBox(height: 2),
-                          Text(
-                            l10n.darkThemeOnly,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppColors.secondaryText,
-                                ),
-                          ),
-                        ],
-                      ),
-                    ),
-                  ],
-                ),
+                child: const DouriThemePicker(),
               ),
             ),
             const SizedBox(height: DouriSpacing.xl),
@@ -272,8 +253,8 @@ class _LanguageRow extends StatelessWidget {
     return ListTile(
       title: Text(label),
       trailing: selected
-          ? const Icon(Icons.check_circle, color: AppColors.primaryAccent)
-          : const Icon(Icons.circle_outlined, color: AppColors.mutedText),
+          ? Icon(Icons.check_circle, color: AppColors.primaryAccent)
+          : Icon(Icons.circle_outlined, color: context.douriColors.textMuted),
       onTap: onTap,
     );
   }

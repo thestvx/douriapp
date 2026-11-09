@@ -12,6 +12,7 @@ import '../../../core/widgets/douri_feedback.dart';
 import '../../../shared/models/booking.dart';
 import '../../authentication/auth_providers.dart';
 import '../home/shop_providers.dart';
+import '../../../core/theme/douri_colors.dart';
 
 Color _statusColor(String status) {
   switch (status) {
@@ -23,9 +24,9 @@ Color _statusColor(String status) {
     case 'CANCELLED':
       return AppColors.danger;
     case 'COMPLETED':
-      return AppColors.secondaryText;
+      return context.douriColors.textSecondary;
     default:
-      return AppColors.secondaryText;
+      return context.douriColors.textSecondary;
   }
 }
 
@@ -69,13 +70,13 @@ class MyBookingsScreen extends ConsumerWidget {
               ),
               child: Text(l10n.myBookings, style: Theme.of(context).textTheme.headlineMedium),
             ),
-            const SizedBox(height: DouriSpacing.md),
+            SizedBox(height: DouriSpacing.md),
             TabBar(
               isScrollable: true,
               tabAlignment: TabAlignment.start,
               indicatorColor: AppColors.primaryAccent,
               labelColor: AppColors.primaryAccent,
-              unselectedLabelColor: AppColors.secondaryText,
+              unselectedLabelColor: context.douriColors.textSecondary,
               tabs: [
                 Tab(text: l10n.upcoming),
                 Tab(text: l10n.pending),
@@ -181,9 +182,9 @@ class _BookingRow extends ConsumerWidget {
 
   void _open(BuildContext context) {
     if (booking.queueNumber != null) {
-      context.go('/queue/${booking.queueNumber}?bookingId=${booking.id}');
+      context.push('/queue/${booking.queueNumber}?bookingId=${booking.id}');
     } else {
-      context.go('/booking-success/${booking.id}');
+      context.push('/booking-success/${booking.id}');
     }
   }
 

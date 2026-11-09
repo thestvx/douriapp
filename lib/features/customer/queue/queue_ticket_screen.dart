@@ -12,6 +12,7 @@ import '../../../core/widgets/douri_feedback.dart';
 import '../../../shared/models/booking.dart';
 import '../../../shared/models/queue_entry.dart';
 import '../home/shop_providers.dart';
+import '../../../core/theme/douri_colors.dart';
 
 /// Live stream of one booking's queue entry (null until the barber accepts).
 final _entryProvider = StreamProvider.family<QueueEntry?, String>((ref, bookingId) {
@@ -126,10 +127,10 @@ class _TicketLoaded extends ConsumerWidget {
             child: Container(
               padding: const EdgeInsets.all(DouriSpacing.xxl),
               decoration: BoxDecoration(
-                color: isApproaching ? AppColors.accentSoft : AppColors.cardBackground,
+                color: isApproaching ? AppColors.accentSoft : context.douriColors.card,
                 borderRadius: DouriRadius.card,
                 border: Border.all(
-                  color: isApproaching ? AppColors.primaryAccent : AppColors.border,
+                  color: isApproaching ? AppColors.primaryAccent : context.douriColors.border,
                   width: isApproaching ? 1.5 : 1,
                 ),
               ),
@@ -166,11 +167,11 @@ class _TicketLoaded extends ConsumerWidget {
                       style: Theme.of(context).textTheme.labelLarge?.copyWith(color: color),
                     ),
                   ),
-                  const SizedBox(height: DouriSpacing.sm),
+                  SizedBox(height: DouriSpacing.sm),
                   Text(
                     shop?.shopName ?? booking.customerName,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.secondaryText,
+                          color: context.douriColors.textSecondary,
                         ),
                     textAlign: TextAlign.center,
                   ),
@@ -202,7 +203,7 @@ class _TicketLoaded extends ConsumerWidget {
                             Text(
                               l10n.nowServing,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.secondaryText,
+                                    color: context.douriColors.textSecondary,
                                   ),
                             ),
                             const Spacer(),
@@ -214,13 +215,13 @@ class _TicketLoaded extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: DouriSpacing.lg),
+                        SizedBox(height: DouriSpacing.lg),
                         Row(
                           children: [
                             Text(
                               l10n.peopleAhead,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.secondaryText,
+                                    color: context.douriColors.textSecondary,
                                   ),
                             ),
                             const Spacer(),
@@ -230,13 +231,13 @@ class _TicketLoaded extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: DouriSpacing.md),
+                        SizedBox(height: DouriSpacing.md),
                         Row(
                           children: [
                             Text(
                               l10n.estimatedWait,
                               style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                    color: AppColors.secondaryText,
+                                    color: context.douriColors.textSecondary,
                                   ),
                             ),
                             const Spacer(),
@@ -246,11 +247,11 @@ class _TicketLoaded extends ConsumerWidget {
                             ),
                           ],
                         ),
-                        const SizedBox(height: DouriSpacing.lg),
+                        SizedBox(height: DouriSpacing.lg),
                         Text(
                           l10n.yourPosition,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.secondaryText,
+                                color: context.douriColors.textSecondary,
                               ),
                         ),
                         const SizedBox(height: DouriSpacing.sm),
@@ -262,13 +263,13 @@ class _TicketLoaded extends ConsumerWidget {
               ),
             ),
           if (booking.queueNumber == null && entry == null) ...[
-            const SizedBox(height: DouriSpacing.lg),
+            SizedBox(height: DouriSpacing.lg),
             DouriEntrance(
               index: 2,
               child: Text(
                 l10n.queueNumberAfterApproval,
                 style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                      color: AppColors.secondaryText,
+                      color: context.douriColors.textSecondary,
                     ),
                 textAlign: TextAlign.center,
               ),
@@ -323,7 +324,7 @@ class _TicketLoaded extends ConsumerWidget {
 (String, Color) _statusLabelColor(AppLocalizations l10n, String status) {
   switch (status) {
     case 'WAITING':
-      return (l10n.queueWaiting, AppColors.secondaryText);
+      return (l10n.queueWaiting, context.douriColors.textSecondary);
     case 'APPROACHING':
       return (l10n.queueApproaching, AppColors.primaryAccent);
     case 'CURRENT':
@@ -341,6 +342,6 @@ class _TicketLoaded extends ConsumerWidget {
     case 'REJECTED':
       return (l10n.bookingRejected, AppColors.danger);
     default:
-      return (status, AppColors.secondaryText);
+      return (status, context.douriColors.textSecondary);
   }
 }

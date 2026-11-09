@@ -254,7 +254,7 @@ class ShopRatingCard extends ConsumerWidget {
       rating: rating?.rating,
       reviewCount: rating?.count,
       isOpen: shop.isOpen,
-      onTap: () => context.go('/shop/${shop.id}'),
+      onTap: () => context.push('/shop/${shop.id}'),
     );
   }
 }

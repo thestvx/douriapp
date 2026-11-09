@@ -19,6 +19,7 @@ import '../bookings/my_bookings_screen.dart';
 import '../explore/explore_screen.dart';
 import '../profile/customer_profile_screen.dart';
 import 'shop_providers.dart';
+import '../../../core/theme/douri_colors.dart';
 
 class HomeScreen extends ConsumerStatefulWidget {
   const HomeScreen({super.key});
@@ -115,7 +116,7 @@ class _HomeBodyState extends ConsumerState<_HomeBody> {
                           Text(
                             '${l10n.hello},',
                             style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                  color: AppColors.secondaryText,
+                                  color: context.douriColors.textSecondary,
                                 ),
                           ),
                           Text(
@@ -318,9 +319,9 @@ class _ActiveBookingSection extends ConsumerWidget {
                 timeLabel: booking.bookingTime,
                 onTap: () {
                   if (booking.queueNumber != null) {
-                    context.go('/queue/${booking.queueNumber}?bookingId=${booking.id}');
+                    context.push('/queue/${booking.queueNumber}?bookingId=${booking.id}');
                   } else {
-                    context.go('/booking-success/${booking.id}');
+                    context.push('/booking-success/${booking.id}');
                   }
                 },
               ),
@@ -351,8 +352,8 @@ class _PromoBanner extends ConsumerWidget {
       reviewCount: rating?.count,
       isOpen: shop.isOpen,
       bookLabel: l10n.bookNow,
-      onTap: () => context.go('/shop/${shop.id}'),
-      onBook: () => context.go('/booking/${shop.id}'),
+      onTap: () => context.push('/shop/${shop.id}'),
+      onBook: () => context.push('/booking/${shop.id}'),
     );
   }
 }

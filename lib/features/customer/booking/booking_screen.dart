@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/repository_providers.dart';
+import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/douri_button.dart';
 import '../../../core/widgets/douri_cards.dart';
@@ -15,6 +16,7 @@ import '../../../shared/models/barber_shop.dart';
 import '../../../shared/models/shop_service.dart';
 import '../../authentication/auth_providers.dart';
 import '../home/shop_providers.dart';
+import '../../../core/theme/douri_colors.dart';
 
 /// Times already booked for a shop on one date (real availability).
 final _bookedTimesProvider =
@@ -90,23 +92,62 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     if (_step < 4) setState(() => _step++);
   }
 
+  /// Step 4 confirm: first asks the customer to confirm the phone
+  /// number that booking notifications will go to. Confirming creates
+  /// the PENDING booking; "edit number" jumps back to step 3.
+  Future<void> _confirmAndSubmit(BarberShop shop) async {
+    final confirmed = await showDouriSheet<bool>(
+      context,
+      _ConfirmBookingSheet(
+        shopName: shop.shopName,
+        serviceName: _service?.serviceName ?? '',
+        date: _date,
+        time: _timeSlot ?? '',
+        phoneDigits: _phoneController.text.trim(),
+      ),
+    );
+    if (confirmed == true) {
+      await _submit();
+    } else if (confirmed == false) {
+      setState(() => _step = 3);
+    }
+  }
+
   Future<void> _submit() async {
     final l10n = AppLocalizations.of(context);
     final service = _service;
     if (service == null || _timeSlot == null) return;
     final uid = ref.read(authStateProvider).value?.uid ?? 'test_customer';
+    // The phone field holds digits only (+213 is a visual prefix).
+    final digits = _phoneController.text.trim().replaceAll(RegExp(r'\D'), '');
+    final phone = digits.startsWith('213') ? '+$digits' : '+213$digits';
     setState(() => _submitting = true);
     try {
       final created = await ref.read(bookingRepositoryProvider).createBooking({
         'customer_id': uid,
         'barber_shop_id': widget.shopId,
         'customer_name': _nameController.text.trim(),
-        'customer_phone': _phoneController.text.trim(),
+        'customer_phone': phone,
         'booking_date': _dateIso,
         'booking_time': _timeSlot,
         'status': 'PENDING',
       });
-      if (mounted) context.go('/booking-success/${created.id}');
+      // Notify the barber in-app about the new request (best-effort: a
+      // failed insert must never fail the booking itself).
+      try {
+        final shop = ref.read(shopByIdProvider(widget.shopId)).value;
+        if (shop != null) {
+          await SupabaseService.client.from('notifications').insert({
+            'user_id': shop.ownerId,
+            'title': 'طلب حجز جديد',
+            'body':
+                'طلب حجز جديد من ${_nameController.text.trim()} — $_dateIso ${_timeSlot ?? ''}',
+            'notification_type': 'booking_request',
+            'booking_id': created.id,
+          });
+        }
+      } catch (_) {}
+      if (mounted) context.pushReplacement('/booking-success/${created.id}');
     } catch (_) {
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -233,7 +274,9 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                         child: DouriButton(
                           label: _step == 4 ? l10n.confirmBooking : l10n.next,
                           loading: _submitting,
-                          onPressed: _step == 4 ? _submit : () => _next(l10n),
+                          onPressed: _step == 4
+                              ? () => _confirmAndSubmit(shop)
+                              : () => _next(l10n),
                         ),
                       ),
                     ],
@@ -419,11 +462,11 @@ class _StepBody extends ConsumerWidget {
                   ],
                 ),
                 if (booked.isNotEmpty) ...[
-                  const SizedBox(height: DouriSpacing.lg),
+                  SizedBox(height: DouriSpacing.lg),
                   Text(
                     l10n.timeSlotTaken,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.secondaryText,
+                          color: context.douriColors.textSecondary,
                         ),
                   ),
                 ],
@@ -463,7 +506,7 @@ class _StepBody extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(l10n.bookingSummary, style: Theme.of(context).textTheme.titleLarge),
-                const SizedBox(height: DouriSpacing.lg),
+                SizedBox(height: DouriSpacing.lg),
                 _SummaryRow(label: l10n.shopName, value: shop.shopName),
                 _SummaryRow(label: l10n.service, value: service?.serviceName ?? '—'),
                 _SummaryRow(label: l10n.date, value: '${d.day}/${d.month}/${d.year}'),
@@ -474,7 +517,7 @@ class _StepBody extends ConsumerWidget {
                       ? '—'
                       : '${service!.durationMinutes} ${l10n.minutes}',
                 ),
-                const Divider(color: AppColors.border, height: 32),
+                Divider(color: context.douriColors.border, height: 32),
                 _SummaryRow(
                   label: l10n.totalPrice,
                   value: service?.price == null
@@ -511,7 +554,7 @@ class _SummaryRow extends StatelessWidget {
       child: Row(
         children: [
           Text(label, style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                color: AppColors.secondaryText,
+                color: context.douriColors.textSecondary,
               )),
           const Spacer(),
           Text(value, style: Theme.of(context).textTheme.titleMedium),
@@ -535,7 +578,7 @@ class _ShopHeader extends StatelessWidget {
       child: Container(
         height: 110,
         width: double.infinity,
-        color: AppColors.elevatedSurface,
+        color: context.douriColors.elevated,
         child: Stack(
           fit: StackFit.expand,
           children: [
@@ -557,7 +600,7 @@ class _ShopHeader extends StatelessWidget {
                     end: Alignment.bottomCenter,
                     colors: [
                       Colors.transparent,
-                      AppColors.primaryBackground.withValues(alpha: 0.85),
+                      context.douriColors.background.withValues(alpha: 0.85),
                     ],
                     stops: const [0.3, 1.0],
                   ),
@@ -605,19 +648,19 @@ class _StepIndicator extends StatelessWidget {
                 alignment: Alignment.center,
                 decoration: BoxDecoration(
                   shape: BoxShape.circle,
-                  color: i <= step ? AppColors.primaryAccent : AppColors.cardBackground,
+                  color: i <= step ? AppColors.primaryAccent : context.douriColors.card,
                   border: Border.all(
-                    color: i <= step ? AppColors.primaryAccent : AppColors.border,
+                    color: i <= step ? AppColors.primaryAccent : context.douriColors.border,
                   ),
                 ),
                 child: i < step
-                    ? const Icon(Icons.check, size: 16, color: AppColors.primaryBackground)
+                    ? Icon(Icons.check, size: 16, color: context.douriColors.background)
                     : Text(
                         '${i + 1}',
                         style: Theme.of(context).textTheme.labelMedium?.copyWith(
                               color: i == step
-                                  ? AppColors.primaryBackground
-                                  : AppColors.mutedText,
+                                  ? context.douriColors.background
+                                  : context.douriColors.textMuted,
                               fontWeight: FontWeight.w700,
                             ),
                       ),
@@ -627,18 +670,90 @@ class _StepIndicator extends StatelessWidget {
                   child: Container(
                     height: 2,
                     margin: const EdgeInsets.symmetric(horizontal: 4),
-                    color: i < step ? AppColors.primaryAccent : AppColors.border,
+                    color: i < step ? AppColors.primaryAccent : context.douriColors.border,
                   ),
                 ),
             ],
           ],
         ),
-        const SizedBox(height: DouriSpacing.sm),
+        SizedBox(height: DouriSpacing.sm),
         Text(
           '${step + 1} / ${labels.length} — ${labels[step]}',
           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                color: AppColors.secondaryText,
+                color: context.douriColors.textSecondary,
               ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Phone-confirmation sheet shown before a booking is created:
+/// "Is this the number booking notifications should go to?"
+/// Confirm returns true, "edit number" returns false.
+class _ConfirmBookingSheet extends StatelessWidget {
+  const _ConfirmBookingSheet({
+    required this.shopName,
+    required this.serviceName,
+    required this.date,
+    required this.time,
+    required this.phoneDigits,
+  });
+
+  final String shopName;
+  final String serviceName;
+  final DateTime date;
+  final String time;
+  final String phoneDigits;
+
+  @override
+  Widget build(BuildContext context) {
+    final l10n = AppLocalizations.of(context);
+    final phone = '+213 ${phoneDigits.replaceAll(RegExp(r'\D'), '')}';
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      crossAxisAlignment: CrossAxisAlignment.stretch,
+      children: [
+        Text(l10n.confirmPhoneTitle, style: Theme.of(context).textTheme.titleLarge),
+        const SizedBox(height: DouriSpacing.md),
+        DouriCard(
+          child: Row(
+            children: [
+              const Icon(Icons.phone_outlined, color: AppColors.primaryAccent),
+              const SizedBox(width: DouriSpacing.md),
+              Expanded(
+                child: Text(
+                  phone,
+                  style: Theme.of(context).textTheme.titleLarge,
+                  textDirection: TextDirection.ltr,
+                ),
+              ),
+            ],
+          ),
+        ),
+        const SizedBox(height: DouriSpacing.md),
+        Text(
+          l10n.confirmPhoneNote,
+          style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                color: context.douriColors.textSecondary,
+              ),
+        ),
+        const SizedBox(height: DouriSpacing.lg),
+        _SummaryRow(label: l10n.shopName, value: shopName),
+        _SummaryRow(label: l10n.service, value: serviceName),
+        _SummaryRow(label: l10n.date, value: '${date.day}/${date.month}/${date.year}'),
+        _SummaryRow(label: l10n.time, value: time),
+        const SizedBox(height: DouriSpacing.lg),
+        DouriButton(
+          label: l10n.confirmBooking,
+          icon: Icons.check,
+          onPressed: () => Navigator.of(context).pop(true),
+        ),
+        const SizedBox(height: DouriSpacing.sm),
+        DouriButton(
+          label: l10n.editPhone,
+          variant: DouriButtonVariant.ghost,
+          onPressed: () => Navigator.of(context).pop(false),
         ),
       ],
     );
