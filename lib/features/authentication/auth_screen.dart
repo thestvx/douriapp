@@ -1,5 +1,3 @@
-import 'dart:async';
-
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -15,6 +13,13 @@ import '../../core/widgets/douri_fields.dart';
 import '../../core/widgets/douri_visual.dart';
 import 'auth_providers.dart';
 
+/// Email + password login (Firebase Auth).
+///
+/// Phone-number registration is parked — see [AuthRepository]. New users
+/// go to /signup (customer form or barber wizard); existing users sign in
+/// here. After sign-in the profile decides the destination: no profile
+/// yet → /role/:uid (legacy completion screen), barber → /barber,
+/// customer → /customer.
 class AuthScreen extends ConsumerStatefulWidget {
   const AuthScreen({super.key});
 
@@ -23,88 +28,35 @@ class AuthScreen extends ConsumerStatefulWidget {
 }
 
 class _AuthScreenState extends ConsumerState<AuthScreen> {
-  final _phoneController = TextEditingController();
-  bool _codeSent = false;
-  String _otpCode = '';
-  bool _sending = false;
+  final _formKey = GlobalKey<FormState>();
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
+  bool _obscurePassword = true;
+  bool _saving = false;
   String? _error;
-  Timer? _resendTimer;
-  int _resendSeconds = 0;
-  int _otpResetKey = 0; // bumped on resend/back so DouriOtpField rebuilds empty
-
-  bool get _isOtpStep => _codeSent;
 
   @override
   void dispose() {
-    _resendTimer?.cancel();
-    _phoneController.dispose();
+    _emailController.dispose();
+    _passwordController.dispose();
     super.dispose();
   }
 
-  void _startResendCountdown() {
-    _resendTimer?.cancel();
-    setState(() => _resendSeconds = 60);
-    _resendTimer = Timer.periodic(const Duration(seconds: 1), (timer) {
-      if (!mounted) {
-        timer.cancel();
-        return;
-      }
-      if (_resendSeconds <= 1) {
-        timer.cancel();
-        setState(() => _resendSeconds = 0);
-      } else {
-        setState(() => _resendSeconds -= 1);
-      }
-    });
-  }
+  bool _isValidEmail(String value) =>
+      RegExp(r'^[^@\s]+@[^@\s]+\.[^@\s]+$').hasMatch(value);
 
-  Future<void> _sendOtp() async {
-    final digits = _phoneController.text.trim();
-    if (digits.length != 9) {
-      setState(() => _error = AppLocalizations.of(context).invalidPhone);
-      return;
-    }
+  Future<void> _signIn() async {
+    if (!_formKey.currentState!.validate()) return;
     setState(() {
-      _sending = true;
-      _error = null;
-    });
-    final repo = ref.read(authRepositoryProvider);
-    try {
-      // Supabase Auth generates the code; the send-whatsapp-otp Edge
-      // Function (Send SMS hook) delivers it to the user's WhatsApp.
-      await repo.sendOtp(phoneNumber: '+213$digits');
-      if (!mounted) return;
-      setState(() {
-        _codeSent = true;
-        _sending = false;
-        _otpCode = '';
-        _otpResetKey++;
-      });
-      _startResendCountdown();
-    } catch (e) {
-      if (!mounted) return;
-      setState(() {
-        _error = e.toString();
-        _sending = false;
-      });
-    }
-  }
-
-  Future<void> _verify() async {
-    if (!_codeSent) return;
-    if (_otpCode.length != 6) {
-      setState(() => _error = AppLocalizations.of(context).invalidOtp);
-      return;
-    }
-    setState(() {
-      _sending = true;
+      _saving = true;
       _error = null;
     });
     try {
-      final uid = await ref.read(authRepositoryProvider).verifyOtp(
-            phoneNumber: '+213${_phoneController.text.trim()}',
-            smsCode: _otpCode,
+      final cred = await ref.read(authRepositoryProvider).signIn(
+            email: _emailController.text.trim(),
+            password: _passwordController.text,
           );
+      final uid = cred.user!.uid;
       final profileRepo = ref.read(profileRepositoryProvider);
       final profile = await profileRepo.getProfile(uid);
       try {
@@ -121,19 +73,8 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
     } catch (e) {
       if (mounted) setState(() => _error = e.toString());
     } finally {
-      if (mounted) setState(() => _sending = false);
+      if (mounted) setState(() => _saving = false);
     }
-  }
-
-  void _backToPhone() {
-    _resendTimer?.cancel();
-    setState(() {
-      _codeSent = false;
-      _otpCode = '';
-      _otpResetKey++;
-      _resendSeconds = 0;
-      _error = null;
-    });
   }
 
   @override
@@ -144,138 +85,139 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
       body: SafeArea(
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(DouriSpacing.page),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              // Stylize-style visual header: full-width gradient panel with
-              // the DOURI mark, instead of a small centred logo circle.
-              DouriEntrance(
-                index: 0,
-                child: ClipRRect(
-                  borderRadius: BorderRadius.circular(DouriRadius.xl),
-                  child: const DouriVisualPanel(
-                    icon: Icons.content_cut,
-                    height: 190,
-                    iconSize: 64,
+          child: Form(
+            key: _formKey,
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                DouriEntrance(
+                  index: 0,
+                  child: ClipRRect(
+                    borderRadius: BorderRadius.circular(DouriRadius.xl),
+                    child: const DouriVisualPanel(
+                      icon: Icons.content_cut,
+                      height: 190,
+                      iconSize: 64,
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(height: DouriSpacing.xxl),
-              DouriEntrance(
-                index: 1,
-                child: Text(
-                  l10n.appName,
-                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                        color: AppColors.primaryAccent,
-                        fontWeight: FontWeight.w800,
-                        letterSpacing: 4,
-                      ),
-                ),
-              ),
-              const SizedBox(height: DouriSpacing.sm),
-              DouriEntrance(
-                index: 3,
-                child: Text(
-                  _isOtpStep ? l10n.enterOtp : l10n.loginTitle,
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-              ),
-              const SizedBox(height: DouriSpacing.sm),
-              DouriEntrance(
-                index: 4,
-                child: Text(
-                  _isOtpStep
-                      ? '${l10n.otpSentTo} +213 ${_phoneController.text.trim()}'
-                      : l10n.loginSubtitle,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.secondaryText),
-                ),
-              ),
-              const SizedBox(height: DouriSpacing.xxl),
-              if (!_isOtpStep) ...[
+                const SizedBox(height: DouriSpacing.xxl),
                 DouriEntrance(
-                  index: 5,
-                  child: DouriPhoneField(
-                    controller: _phoneController,
-                    countryCode: '+213',
-                    hint: l10n.phoneHint,
-                    onChanged: (_) {
-                      if (_error != null) setState(() => _error = null);
-                    },
-                  ),
-                ),
-              ] else ...[
-                DouriEntrance(
-                  index: 5,
-                  child: DouriOtpField(
-                    key: ValueKey(_otpResetKey),
-                    onCompleted: (code) {
-                      setState(() {
-                        _otpCode = code;
-                        _error = null;
-                      });
-                    },
-                  ),
-                ),
-                const SizedBox(height: DouriSpacing.xl),
-                DouriEntrance(
-                  index: 6,
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Text(
-                        l10n.didntGetCode,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.secondaryText),
-                      ),
-                      const SizedBox(width: DouriSpacing.sm),
-                      if (_resendSeconds > 0)
-                        Text(
-                          '${l10n.resendIn} $_resendSeconds',
-                          style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.mutedText),
-                        )
-                      else
-                        GestureDetector(
-                          onTap: _sending ? null : _sendOtp,
-                          child: Text(
-                            l10n.resendCode,
-                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                  color: AppColors.primaryAccent,
-                                  fontWeight: FontWeight.w600,
-                                ),
-                          ),
-                        ),
-                    ],
-                  ),
-                ),
-              ],
-              if (_error != null) ...[
-                const SizedBox(height: DouriSpacing.lg),
-                DouriEntrance(
-                  index: 6,
-                  slide: false,
+                  index: 1,
                   child: Text(
-                    _error!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.danger),
-                    textAlign: TextAlign.center,
+                    l10n.appName,
+                    style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                          color: AppColors.primaryAccent,
+                          fontWeight: FontWeight.w800,
+                          letterSpacing: 4,
+                        ),
                   ),
                 ),
-              ],
-              const SizedBox(height: DouriSpacing.xxl),
-              DouriEntrance(
-                index: 7,
-                child: DouriButton(
-                  label: _isOtpStep ? l10n.verify : l10n.sendCode,
-                  loading: _sending,
-                  onPressed: _sending ? null : (_isOtpStep ? _verify : _sendOtp),
-                ),
-              ),
-              if (_isOtpStep) ...[
                 const SizedBox(height: DouriSpacing.sm),
-                DouriButton(
-                  label: l10n.back,
-                  variant: DouriButtonVariant.ghost,
-                  onPressed: _sending ? null : _backToPhone,
+                DouriEntrance(
+                  index: 3,
+                  child: Text(
+                    l10n.loginTitle,
+                    style: Theme.of(context).textTheme.headlineMedium,
+                  ),
                 ),
-              ] else ...[
+                const SizedBox(height: DouriSpacing.sm),
+                DouriEntrance(
+                  index: 4,
+                  child: Text(
+                    l10n.loginSubtitle,
+                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                          color: AppColors.secondaryText,
+                        ),
+                  ),
+                ),
+                const SizedBox(height: DouriSpacing.xxl),
+                DouriEntrance(
+                  index: 5,
+                  child: DouriTextField(
+                    controller: _emailController,
+                    label: l10n.email,
+                    hint: l10n.enterEmail,
+                    prefixIcon: Icons.email_outlined,
+                    keyboardType: TextInputType.emailAddress,
+                    textInputAction: TextInputAction.next,
+                    validator: (value) {
+                      if (value == null || !_isValidEmail(value.trim())) {
+                        return l10n.invalidEmail;
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                const SizedBox(height: DouriSpacing.md),
+                DouriEntrance(
+                  index: 6,
+                  child: DouriTextField(
+                    controller: _passwordController,
+                    label: l10n.password,
+                    hint: l10n.enterPassword,
+                    prefixIcon: Icons.lock_outline,
+                    obscureText: _obscurePassword,
+                    textInputAction: TextInputAction.done,
+                    suffixIcon: IconButton(
+                      icon: Icon(
+                        _obscurePassword
+                            ? Icons.visibility_outlined
+                            : Icons.visibility_off_outlined,
+                        size: 20,
+                        color: AppColors.secondaryText,
+                      ),
+                      onPressed: () => setState(
+                        () => _obscurePassword = !_obscurePassword,
+                      ),
+                    ),
+                    validator: (value) {
+                      if (value == null || value.length < 6) {
+                        return l10n.passwordTooShort;
+                      }
+                      return null;
+                    },
+                  ),
+                ),
+                if (_error != null) ...[
+                  const SizedBox(height: DouriSpacing.lg),
+                  DouriEntrance(
+                    index: 7,
+                    slide: false,
+                    child: Text(
+                      _error!,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.danger,
+                          ),
+                      textAlign: TextAlign.center,
+                    ),
+                  ),
+                ],
+                const SizedBox(height: DouriSpacing.xxl),
+                DouriEntrance(
+                  index: 8,
+                  child: DouriButton(
+                    label: l10n.signIn,
+                    loading: _saving,
+                    onPressed: _saving ? null : _signIn,
+                  ),
+                ),
+                const SizedBox(height: DouriSpacing.md),
+                DouriEntrance(
+                  index: 9,
+                  child: Center(
+                    child: GestureDetector(
+                      onTap: _saving ? null : () => context.push('/signup'),
+                      child: Text(
+                        l10n.noAccount,
+                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                              color: AppColors.primaryAccent,
+                              fontWeight: FontWeight.w600,
+                            ),
+                      ),
+                    ),
+                  ),
+                ),
                 // TEMP (testing only): skip sign-in and browse as a guest.
                 // No profile is created, so booking / queue actions that
                 // need a signed-in user will not work. Remove before release.
@@ -285,9 +227,9 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   variant: DouriButtonVariant.ghost,
                   onPressed: () => context.go('/customer'),
                 ),
+                const SizedBox(height: DouriSpacing.xl),
               ],
-              const SizedBox(height: DouriSpacing.xl),
-            ],
+            ),
           ),
         ),
       ),

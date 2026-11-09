@@ -2,7 +2,9 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
 import '../../features/authentication/auth_screen.dart';
+import '../../features/authentication/barber_signup_screen.dart';
 import '../../features/authentication/role_selection_screen.dart';
+import '../../features/authentication/signup_screen.dart';
 import '../../features/barber/booking_requests/booking_requests_screen.dart';
 import '../../features/barber/dashboard/barber_dashboard_screen.dart';
 import '../../features/barber/queue_management/queue_management_screen.dart';
@@ -28,6 +30,11 @@ final routerProvider = Provider<GoRouter>((ref) {
       GoRoute(path: '/splash', builder: (_, _) => const SplashScreen()),
       GoRoute(path: '/onboarding', builder: (_, _) => const OnboardingScreen()),
       GoRoute(path: '/auth', builder: (_, _) => const AuthScreen()),
+      GoRoute(path: '/signup', builder: (_, _) => const SignupScreen()),
+      GoRoute(
+        path: '/signup/barber',
+        builder: (_, _) => const BarberSignupScreen(),
+      ),
       GoRoute(
         path: '/role/:uid',
         builder: (_, state) => RoleSelectionScreen(uid: state.pathParameters['uid']!),

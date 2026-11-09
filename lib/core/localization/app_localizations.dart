@@ -164,6 +164,46 @@ class AppLocalizations {
   String get iamBarber => _t('iamBarber');
   String get enterName => _t('enterName');
   String get saveProfile => _t('saveProfile');
+  String get email => _t('email');
+  String get password => _t('password');
+  String get confirmPassword => _t('confirmPassword');
+  String get firstName => _t('firstName');
+  String get lastName => _t('lastName');
+  String get enterEmail => _t('enterEmail');
+  String get enterPassword => _t('enterPassword');
+  String get invalidEmail => _t('invalidEmail');
+  String get passwordTooShort => _t('passwordTooShort');
+  String get passwordsDontMatch => _t('passwordsDontMatch');
+  String get signupTitle => _t('signupTitle');
+  String get chooseAccountType => _t('chooseAccountType');
+  String get signupAsCustomer => _t('signupAsCustomer');
+  String get signupAsBarber => _t('signupAsBarber');
+  String get customerSignupDesc => _t('customerSignupDesc');
+  String get barberSignupDesc => _t('barberSignupDesc');
+  String get noAccount => _t('noAccount');
+  String get alreadyHaveAccount => _t('alreadyHaveAccount');
+  String get accountInfo => _t('accountInfo');
+  String get salonInfo => _t('salonInfo');
+  String get salonName => _t('salonName');
+  String get district => _t('district');
+  String get city => _t('city');
+  String get detectLocation => _t('detectLocation');
+  String get locationDetected => _t('locationDetected');
+  String get locationUnavailable => _t('locationUnavailable');
+  String get chairs => _t('chairs');
+  String get workingDays => _t('workingDays');
+  String get openTime => _t('openTime');
+  String get closeTime => _t('closeTime');
+  String get ownerInfo => _t('ownerInfo');
+  String get createBarberAccount => _t('createBarberAccount');
+  String get step => _t('step');
+  String get daySat => _t('daySat');
+  String get daySun => _t('daySun');
+  String get dayMon => _t('dayMon');
+  String get dayTue => _t('dayTue');
+  String get dayWed => _t('dayWed');
+  String get dayThu => _t('dayThu');
+  String get dayFri => _t('dayFri');
 
   // --- Shop details / booking ---
   String get openingHours => _t('openingHours');
@@ -396,7 +436,47 @@ class AppLocalizations {
       'onboarding3Title': 'تابع دورك مباشرة',
       'onboarding3Desc': 'استلم رقم دورك وتابع تقدّم الطابور لحظة بلحظة، وتوجّه للصالون عندما يقترب دورك.',
       'loginTitle': 'أهلاً بك في دوري',
-      'loginSubtitle': 'سجّل دخولك برقم هاتفك — سنرسل رمز التحقق إلى واتساب.',
+      'loginSubtitle': 'سجّل دخولك بإيميلك وكلمة المرور.',
+      'email': 'البريد الإلكتروني',
+      'password': 'كلمة المرور',
+      'confirmPassword': 'تأكيد كلمة المرور',
+      'firstName': 'الاسم',
+      'lastName': 'اللقب',
+      'enterEmail': 'أدخل إيميلك',
+      'enterPassword': 'أدخل كلمة المرور',
+      'invalidEmail': 'أدخل إيميلاً صحيحاً.',
+      'passwordTooShort': 'كلمة المرور 6 أحرف على الأقل.',
+      'passwordsDontMatch': 'كلمتا المرور غير متطابقتين.',
+      'signupTitle': 'إنشاء حساب جديد',
+      'chooseAccountType': 'اختر نوع الحساب',
+      'signupAsCustomer': 'حساب زبون',
+      'signupAsBarber': 'حساب حلاق',
+      'customerSignupDesc': 'احجز موعدك وتابع دورك في الصالون.',
+      'barberSignupDesc': 'أدر صالونك وحجوزاتك والطابور.',
+      'noAccount': 'ليس لديك حساب؟ أنشئ حساباً',
+      'alreadyHaveAccount': 'لديك حساب؟ سجّل دخولك',
+      'accountInfo': 'بيانات الحساب',
+      'salonInfo': 'بيانات الصالون',
+      'salonName': 'اسم الصالون',
+      'district': 'الحي',
+      'city': 'المدينة',
+      'detectLocation': 'حدد موقع صالوني تلقائياً',
+      'locationDetected': 'تم تحديد موقعك',
+      'locationUnavailable': 'تعذر تحديد موقعك — تحقق من إذن الموقع والـ GPS.',
+      'chairs': 'عدد الكراسي',
+      'workingDays': 'أيام الدوام',
+      'openTime': 'وقت الفتح',
+      'closeTime': 'وقت الإغلاق',
+      'ownerInfo': 'بيانات صاحب الصالون',
+      'createBarberAccount': 'إنشاء حساب الحلاق',
+      'step': 'خطوة',
+      'daySat': 'السبت',
+      'daySun': 'الأحد',
+      'dayMon': 'الاثنين',
+      'dayTue': 'الثلاثاء',
+      'dayWed': 'الأربعاء',
+      'dayThu': 'الخميس',
+      'dayFri': 'الجمعة',
       'enterPhone': 'أدخل رقم هاتفك',
       'phoneHint': '5XX XXX XXX',
       'sendCode': 'إرسال رمز التحقق',
@@ -637,7 +717,47 @@ class AppLocalizations {
       'onboarding3Title': 'Track your turn live',
       'onboarding3Desc': 'Get your queue number and follow the queue in real time, then head over when your turn is near.',
       'loginTitle': 'Welcome to DOURI',
-      'loginSubtitle': 'Sign in with your phone number — we will send the verification code to your WhatsApp.',
+      'loginSubtitle': 'Sign in with your email and password.',
+      'email': 'Email',
+      'password': 'Password',
+      'confirmPassword': 'Confirm password',
+      'firstName': 'First name',
+      'lastName': 'Last name',
+      'enterEmail': 'Enter your email',
+      'enterPassword': 'Enter your password',
+      'invalidEmail': 'Enter a valid email.',
+      'passwordTooShort': 'Password must be at least 6 characters.',
+      'passwordsDontMatch': 'Passwords do not match.',
+      'signupTitle': 'Create a new account',
+      'chooseAccountType': 'Choose account type',
+      'signupAsCustomer': 'Customer account',
+      'signupAsBarber': 'Barber account',
+      'customerSignupDesc': 'Book your appointment and follow your queue.',
+      'barberSignupDesc': 'Manage your salon, bookings and queue.',
+      'noAccount': "Don't have an account? Create one",
+      'alreadyHaveAccount': 'Already have an account? Sign in',
+      'accountInfo': 'Account details',
+      'salonInfo': 'Salon details',
+      'salonName': 'Salon name',
+      'district': 'Neighborhood',
+      'city': 'City',
+      'detectLocation': 'Detect my salon location automatically',
+      'locationDetected': 'Location detected',
+      'locationUnavailable': 'Could not detect your location — check location permission and GPS.',
+      'chairs': 'Number of chairs',
+      'workingDays': 'Working days',
+      'openTime': 'Opening time',
+      'closeTime': 'Closing time',
+      'ownerInfo': 'Salon owner details',
+      'createBarberAccount': 'Create barber account',
+      'step': 'Step',
+      'daySat': 'Saturday',
+      'daySun': 'Sunday',
+      'dayMon': 'Monday',
+      'dayTue': 'Tuesday',
+      'dayWed': 'Wednesday',
+      'dayThu': 'Thursday',
+      'dayFri': 'Friday',
       'enterPhone': 'Enter your phone number',
       'phoneHint': '5XX XXX XXX',
       'sendCode': 'Send verification code',
