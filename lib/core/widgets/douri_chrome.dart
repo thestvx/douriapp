@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../localization/app_localizations.dart';
 import '../theme/app_tokens.dart';
+import '../theme/douri_colors.dart';
 
 /// Open/Closed badge. Uses lime for open, muted for closed.
 class DouriStatusBadge extends StatelessWidget {
@@ -16,7 +17,7 @@ class DouriStatusBadge extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
       decoration: BoxDecoration(
-        color: open ? AppColors.accentSoft : AppColors.whiteSoft,
+        color: open ? AppColors.accentSoft : context.douriColors.overlaySoft,
         borderRadius: BorderRadius.circular(999),
       ),
       child: Row(
@@ -27,14 +28,14 @@ class DouriStatusBadge extends StatelessWidget {
             height: 6,
             decoration: BoxDecoration(
               shape: BoxShape.circle,
-              color: open ? AppColors.primaryAccent : AppColors.mutedText,
+              color: open ? AppColors.primaryAccent : context.douriColors.textMuted,
             ),
           ),
-          const SizedBox(width: 5),
+          SizedBox(width: 5),
           Text(
             open ? l10n.open : l10n.closed,
             style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                  color: open ? AppColors.primaryAccent : AppColors.secondaryText,
+                  color: open ? AppColors.primaryAccent : context.douriColors.textSecondary,
                 ),
           ),
         ],
@@ -55,12 +56,12 @@ class DouriRating extends StatelessWidget {
     return Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        const Icon(Icons.star_rounded, size: 16, color: AppColors.warning),
-        const SizedBox(width: 3),
+        Icon(Icons.star_rounded, size: 16, color: AppColors.warning),
+        SizedBox(width: 3),
         Text(value.toStringAsFixed(1), style: Theme.of(context).textTheme.labelMedium),
         if (count != null) ...[
-          const SizedBox(width: 3),
-          Text('($count)', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.mutedText)),
+          SizedBox(width: 3),
+          Text('($count)', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.douriColors.textMuted)),
         ],
       ],
     );
@@ -101,7 +102,7 @@ class DouriAvatar extends StatelessWidget {
         width: radius * 2,
         height: radius * 2,
         alignment: Alignment.center,
-        decoration: const BoxDecoration(color: AppColors.elevatedSurface, shape: BoxShape.circle),
+        decoration: BoxDecoration(color: context.douriColors.elevated, shape: BoxShape.circle),
         child: Text(_initials, style: Theme.of(context).textTheme.titleSmall?.copyWith(color: AppColors.primaryAccent)),
       );
 }
@@ -157,9 +158,9 @@ class DouriBottomNav extends StatelessWidget {
         child: Container(
           height: 68,
           decoration: BoxDecoration(
-            color: AppColors.elevatedSurface,
+            color: context.douriColors.elevated,
             borderRadius: BorderRadius.circular(34),
-            border: Border.all(color: AppColors.border),
+            border: Border.all(color: context.douriColors.border),
           ),
           child: Row(
             children: List.generate(items.length, (i) {
@@ -177,14 +178,14 @@ class DouriBottomNav extends StatelessWidget {
                           items[i].icon,
                           key: ValueKey(active),
                           size: 22,
-                          color: active ? AppColors.primaryAccent : AppColors.secondaryText,
+                          color: active ? AppColors.primaryAccent : context.douriColors.textSecondary,
                         ),
                       ),
-                      const SizedBox(height: 3),
+                      SizedBox(height: 3),
                       Text(
                         items[i].label,
                         style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: active ? AppColors.primaryAccent : AppColors.secondaryText,
+                              color: active ? AppColors.primaryAccent : context.douriColors.textSecondary,
                             ),
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,

@@ -263,6 +263,14 @@ class AppLocalizations {
   String get favoritesComingSoon => _t('favoritesComingSoon');
   String get themeSettings => _t('themeSettings');
   String get darkThemeOnly => _t('darkThemeOnly');
+  String get themeSystem => _t('themeSystem');
+  String get themeDark => _t('themeDark');
+  String get themeLight => _t('themeLight');
+  String get confirmPhoneTitle => _t('confirmPhoneTitle');
+  String get confirmPhoneNote => _t('confirmPhoneNote');
+  String get editPhone => _t('editPhone');
+  String get notifyOnPhone => _t('notifyOnPhone');
+  String get yourQueueNumber => _t('yourQueueNumber');
   String get memberSince => _t('memberSince');
 
   // --- Barber ---
@@ -550,6 +558,14 @@ class AppLocalizations {
       'favoritesComingSoon': 'المفضلة غير متوفرة بعد في قاعدة البيانات.',
       'themeSettings': 'المظهر',
       'darkThemeOnly': 'دوري يعمل بالوضع الداكن الفاخر فقط حالياً.',
+      'themeSystem': 'النظام',
+      'themeDark': 'داكن',
+      'themeLight': 'فاتح',
+      'confirmPhoneTitle': 'تأكيد رقم الجوال',
+      'confirmPhoneNote': 'سنرسل إشعارات الحجز إلى هذا الرقم. تأكد أنه صحيح قبل التأكيد.',
+      'editPhone': 'تعديل الرقم',
+      'notifyOnPhone': 'سيصلك الإشعار على',
+      'yourQueueNumber': 'رقم طابورك',
       'memberSince': 'عضو',
       'todaysBookings': 'حجوزات اليوم',
       'waitingCustomers': 'عملاء بالانتظار',
@@ -834,6 +850,14 @@ class AppLocalizations {
       'favoritesComingSoon': 'Favorites are not available in the database yet.',
       'themeSettings': 'Appearance',
       'darkThemeOnly': 'DOURI currently runs in the premium dark theme only.',
+      'themeSystem': 'System',
+      'themeDark': 'Dark',
+      'themeLight': 'Light',
+      'confirmPhoneTitle': 'Confirm your phone number',
+      'confirmPhoneNote': 'Booking notifications will be sent to this number. Make sure it is correct before confirming.',
+      'editPhone': 'Edit number',
+      'notifyOnPhone': 'You will be notified on',
+      'yourQueueNumber': 'Your queue number',
       'memberSince': 'Member',
       'todaysBookings': "Today's bookings",
       'waitingCustomers': 'Waiting customers',

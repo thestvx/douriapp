@@ -158,7 +158,22 @@ class AppTheme {
           padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         ),
       ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          side: BorderSide(color: Color(0xFFE5E5E0)),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.white,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: Color(0xFFE5E5E0)),
+        ),
+      ),
       dividerColor: const Color(0xFFE5E5E0),
+      progressIndicatorTheme: const ProgressIndicatorThemeData(color: AppColors.primaryAccent),
     );
   }
 }

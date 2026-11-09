@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
 import '../theme/app_tokens.dart';
+import '../theme/douri_colors.dart';
 
 /// Primary (lime), secondary (dark surface) and ghost buttons with a
 /// subtle press-scale feedback. All buttons are full-width by default
@@ -46,9 +47,9 @@ class _DouriButtonState extends State<DouriButton> {
         side = BorderSide.none;
         break;
       case DouriButtonVariant.secondary:
-        bg = AppColors.elevatedSurface;
-        fg = AppColors.primaryText;
-        side = const BorderSide(color: AppColors.border);
+        bg = context.douriColors.elevated;
+        fg = context.douriColors.text;
+        side = BorderSide(color: context.douriColors.border);
         break;
       case DouriButtonVariant.ghost:
         bg = Colors.transparent;
@@ -65,7 +66,7 @@ class _DouriButtonState extends State<DouriButton> {
       mainAxisSize: widget.expanded ? MainAxisSize.max : MainAxisSize.min,
       mainAxisAlignment: MainAxisAlignment.center,
       children: [
-        if (widget.loading)
+        if (widget.loading) ...[
           SizedBox(
             width: 18,
             height: 18,
@@ -73,8 +74,10 @@ class _DouriButtonState extends State<DouriButton> {
               strokeWidth: 2,
               color: fg,
             ),
-          )
-        else if (widget.icon != null) ...[
+          ),
+          // The spinner used to touch the label — same gap as the icon.
+          const SizedBox(width: DouriSpacing.sm),
+        ] else if (widget.icon != null) ...[
           Icon(widget.icon, size: 18, color: fg),
           const SizedBox(width: DouriSpacing.sm),
         ],
@@ -127,15 +130,15 @@ class DouriIconButton extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final btn = Material(
-      color: accent ? AppColors.primaryAccent : AppColors.elevatedSurface,
-      shape: const CircleBorder(side: BorderSide(color: AppColors.border)),
+      color: accent ? AppColors.primaryAccent : context.douriColors.elevated,
+      shape: CircleBorder(side: BorderSide(color: context.douriColors.border)),
       clipBehavior: Clip.antiAlias,
       child: InkWell(
         onTap: onPressed,
         child: SizedBox(
           width: 44,
           height: 44,
-          child: Icon(icon, size: 20, color: accent ? AppColors.accentOnDark : AppColors.primaryText),
+          child: Icon(icon, size: 20, color: accent ? AppColors.accentOnDark : context.douriColors.text),
         ),
       ),
     );

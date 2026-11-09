@@ -4,6 +4,7 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import '../theme/app_tokens.dart';
 import 'douri_chrome.dart';
+import '../theme/douri_colors.dart';
 
 /// Shared card shell: dark card surface, subtle border, rounded corners.
 class DouriCard extends StatelessWidget {
@@ -17,9 +18,9 @@ class DouriCard extends StatelessWidget {
     final card = Container(
       padding: padding ?? const EdgeInsets.all(DouriSpacing.lg),
       decoration: BoxDecoration(
-        color: AppColors.cardBackground,
+        color: context.douriColors.card,
         borderRadius: DouriRadius.card,
-        border: Border.all(color: AppColors.border),
+        border: Border.all(color: context.douriColors.border),
       ),
       child: child,
     );
@@ -75,7 +76,7 @@ class DouriShopCard extends StatelessWidget {
               child: Container(
                 height: 140,
                 width: double.infinity,
-                color: AppColors.elevatedSurface,
+                color: context.douriColors.elevated,
                 child: Stack(
                   fit: StackFit.expand,
                   children: [
@@ -90,7 +91,7 @@ class DouriShopCard extends StatelessWidget {
                             end: Alignment.bottomCenter,
                             colors: [
                               Colors.transparent,
-                              AppColors.primaryBackground.withValues(alpha: 0.45),
+                              context.douriColors.background.withValues(alpha: 0.45),
                             ],
                             stops: const [0.55, 1.0],
                           ),
@@ -104,7 +105,7 @@ class DouriShopCard extends StatelessWidget {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
                           decoration: BoxDecoration(
-                            color: AppColors.primaryBackground.withValues(alpha: 0.85),
+                            color: context.douriColors.background.withValues(alpha: 0.85),
                             borderRadius: BorderRadius.circular(999),
                           ),
                           child: DouriRating(value: rating!, count: reviewCount),
@@ -127,11 +128,11 @@ class DouriShopCard extends StatelessWidget {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 Text(name, style: Theme.of(context).textTheme.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
-                const SizedBox(height: 6),
+                SizedBox(height: 6),
                 if (address != null && address!.isNotEmpty)
                   Row(
                     children: [
-                      const Icon(Icons.location_on_outlined, size: 14, color: AppColors.secondaryText),
+                      Icon(Icons.location_on_outlined, size: 14, color: context.douriColors.textSecondary),
                       const SizedBox(width: 4),
                       Expanded(
                         child: Text(address!, style: Theme.of(context).textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
@@ -141,12 +142,12 @@ class DouriShopCard extends StatelessWidget {
                 // Rating + open state live on the cover now (Stylize style);
                 // only the distance (when a real one exists) stays here.
                 if (distanceLabel != null) ...[
-                  const SizedBox(height: 8),
+                  SizedBox(height: 8),
                   Row(
                     children: [
-                      const Icon(Icons.near_me_outlined, size: 14, color: AppColors.secondaryText),
-                      const SizedBox(width: 4),
-                      Text(distanceLabel!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.secondaryText)),
+                      Icon(Icons.near_me_outlined, size: 14, color: context.douriColors.textSecondary),
+                      SizedBox(width: 4),
+                      Text(distanceLabel!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.douriColors.textSecondary)),
                     ],
                   ),
                 ],
@@ -224,9 +225,9 @@ class DouriServiceCard extends StatelessWidget {
       duration: DouriDuration.normal,
       curve: DouriCurves.standard,
       decoration: BoxDecoration(
-        color: selected ? AppColors.accentSoft : AppColors.cardBackground,
+        color: selected ? AppColors.accentSoft : context.douriColors.card,
         borderRadius: DouriRadius.card,
-        border: Border.all(color: selected ? AppColors.primaryAccent : AppColors.border, width: selected ? 1.5 : 1),
+        border: Border.all(color: selected ? AppColors.primaryAccent : context.douriColors.border, width: selected ? 1.5 : 1),
       ),
       child: Material(
         color: Colors.transparent,
@@ -243,25 +244,25 @@ class DouriServiceCard extends StatelessWidget {
                     children: [
                       Text(name, style: Theme.of(context).textTheme.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
                       if (description != null && description!.isNotEmpty) ...[
-                        const SizedBox(height: 4),
+                        SizedBox(height: 4),
                         Text(description!, style: Theme.of(context).textTheme.bodySmall, maxLines: 2, overflow: TextOverflow.ellipsis),
                       ],
-                      const SizedBox(height: 6),
+                      SizedBox(height: 6),
                       if (durationMinutes != null)
-                        Text('$durationMinutes min', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.secondaryText)),
+                        Text('$durationMinutes min', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.douriColors.textSecondary)),
                     ],
                   ),
                 ),
-                const SizedBox(width: DouriSpacing.md),
+                SizedBox(width: DouriSpacing.md),
                 if (priceLabel != null)
                   Text(priceLabel!, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.primaryAccent)),
-                const SizedBox(width: DouriSpacing.sm),
+                SizedBox(width: DouriSpacing.sm),
                 AnimatedSwitcher(
                   duration: DouriDuration.fast,
                   child: Icon(
                     selected ? Icons.check_circle : Icons.circle_outlined,
                     key: ValueKey(selected),
-                    color: selected ? AppColors.primaryAccent : AppColors.mutedText,
+                    color: selected ? AppColors.primaryAccent : context.douriColors.textMuted,
                   ),
                 ),
               ],
@@ -326,17 +327,17 @@ class DouriBookingCard extends StatelessWidget {
               ),
             ],
           ),
-          const SizedBox(height: DouriSpacing.md),
+          SizedBox(height: DouriSpacing.md),
           Row(
             children: [
               if (dateLabel != null) ...[
-                const Icon(Icons.calendar_today_outlined, size: 14, color: AppColors.secondaryText),
-                const SizedBox(width: 4),
+                Icon(Icons.calendar_today_outlined, size: 14, color: context.douriColors.textSecondary),
+                SizedBox(width: 4),
                 Text(dateLabel!, style: Theme.of(context).textTheme.bodySmall),
-                const SizedBox(width: DouriSpacing.lg),
+                SizedBox(width: DouriSpacing.lg),
               ],
               if (timeLabel != null) ...[
-                const Icon(Icons.access_time, size: 14, color: AppColors.secondaryText),
+                Icon(Icons.access_time, size: 14, color: context.douriColors.textSecondary),
                 const SizedBox(width: 4),
                 Text(timeLabel!, style: Theme.of(context).textTheme.bodySmall),
               ],
@@ -375,9 +376,9 @@ class DouriQueueCard extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.all(DouriSpacing.lg),
       decoration: BoxDecoration(
-        color: isCurrent ? AppColors.accentSoft : AppColors.cardBackground,
+        color: isCurrent ? AppColors.accentSoft : context.douriColors.card,
         borderRadius: DouriRadius.card,
-        border: Border.all(color: isCurrent ? AppColors.primaryAccent : AppColors.border, width: isCurrent ? 1.5 : 1),
+        border: Border.all(color: isCurrent ? AppColors.primaryAccent : context.douriColors.border, width: isCurrent ? 1.5 : 1),
       ),
       child: Row(
         children: [
@@ -385,7 +386,7 @@ class DouriQueueCard extends StatelessWidget {
             width: 52,
             height: 52,
             alignment: Alignment.center,
-            decoration: BoxDecoration(color: AppColors.elevatedSurface, borderRadius: BorderRadius.circular(DouriRadius.md)),
+            decoration: BoxDecoration(color: context.douriColors.elevated, borderRadius: BorderRadius.circular(DouriRadius.md)),
             child: Text('$queueNumber', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.primaryAccent)),
           ),
           const SizedBox(width: DouriSpacing.md),

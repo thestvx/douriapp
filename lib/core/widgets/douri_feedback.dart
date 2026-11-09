@@ -5,6 +5,7 @@ import '../constants/app_colors.dart';
 import '../localization/app_localizations.dart';
 import '../theme/app_tokens.dart';
 import 'douri_button.dart';
+import '../theme/douri_colors.dart';
 
 /// Fade+slide entrance used for screen content and staggered lists.
 class DouriEntrance extends StatelessWidget {
@@ -51,7 +52,7 @@ class _DouriSkeletonState extends State<DouriSkeleton> with SingleTickerProvider
       child: Container(
         width: widget.width,
         height: widget.height,
-        decoration: BoxDecoration(color: AppColors.elevatedSurface, borderRadius: BorderRadius.circular(widget.radius)),
+        decoration: BoxDecoration(color: context.douriColors.elevated, borderRadius: BorderRadius.circular(widget.radius)),
       ),
     );
   }
@@ -103,13 +104,13 @@ class DouriEmptyState extends StatelessWidget {
             Container(
               width: 72,
               height: 72,
-              decoration: const BoxDecoration(color: AppColors.elevatedSurface, shape: BoxShape.circle),
+              decoration: BoxDecoration(color: context.douriColors.elevated, shape: BoxShape.circle),
               child: Icon(icon, size: 32, color: AppColors.primaryAccent),
             ),
-            const SizedBox(height: DouriSpacing.lg),
+            SizedBox(height: DouriSpacing.lg),
             Text(title, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
-            const SizedBox(height: DouriSpacing.sm),
-            Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.secondaryText), textAlign: TextAlign.center),
+            SizedBox(height: DouriSpacing.sm),
+            Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.douriColors.textSecondary), textAlign: TextAlign.center),
             if (actionLabel != null) ...[
               const SizedBox(height: DouriSpacing.xl),
               DouriButton(label: actionLabel!, onPressed: onAction, variant: DouriButtonVariant.secondary, expanded: false),
@@ -137,11 +138,11 @@ class DouriErrorState extends StatelessWidget {
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            const Icon(Icons.error_outline, size: 40, color: AppColors.danger),
-            const SizedBox(height: DouriSpacing.lg),
+            Icon(Icons.error_outline, size: 40, color: AppColors.danger),
+            SizedBox(height: DouriSpacing.lg),
             Text(title ?? l10n.error, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
-            const SizedBox(height: DouriSpacing.sm),
-            Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.secondaryText), textAlign: TextAlign.center),
+            SizedBox(height: DouriSpacing.sm),
+            Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.douriColors.textSecondary), textAlign: TextAlign.center),
             const SizedBox(height: DouriSpacing.xl),
             DouriButton(label: l10n.retry, onPressed: onRetry, variant: DouriButtonVariant.secondary, expanded: false),
           ],
@@ -168,7 +169,7 @@ class DouriProgress extends StatelessWidget {
         builder: (_, v, __) => LinearProgressIndicator(
           value: v,
           minHeight: height,
-          backgroundColor: AppColors.elevatedSurface,
+          backgroundColor: context.douriColors.elevated,
           valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryAccent),
         ),
       ),
@@ -206,16 +207,16 @@ Future<T?> showDouriSheet<T>(BuildContext context, Widget child) {
   return showModalBottomSheet<T>(
     context: context,
     isScrollControlled: true,
-    backgroundColor: AppColors.elevatedSurface,
-    shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
+    backgroundColor: context.douriColors.elevated,
+    shape: RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(24))),
     builder: (ctx) => SafeArea(
       child: Padding(
         padding: EdgeInsets.only(bottom: MediaQuery.of(ctx).viewInsets.bottom),
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            const SizedBox(height: 10),
-            Container(width: 40, height: 4, decoration: BoxDecoration(color: AppColors.border, borderRadius: BorderRadius.circular(2))),
+            SizedBox(height: 10),
+            Container(width: 40, height: 4, decoration: BoxDecoration(color: context.douriColors.border, borderRadius: BorderRadius.circular(2))),
             Flexible(child: SingleChildScrollView(child: Padding(padding: const EdgeInsets.all(DouriSpacing.xl), child: child))),
           ],
         ),
@@ -237,7 +238,7 @@ Future<bool> showDouriConfirm(
     context: context,
     builder: (ctx) => AlertDialog(
       title: Text(title),
-      content: Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.secondaryText)),
+      content: Text(message, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.douriColors.textSecondary)),
       actions: [
         TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(cancelLabel)),
         TextButton(
