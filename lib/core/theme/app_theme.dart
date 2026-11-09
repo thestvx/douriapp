@@ -2,6 +2,8 @@ import 'package:flutter/material.dart';
 import '../constants/app_colors.dart';
 import 'app_typography.dart';
 
+/// DOURI theme. Dark premium is the product identity (ThemeMode.dark in
+/// main.dart); [light] is kept only so ThemeData is complete.
 class AppTheme {
   const AppTheme._();
 
@@ -13,22 +15,24 @@ class AppTheme {
       colorScheme: const ColorScheme.dark(
         primary: AppColors.primaryAccent,
         secondary: AppColors.primaryAccent,
-        surface: AppColors.secondaryBackground,
-        onSurface: AppColors.white,
+        surface: AppColors.cardBackground,
+        onSurface: AppColors.primaryText,
         error: AppColors.danger,
       ),
       textTheme: textTheme.apply(
-        bodyColor: AppColors.white,
-        displayColor: AppColors.white,
+        bodyColor: AppColors.primaryText,
+        displayColor: AppColors.primaryText,
       ),
       appBarTheme: AppBarTheme(
         backgroundColor: AppColors.primaryBackground,
         elevation: 0,
-        titleTextStyle: textTheme.titleLarge?.copyWith(color: AppColors.white),
-        iconTheme: const IconThemeData(color: AppColors.white),
+        scrolledUnderElevation: 0,
+        centerTitle: false,
+        titleTextStyle: textTheme.titleLarge?.copyWith(color: AppColors.primaryText),
+        iconTheme: const IconThemeData(color: AppColors.primaryText),
       ),
       cardTheme: CardThemeData(
-        color: AppColors.secondaryBackground,
+        color: AppColors.cardBackground,
         elevation: 0,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(20),
@@ -38,6 +42,7 @@ class AppTheme {
       inputDecorationTheme: InputDecorationTheme(
         filled: true,
         fillColor: AppColors.secondaryBackground,
+        contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
         border: OutlineInputBorder(
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.border),
@@ -50,34 +55,49 @@ class AppTheme {
           borderRadius: BorderRadius.circular(14),
           borderSide: const BorderSide(color: AppColors.primaryAccent, width: 1.5),
         ),
+        errorBorder: OutlineInputBorder(
+          borderRadius: BorderRadius.circular(14),
+          borderSide: const BorderSide(color: AppColors.danger),
+        ),
         labelStyle: const TextStyle(color: AppColors.secondaryText),
-        hintStyle: const TextStyle(color: AppColors.secondaryText),
+        hintStyle: const TextStyle(color: AppColors.mutedText),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryAccent,
-          foregroundColor: AppColors.darkText,
+          foregroundColor: AppColors.accentOnDark,
           textStyle: textTheme.labelLarge,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         ),
       ),
       outlinedButtonTheme: OutlinedButtonThemeData(
         style: OutlinedButton.styleFrom(
-          foregroundColor: AppColors.white,
+          foregroundColor: AppColors.primaryText,
           side: const BorderSide(color: AppColors.border),
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         ),
       ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.secondaryBackground,
-        selectedItemColor: AppColors.primaryAccent,
-        unselectedItemColor: AppColors.secondaryText,
-        type: BottomNavigationBarType.fixed,
-        showUnselectedLabels: true,
+      textButtonTheme: TextButtonThemeData(
+        style: TextButton.styleFrom(foregroundColor: AppColors.primaryAccent),
+      ),
+      bottomSheetTheme: const BottomSheetThemeData(
+        backgroundColor: AppColors.elevatedSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
+          side: BorderSide(color: AppColors.border),
+        ),
+      ),
+      dialogTheme: DialogThemeData(
+        backgroundColor: AppColors.elevatedSurface,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+          side: const BorderSide(color: AppColors.border),
+        ),
       ),
       dividerColor: AppColors.border,
+      progressIndicatorTheme: const ProgressIndicatorThemeData(color: AppColors.primaryAccent),
     );
   }
 
@@ -127,23 +147,16 @@ class AppTheme {
           borderSide: const BorderSide(color: AppColors.primaryAccent, width: 1.5),
         ),
         labelStyle: const TextStyle(color: AppColors.secondaryText),
-        hintStyle: const TextStyle(color: AppColors.secondaryText),
+        hintStyle: const TextStyle(color: AppColors.mutedText),
       ),
       elevatedButtonTheme: ElevatedButtonThemeData(
         style: ElevatedButton.styleFrom(
           backgroundColor: AppColors.primaryAccent,
-          foregroundColor: AppColors.darkText,
+          foregroundColor: AppColors.accentOnDark,
           textStyle: textTheme.labelLarge,
           shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(14)),
-          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 14),
+          padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         ),
-      ),
-      bottomNavigationBarTheme: const BottomNavigationBarThemeData(
-        backgroundColor: AppColors.white,
-        selectedItemColor: AppColors.darkText,
-        unselectedItemColor: AppColors.secondaryText,
-        type: BottomNavigationBarType.fixed,
-        showUnselectedLabels: true,
       ),
       dividerColor: const Color(0xFFE5E5E0),
     );

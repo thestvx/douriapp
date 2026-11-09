@@ -1,4 +1,3 @@
-import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
@@ -9,11 +8,19 @@ import '../../features/barber/dashboard/barber_dashboard_screen.dart';
 import '../../features/barber/queue_management/queue_management_screen.dart';
 import '../../features/barber/shop_management/shop_management_screen.dart';
 import '../../features/customer/barber_details/barber_details_screen.dart';
+import '../../features/customer/booking/booking_confirmation_screen.dart';
 import '../../features/customer/booking/booking_screen.dart';
 import '../../features/customer/home/home_screen.dart';
 import '../../features/customer/queue/queue_ticket_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
+import '../../features/splash/splash_screen.dart';
 
+/// Route table (preserved names — screens were redesigned in place):
+/// /splash /onboarding /auth /role/:uid
+/// /customer (shell: Home / Explore / Bookings / Profile)
+/// /shop/:id /booking/:id /booking-success/:id /queue/:number?bookingId=
+/// /barber (shell: Dashboard / Queue / Bookings / Profile)
+/// /barber/requests/:id /barber/queue/:id /barber/shop
 final routerProvider = Provider<GoRouter>((ref) {
   return GoRouter(
     initialLocation: '/splash',
@@ -35,8 +42,15 @@ final routerProvider = Provider<GoRouter>((ref) {
         builder: (_, state) => BookingScreen(shopId: state.pathParameters['id']!),
       ),
       GoRoute(
+        path: '/booking-success/:id',
+        builder: (_, state) => BookingConfirmationScreen(bookingId: state.pathParameters['id']!),
+      ),
+      GoRoute(
         path: '/queue/:number',
-        builder: (_, state) => QueueTicketScreen(queueNumber: int.parse(state.pathParameters['number']!)),
+        builder: (_, state) => QueueTicketScreen(
+          queueNumber: int.tryParse(state.pathParameters['number'] ?? '') ?? 0,
+          bookingId: state.uri.queryParameters['bookingId'],
+        ),
       ),
       GoRoute(path: '/barber', builder: (_, _) => const BarberDashboardScreen()),
       GoRoute(
@@ -51,37 +65,3 @@ final routerProvider = Provider<GoRouter>((ref) {
     ],
   );
 });
-
-class SplashScreen extends StatefulWidget {
-  const SplashScreen({super.key});
-  @override
-  State<SplashScreen> createState() => _SplashScreenState();
-}
-
-class _SplashScreenState extends State<SplashScreen> {
-  @override
-  void initState() {
-    super.initState();
-    Future.delayed(const Duration(seconds: 2), () {
-      if (mounted) context.go('/onboarding');
-    });
-  }
-
-  @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      body: Center(
-        child: Column(
-          mainAxisAlignment: MainAxisAlignment.center,
-          children: [
-            const Icon(Icons.content_cut, size: 120, color: Color(0xFFC8F078)),
-            const SizedBox(height: 24),
-            Text('DOURI', style: Theme.of(context).textTheme.displayLarge),
-            const SizedBox(height: 40),
-            const CircularProgressIndicator(color: Color(0xFFC8F078)),
-          ],
-        ),
-      ),
-    );
-  }
-}
