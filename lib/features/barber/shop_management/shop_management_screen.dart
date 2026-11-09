@@ -15,6 +15,7 @@ import '../../../shared/models/barber_shop.dart';
 import '../../../shared/models/shop_service.dart';
 import '../../authentication/auth_providers.dart';
 import '../dashboard/shop_provider.dart';
+import '../../../core/theme/douri_colors.dart';
 
 /// Standalone route /barber/shop. Loads the shop itself via
 /// [currentShopProvider]; the form creates the shop when none exists.
@@ -220,7 +221,7 @@ class _ShopManagementScreenState extends ConsumerState<ShopManagementScreen> {
     final shopAsync = ref.watch(currentShopProvider);
     final uid = ref.watch(authStateProvider).value?.uid;
     return Scaffold(
-      backgroundColor: AppColors.primaryBackground,
+      backgroundColor: context.douriColors.background,
       appBar: DouriAppBar(title: l10n.shopManagement),
       body: shopAsync.when(
         loading: () => const Padding(
@@ -492,13 +493,13 @@ class _ServiceRow extends StatelessWidget {
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
                 ),
-                const SizedBox(height: 2),
+                SizedBox(height: 2),
                 Text(
                   details.join(' · '),
                   style: Theme.of(context)
                       .textTheme
                       .bodySmall
-                      ?.copyWith(color: AppColors.secondaryText),
+                      ?.copyWith(color: context.douriColors.textSecondary),
                 ),
               ],
             ),

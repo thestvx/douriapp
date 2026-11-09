@@ -12,6 +12,7 @@ import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_chrome.dart';
 import '../../../core/widgets/douri_feedback.dart';
 import '../home/shop_providers.dart';
+import '../../../core/theme/douri_colors.dart';
 
 class BarberDetailsScreen extends ConsumerWidget {
   const BarberDetailsScreen({super.key, required this.shopId});
@@ -75,8 +76,8 @@ class BarberDetailsScreen extends ConsumerWidget {
                                   end: Alignment.bottomCenter,
                                   colors: [
                                     Colors.transparent,
-                                    AppColors.primaryBackground.withValues(alpha: 0.35),
-                                    AppColors.primaryBackground.withValues(alpha: 0.95),
+                                    context.douriColors.background.withValues(alpha: 0.35),
+                                    context.douriColors.background.withValues(alpha: 0.95),
                                   ],
                                   stops: const [0.4, 0.7, 1.0],
                                 ),
@@ -110,7 +111,7 @@ class BarberDetailsScreen extends ConsumerWidget {
                                     DouriStatusBadge(open: shop.isOpen),
                                   ],
                                 ),
-                                const SizedBox(height: DouriSpacing.sm),
+                                SizedBox(height: DouriSpacing.sm),
                                 ratingAsync.when(
                                   loading: () => const SizedBox.shrink(),
                                   error: (_, __) => const SizedBox.shrink(),
@@ -118,7 +119,7 @@ class BarberDetailsScreen extends ConsumerWidget {
                                       ? Text(
                                           l10n.noReviews,
                                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                                color: AppColors.mutedText,
+                                                color: context.douriColors.textMuted,
                                               ),
                                         )
                                       : DouriRating(value: rating.rating, count: rating.count),
@@ -135,15 +136,15 @@ class BarberDetailsScreen extends ConsumerWidget {
                           children: [
                             // Name + rating already sit on the hero above.
                             if (shop.address != null && shop.address!.isNotEmpty) ...[
-                              const SizedBox(height: DouriSpacing.md),
+                              SizedBox(height: DouriSpacing.md),
                               DouriEntrance(
                                 index: 2,
                                 child: Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.location_on_outlined,
                                       size: 18,
-                                      color: AppColors.secondaryText,
+                                      color: context.douriColors.textSecondary,
                                     ),
                                     const SizedBox(width: DouriSpacing.sm),
                                     Expanded(
@@ -157,27 +158,27 @@ class BarberDetailsScreen extends ConsumerWidget {
                               ),
                             ],
                             if (shop.description != null && shop.description!.isNotEmpty) ...[
-                              const SizedBox(height: DouriSpacing.md),
+                              SizedBox(height: DouriSpacing.md),
                               DouriEntrance(
                                 index: 3,
                                 child: Text(
                                   shop.description!,
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        color: AppColors.secondaryText,
+                                        color: context.douriColors.textSecondary,
                                       ),
                                 ),
                               ),
                             ],
                             if (shop.phoneNumber != null && shop.phoneNumber!.isNotEmpty) ...[
-                              const SizedBox(height: DouriSpacing.md),
+                              SizedBox(height: DouriSpacing.md),
                               DouriEntrance(
                                 index: 4,
                                 child: Row(
                                   children: [
-                                    const Icon(
+                                    Icon(
                                       Icons.phone_outlined,
                                       size: 18,
-                                      color: AppColors.secondaryText,
+                                      color: context.douriColors.textSecondary,
                                     ),
                                     const SizedBox(width: DouriSpacing.sm),
                                     Expanded(
@@ -211,9 +212,9 @@ class BarberDetailsScreen extends ConsumerWidget {
                                     return DouriCard(
                                       child: Row(
                                         children: [
-                                          const Icon(
+                                          Icon(
                                             Icons.hourglass_empty,
-                                            color: AppColors.secondaryText,
+                                            color: context.douriColors.textSecondary,
                                           ),
                                           const SizedBox(width: DouriSpacing.md),
                                           Expanded(
@@ -315,7 +316,7 @@ class BarberDetailsScreen extends ConsumerWidget {
                   child: DouriButton(
                     label: l10n.bookAppointment,
                     icon: Icons.calendar_today_outlined,
-                    onPressed: () => context.go('/booking/${shop.id}'),
+                    onPressed: () => context.push('/booking/${shop.id}'),
                   ),
                 ),
               ),
@@ -333,7 +334,7 @@ class _CoverFallback extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      color: AppColors.elevatedSurface,
+      color: context.douriColors.elevated,
       alignment: Alignment.center,
       child: const Icon(Icons.content_cut, size: 64, color: AppColors.primaryAccent),
     );

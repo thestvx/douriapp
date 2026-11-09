@@ -11,6 +11,7 @@ import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_chrome.dart';
 import '../../../core/widgets/douri_feedback.dart';
 import '../../../shared/models/queue_entry.dart';
+import '../../../core/theme/douri_colors.dart';
 
 class QueueManagementScreen extends ConsumerStatefulWidget {
   const QueueManagementScreen({super.key, required this.shopId});
@@ -176,14 +177,14 @@ class _QueueManagementScreenState extends ConsumerState<QueueManagementScreen> {
     final l10n = AppLocalizations.of(context);
     if (_queueLoading) {
       return Container(
-        color: AppColors.primaryBackground,
+        color: context.douriColors.background,
         padding: const EdgeInsets.all(DouriSpacing.page),
         child: const DouriSkeletonList(),
       );
     }
     final queueActive = _queue != null && _queue!['queue_status'] == 'ACTIVE';
     return Container(
-      color: AppColors.primaryBackground,
+      color: context.douriColors.background,
       child: StreamBuilder<List<QueueEntry>>(
         // Re-subscribe after start/end/advance: the stream resolves the
         // daily queue id once, so a queue created after the first
@@ -242,7 +243,7 @@ class _QueueManagementScreenState extends ConsumerState<QueueManagementScreen> {
 
     return RefreshIndicator(
       color: AppColors.primaryAccent,
-      backgroundColor: AppColors.elevatedSurface,
+      backgroundColor: context.douriColors.elevated,
       onRefresh: _refresh,
       child: ListView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -259,7 +260,7 @@ class _QueueManagementScreenState extends ConsumerState<QueueManagementScreen> {
                       style: Theme.of(context)
                           .textTheme
                           .bodySmall
-                          ?.copyWith(color: AppColors.secondaryText),
+                          ?.copyWith(color: context.douriColors.textSecondary),
                     ),
                     const SizedBox(height: DouriSpacing.sm),
                     DouriQueueNumber(number: current.queueNumber),
@@ -391,8 +392,8 @@ class _QueueManagementScreenState extends ConsumerState<QueueManagementScreen> {
         'APPROACHING' => AppColors.primaryAccent,
         'CURRENT' => AppColors.primaryAccent,
         'COMPLETED' => AppColors.success,
-        'SKIPPED' => AppColors.mutedText,
+        'SKIPPED' => context.douriColors.textMuted,
         'CANCELLED' => AppColors.danger,
-        _ => AppColors.secondaryText,
+        _ => context.douriColors.textSecondary,
       };
 }

@@ -7,9 +7,11 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/repository_providers.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../core/theme/douri_colors.dart';
 import '../../../core/widgets/douri_button.dart';
 import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_feedback.dart';
+import '../../../shared/models/queue_entry.dart';
 import '../home/shop_providers.dart';
 
 class BookingConfirmationScreen extends ConsumerWidget {
@@ -42,7 +44,18 @@ class BookingConfirmationScreen extends ConsumerWidget {
           final refShort = booking.id.length > 8
               ? booking.id.substring(0, 8).toUpperCase()
               : booking.id.toUpperCase();
-          return SingleChildScrollView(
+          // Live queue number: the booking starts PENDING with no number.
+          // The moment the barber accepts it, approve_booking creates a
+          // queue entry and this stream delivers the number here — no
+          // refresh needed, and no number is ever shown before acceptance.
+          return StreamBuilder<QueueEntry?>(
+            stream: ref
+                .read(queueRepositoryProvider)
+                .watchEntryForBooking(booking.id),
+            builder: (context, entrySnapshot) {
+              final queueNumber =
+                  entrySnapshot.data?.queueNumber ?? booking.queueNumber;
+              return SingleChildScrollView(
             padding: const EdgeInsets.all(DouriSpacing.page),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.stretch,
@@ -70,7 +83,7 @@ class BookingConfirmationScreen extends ConsumerWidget {
                       curve: DouriCurves.emphasis,
                     )
                     .fadeIn(duration: DouriDuration.slow),
-                const SizedBox(height: DouriSpacing.xl),
+                SizedBox(height: DouriSpacing.xl),
                 DouriEntrance(
                   child: Text(
                     l10n.bookingSuccess,
@@ -78,13 +91,13 @@ class BookingConfirmationScreen extends ConsumerWidget {
                     textAlign: TextAlign.center,
                   ),
                 ),
-                const SizedBox(height: DouriSpacing.sm),
+                SizedBox(height: DouriSpacing.sm),
                 DouriEntrance(
                   index: 1,
                   child: Text(
                     l10n.bookingSuccessMessage,
                     style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                          color: AppColors.secondaryText,
+                          color: context.douriColors.textSecondary,
                         ),
                     textAlign: TextAlign.center,
                   ),
@@ -110,49 +123,86 @@ class BookingConfirmationScreen extends ConsumerWidget {
                           value: '${d.day}/${d.month}/${d.year}',
                         ),
                         _Row(label: l10n.time, value: booking.bookingTime),
-                        _Row(label: l10n.status, value: l10n.bookingPending),
-                      ],
-                    ),
-                  ),
-                ),
-                const SizedBox(height: DouriSpacing.lg),
-                DouriEntrance(
-                  index: 3,
-                  child: Container(
-                    padding: const EdgeInsets.all(DouriSpacing.lg),
-                    decoration: BoxDecoration(
-                      color: AppColors.warningSoft,
-                      borderRadius: DouriRadius.card,
-                      border: Border.all(color: AppColors.border),
-                    ),
-                    child: Row(
-                      children: [
-                        const Icon(Icons.hourglass_top, color: AppColors.warning),
-                        const SizedBox(width: DouriSpacing.md),
-                        Expanded(
-                          child: Column(
-                            crossAxisAlignment: CrossAxisAlignment.start,
-                            children: [
-                              Text(
-                                l10n.pendingApproval,
-                                style: Theme.of(context).textTheme.titleMedium?.copyWith(
-                                      color: AppColors.warning,
-                                    ),
-                              ),
-                              const SizedBox(height: 2),
-                              Text(
-                                l10n.queueNumberAfterApproval,
-                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                      color: AppColors.secondaryText,
-                                    ),
-                              ),
-                            ],
-                          ),
+                        _Row(
+                          label: l10n.notifyOnPhone,
+                          value: booking.customerPhone,
+                        ),
+                        _Row(
+                          label: l10n.status,
+                          value: queueNumber == null
+                              ? l10n.bookingPending
+                              : l10n.bookingConfirmed,
                         ),
                       ],
                     ),
                   ),
                 ),
+                SizedBox(height: DouriSpacing.lg),
+                if (queueNumber != null) ...[
+                  DouriEntrance(
+                    index: 3,
+                    child: DouriCard(
+                      child: Column(
+                        children: [
+                          Text(
+                            l10n.yourQueueNumber,
+                            style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                  color: context.douriColors.textSecondary,
+                                ),
+                          ),
+                          const SizedBox(height: DouriSpacing.sm),
+                          DouriQueueNumber(number: queueNumber),
+                          const SizedBox(height: DouriSpacing.sm),
+                          Text(
+                            l10n.queueNumberAfterApproval,
+                            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                  color: context.douriColors.textSecondary,
+                                ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ] else ...[
+                  DouriEntrance(
+                    index: 3,
+                    child: Container(
+                      padding: const EdgeInsets.all(DouriSpacing.lg),
+                      decoration: BoxDecoration(
+                        color: AppColors.warningSoft,
+                        borderRadius: DouriRadius.card,
+                        border: Border.all(color: context.douriColors.border),
+                      ),
+                      child: Row(
+                        children: [
+                          const Icon(Icons.hourglass_top, color: AppColors.warning),
+                          const SizedBox(width: DouriSpacing.md),
+                          Expanded(
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Text(
+                                  l10n.pendingApproval,
+                                  style: Theme.of(context).textTheme.titleMedium?.copyWith(
+                                        color: AppColors.warning,
+                                      ),
+                                ),
+                                SizedBox(height: 2),
+                                Text(
+                                  l10n.queueNumberAfterApproval,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: context.douriColors.textSecondary,
+                                      ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
                 const SizedBox(height: DouriSpacing.xxl),
                 DouriEntrance(
                   index: 4,
@@ -167,25 +217,27 @@ class BookingConfirmationScreen extends ConsumerWidget {
                   child: DouriButton(
                     label: l10n.trackQueue,
                     variant: DouriButtonVariant.secondary,
-                    onPressed: booking.queueNumber == null
+                    onPressed: queueNumber == null
                         ? null
-                        : () => context.go(
-                              '/queue/${booking.queueNumber}?bookingId=${booking.id}',
+                        : () => context.push(
+                              '/queue/$queueNumber?bookingId=${booking.id}',
                             ),
                   ),
                 ),
-                if (booking.queueNumber == null) ...[
-                  const SizedBox(height: DouriSpacing.sm),
+                if (queueNumber == null) ...[
+                  SizedBox(height: DouriSpacing.sm),
                   Text(
                     l10n.queueNumberAfterApproval,
                     style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.mutedText,
+                          color: context.douriColors.textMuted,
                         ),
                     textAlign: TextAlign.center,
                   ),
                 ],
               ],
             ),
+          );
+            },
           );
         },
       ),
@@ -208,7 +260,7 @@ class _Row extends StatelessWidget {
           Text(
             label,
             style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                  color: AppColors.secondaryText,
+                  color: context.douriColors.textSecondary,
                 ),
           ),
           const Spacer(),

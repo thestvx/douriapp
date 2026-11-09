@@ -17,6 +17,7 @@ import '../booking_requests/booking_requests_screen.dart';
 import '../profile/barber_profile_screen.dart';
 import '../queue_management/queue_management_screen.dart';
 import 'shop_provider.dart';
+import '../../../core/theme/douri_colors.dart';
 
 class BarberDashboardScreen extends ConsumerStatefulWidget {
   const BarberDashboardScreen({super.key});
@@ -33,7 +34,7 @@ class _BarberDashboardScreenState extends ConsumerState<BarberDashboardScreen> {
     final shopAsync = ref.watch(currentShopProvider);
     final shop = shopAsync.value;
     return Scaffold(
-      backgroundColor: AppColors.primaryBackground,
+      backgroundColor: context.douriColors.background,
       appBar: DouriAppBar(title: shop?.shopName ?? l10n.dashboard),
       body: shopAsync.when(
         loading: () => const Padding(
@@ -51,7 +52,7 @@ class _BarberDashboardScreenState extends ConsumerState<BarberDashboardScreen> {
               title: l10n.noShopYet,
               message: l10n.noShopMessage,
               actionLabel: l10n.createShop,
-              onAction: () => context.go('/barber/shop'),
+              onAction: () => context.push('/barber/shop'),
             );
           }
           return IndexedStack(
@@ -64,7 +65,7 @@ class _BarberDashboardScreenState extends ConsumerState<BarberDashboardScreen> {
               ),
               QueueManagementScreen(shopId: shop.id),
               BookingRequestsScreen(shopId: shop.id),
-              BarberProfileScreen(onManageShop: () => context.go('/barber/shop')),
+              BarberProfileScreen(onManageShop: () => context.push('/barber/shop')),
             ],
           );
         },
@@ -192,7 +193,7 @@ class _DashboardBodyState extends ConsumerState<_DashboardBody> {
     final shop = widget.shop;
     return RefreshIndicator(
       color: AppColors.primaryAccent,
-      backgroundColor: AppColors.elevatedSurface,
+      backgroundColor: context.douriColors.elevated,
       onRefresh: _refresh,
       child: SingleChildScrollView(
         physics: const AlwaysScrollableScrollPhysics(),
@@ -213,7 +214,7 @@ class _DashboardBodyState extends ConsumerState<_DashboardBody> {
                           style: Theme.of(context)
                               .textTheme
                               .bodyMedium
-                              ?.copyWith(color: AppColors.secondaryText),
+                              ?.copyWith(color: context.douriColors.textSecondary),
                         ),
                         const SizedBox(height: 2),
                         Text(
@@ -338,7 +339,7 @@ class _DashboardBodyState extends ConsumerState<_DashboardBody> {
                   _QuickActionCard(
                     icon: Icons.store_outlined,
                     label: l10n.shopManagement,
-                    onTap: () => context.go('/barber/shop'),
+                    onTap: () => context.push('/barber/shop'),
                   ),
                 ],
               ),
