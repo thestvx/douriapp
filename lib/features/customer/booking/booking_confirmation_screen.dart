@@ -48,10 +48,21 @@ class BookingConfirmationScreen extends ConsumerWidget {
               crossAxisAlignment: CrossAxisAlignment.stretch,
               children: [
                 const SizedBox(height: DouriSpacing.xl),
-                const Icon(
-                  Icons.check_circle,
-                  size: 88,
-                  color: AppColors.primaryAccent,
+                Center(
+                  child: Container(
+                    width: 120,
+                    height: 120,
+                    decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: AppColors.accentSoft,
+                      border: Border.all(color: AppColors.primaryAccent, width: 1.5),
+                    ),
+                    child: const Icon(
+                      Icons.check,
+                      size: 56,
+                      color: AppColors.primaryAccent,
+                    ),
+                  ),
                 )
                     .animate()
                     .scale(

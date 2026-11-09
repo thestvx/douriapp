@@ -126,6 +126,10 @@ class AppLocalizations {
   String get noShopsMessage => _t('noShopsMessage');
   String get discoverShops => _t('discoverShops');
   String get sortBy => _t('sortBy');
+  String get filters => _t('filters');
+  String get applyFilters => _t('applyFilters');
+  String get resetFilters => _t('resetFilters');
+  String get nearestToYou => _t('nearestToYou');
   String get nearest => _t('nearest');
   String get highestRated => _t('highestRated');
   String get noReviews => _t('noReviews');
@@ -376,6 +380,10 @@ class AppLocalizations {
       'noShopsMessage': 'لم يتم العثور على أي صالون مسجّل. عُد لاحقاً.',
       'discoverShops': 'اكتشف الصالونات',
       'sortBy': 'ترتيب حسب',
+      'filters': 'الفلاتر',
+      'applyFilters': 'تطبيق الفلتر',
+      'resetFilters': 'إعادة تعيين',
+      'nearestToYou': 'الأقرب إليك',
       'nearest': 'الأقرب',
       'highestRated': 'الأعلى تقييماً',
       'noReviews': 'لا توجد تقييمات بعد',
@@ -613,6 +621,10 @@ class AppLocalizations {
       'noShopsMessage': 'No registered shops were found. Check back later.',
       'discoverShops': 'Discover shops',
       'sortBy': 'Sort by',
+      'filters': 'Filters',
+      'applyFilters': 'Apply Filter',
+      'resetFilters': 'Reset',
+      'nearestToYou': 'Nearest To You',
       'nearest': 'Nearest',
       'highestRated': 'Highest rated',
       'noReviews': 'No reviews yet',

@@ -12,6 +12,7 @@ import '../../core/theme/app_tokens.dart';
 import '../../core/widgets/douri_button.dart';
 import '../../core/widgets/douri_feedback.dart';
 import '../../core/widgets/douri_fields.dart';
+import '../../core/widgets/douri_visual.dart';
 import 'auth_providers.dart';
 
 class AuthScreen extends ConsumerStatefulWidget {
@@ -146,28 +147,28 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
         child: SingleChildScrollView(
           padding: const EdgeInsets.all(DouriSpacing.page),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.center,
+            crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const SizedBox(height: DouriSpacing.xxxl),
+              // Stylize-style visual header: full-width gradient panel with
+              // the DOURI mark, instead of a small centred logo circle.
               DouriEntrance(
                 index: 0,
-                child: Container(
-                  width: 96,
-                  height: 96,
-                  decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: AppColors.elevatedSurface,
-                    border: Border.all(color: AppColors.primaryAccent, width: 1.5),
+                child: ClipRRect(
+                  borderRadius: BorderRadius.circular(DouriRadius.xl),
+                  child: const DouriVisualPanel(
+                    icon: Icons.content_cut,
+                    height: 190,
+                    iconSize: 64,
                   ),
-                  child: const Icon(Icons.content_cut, size: 44, color: AppColors.primaryAccent),
                 ),
               ),
-              const SizedBox(height: DouriSpacing.xl),
+              const SizedBox(height: DouriSpacing.xxl),
               DouriEntrance(
                 index: 1,
                 child: Text(
                   l10n.appName,
-                  style: Theme.of(context).textTheme.displayMedium?.copyWith(
+                  style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                        color: AppColors.primaryAccent,
                         fontWeight: FontWeight.w800,
                         letterSpacing: 4,
                       ),
@@ -175,19 +176,10 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
               ),
               const SizedBox(height: DouriSpacing.sm),
               DouriEntrance(
-                index: 2,
-                child: Text(
-                  l10n.slogan,
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.primaryAccent),
-                ),
-              ),
-              const SizedBox(height: DouriSpacing.xxxl),
-              DouriEntrance(
                 index: 3,
                 child: Text(
                   _isOtpStep ? l10n.enterOtp : l10n.loginTitle,
-                  style: Theme.of(context).textTheme.headlineSmall,
-                  textAlign: TextAlign.center,
+                  style: Theme.of(context).textTheme.headlineMedium,
                 ),
               ),
               const SizedBox(height: DouriSpacing.sm),
@@ -198,7 +190,6 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                       ? '${l10n.otpSentTo} +213 ${_phoneController.text.trim()}'
                       : l10n.loginSubtitle,
                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.secondaryText),
-                  textAlign: TextAlign.center,
                 ),
               ),
               const SizedBox(height: DouriSpacing.xxl),

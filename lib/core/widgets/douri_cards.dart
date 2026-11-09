@@ -73,12 +73,51 @@ class DouriShopCard extends StatelessWidget {
             child: ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
               child: Container(
-                height: 120,
+                height: 140,
                 width: double.infinity,
                 color: AppColors.elevatedSurface,
-                child: coverImageUrl != null && coverImageUrl!.isNotEmpty
-                    ? CachedNetworkImage(imageUrl: coverImageUrl!, fit: BoxFit.cover, errorWidget: (_, __, ___) => _coverFallback())
-                    : _coverFallback(),
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    coverImageUrl != null && coverImageUrl!.isNotEmpty
+                        ? CachedNetworkImage(imageUrl: coverImageUrl!, fit: BoxFit.cover, errorWidget: (_, __, ___) => _coverFallback())
+                        : _coverFallback(),
+                    Positioned.fill(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              AppColors.primaryBackground.withValues(alpha: 0.45),
+                            ],
+                            stops: const [0.55, 1.0],
+                          ),
+                        ),
+                      ),
+                    ),
+                    if (rating != null)
+                      Positioned(
+                        left: DouriSpacing.md,
+                        bottom: DouriSpacing.sm,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: AppColors.primaryBackground.withValues(alpha: 0.85),
+                            borderRadius: BorderRadius.circular(999),
+                          ),
+                          child: DouriRating(value: rating!, count: reviewCount),
+                        ),
+                      ),
+                    if (isOpen != null)
+                      Positioned(
+                        top: DouriSpacing.sm,
+                        right: DouriSpacing.sm,
+                        child: DouriStatusBadge(open: isOpen!),
+                      ),
+                  ],
+                ),
               ),
             ),
           ),
@@ -87,15 +126,7 @@ class DouriShopCard extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                    Expanded(
-                      child: Text(name, style: Theme.of(context).textTheme.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
-                    ),
-                    if (isOpen != null)
-                      DouriStatusBadge(open: isOpen!),
-                  ],
-                ),
+                Text(name, style: Theme.of(context).textTheme.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
                 const SizedBox(height: 6),
                 if (address != null && address!.isNotEmpty)
                   Row(
@@ -107,17 +138,18 @@ class DouriShopCard extends StatelessWidget {
                       ),
                     ],
                   ),
-                const SizedBox(height: 8),
-                Row(
-                  children: [
-                    if (rating != null) DouriRating(value: rating!, count: reviewCount),
-                    if (rating == null)
-                      Text('—', style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.mutedText)),
-                    const Spacer(),
-                    if (distanceLabel != null)
+                // Rating + open state live on the cover now (Stylize style);
+                // only the distance (when a real one exists) stays here.
+                if (distanceLabel != null) ...[
+                  const SizedBox(height: 8),
+                  Row(
+                    children: [
+                      const Icon(Icons.near_me_outlined, size: 14, color: AppColors.secondaryText),
+                      const SizedBox(width: 4),
                       Text(distanceLabel!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.secondaryText)),
-                  ],
-                ),
+                    ],
+                  ),
+                ],
               ],
             ),
           ),

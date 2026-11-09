@@ -53,7 +53,7 @@ class BarberDetailsScreen extends ConsumerWidget {
                           Hero(
                             tag: 'shop-cover-$shopId',
                             child: SizedBox(
-                              height: 240,
+                              height: 320,
                               width: double.infinity,
                               child: shop.coverImageUrl != null &&
                                       shop.coverImageUrl!.isNotEmpty
@@ -65,6 +65,24 @@ class BarberDetailsScreen extends ConsumerWidget {
                                   : const _CoverFallback(),
                             ),
                           ),
+                          // Stylize hero: gradient + name/rating overlaid
+                          // at the bottom of the cover.
+                          Positioned.fill(
+                            child: DecoratedBox(
+                              decoration: BoxDecoration(
+                                gradient: LinearGradient(
+                                  begin: Alignment.topCenter,
+                                  end: Alignment.bottomCenter,
+                                  colors: [
+                                    Colors.transparent,
+                                    AppColors.primaryBackground.withValues(alpha: 0.35),
+                                    AppColors.primaryBackground.withValues(alpha: 0.95),
+                                  ],
+                                  stops: const [0.4, 0.7, 1.0],
+                                ),
+                              ),
+                            ),
+                          ),
                           SafeArea(
                             child: Padding(
                               padding: const EdgeInsets.all(DouriSpacing.md),
@@ -74,6 +92,40 @@ class BarberDetailsScreen extends ConsumerWidget {
                               ),
                             ),
                           ),
+                          Positioned(
+                            left: DouriSpacing.page,
+                            right: DouriSpacing.page,
+                            bottom: DouriSpacing.lg,
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    Expanded(
+                                      child: Text(
+                                        shop.shopName,
+                                        style: Theme.of(context).textTheme.headlineMedium,
+                                      ),
+                                    ),
+                                    DouriStatusBadge(open: shop.isOpen),
+                                  ],
+                                ),
+                                const SizedBox(height: DouriSpacing.sm),
+                                ratingAsync.when(
+                                  loading: () => const SizedBox.shrink(),
+                                  error: (_, __) => const SizedBox.shrink(),
+                                  data: (rating) => rating == null
+                                      ? Text(
+                                          l10n.noReviews,
+                                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                                color: AppColors.mutedText,
+                                              ),
+                                        )
+                                      : DouriRating(value: rating.rating, count: rating.count),
+                                ),
+                              ],
+                            ),
+                          ),
                         ],
                       ),
                       Padding(
@@ -81,35 +133,7 @@ class BarberDetailsScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            DouriEntrance(
-                              child: Row(
-                                children: [
-                                  Expanded(
-                                    child: Text(
-                                      shop.shopName,
-                                      style: Theme.of(context).textTheme.headlineMedium,
-                                    ),
-                                  ),
-                                  DouriStatusBadge(open: shop.isOpen),
-                                ],
-                              ),
-                            ),
-                            const SizedBox(height: DouriSpacing.sm),
-                            DouriEntrance(
-                              index: 1,
-                              child: ratingAsync.when(
-                                loading: () => const SizedBox.shrink(),
-                                error: (_, __) => const SizedBox.shrink(),
-                                data: (rating) => rating == null
-                                    ? Text(
-                                        l10n.noReviews,
-                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                              color: AppColors.mutedText,
-                                            ),
-                                      )
-                                    : DouriRating(value: rating.rating, count: rating.count),
-                              ),
-                            ),
+                            // Name + rating already sit on the hero above.
                             if (shop.address != null && shop.address!.isNotEmpty) ...[
                               const SizedBox(height: DouriSpacing.md),
                               DouriEntrance(
