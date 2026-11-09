@@ -10,6 +10,7 @@ import '../../../core/widgets/douri_button.dart';
 import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_feedback.dart';
 import '../../../core/widgets/douri_fields.dart';
+import '../../../core/widgets/douri_motion.dart';
 import '../../../shared/models/booking.dart';
 import '../../../core/theme/douri_colors.dart';
 
@@ -150,7 +151,7 @@ class _BookingRequestsScreenState extends ConsumerState<BookingRequestsScreen>
                 child: TabBarView(
                   controller: _tabController,
                   children: [
-                    _buildTab(bookings.where((b) => b.status == 'PENDING').toList()),
+                    _buildTab(bookings.where((b) => b.status == 'PENDING').toList(), isPendingTab: true),
                     _buildTab(bookings.where((b) => b.status == 'CONFIRMED').toList()),
                     _buildTab(bookings.where((b) => _isToday(b.bookingDate)).toList()),
                     _buildTab(bookings.where((b) => b.status == 'COMPLETED').toList()),
@@ -166,7 +167,7 @@ class _BookingRequestsScreenState extends ConsumerState<BookingRequestsScreen>
     );
   }
 
-  Widget _buildTab(List<Booking> bookings) {
+  Widget _buildTab(List<Booking> bookings, {bool isPendingTab = false}) {
     final l10n = AppLocalizations.of(context);
     if (bookings.isEmpty) {
       return RefreshIndicator(
@@ -175,12 +176,23 @@ class _BookingRequestsScreenState extends ConsumerState<BookingRequestsScreen>
         onRefresh: _refresh,
         child: ListView(
           physics: const AlwaysScrollableScrollPhysics(),
+          padding: const EdgeInsets.fromLTRB(
+            DouriSpacing.page,
+            DouriSpacing.page,
+            DouriSpacing.page,
+            116,
+          ),
           children: [
             const SizedBox(height: 80),
             DouriEmptyState(
               icon: Icons.inbox_outlined,
-              title: l10n.noRequests,
-              message: l10n.noRequestsMessage,
+              // The pending tab gets its own empty state: it is the
+              // barber's inbox, so "nothing waiting for your reply" is
+              // the meaningful message. Other tabs keep the generic one.
+              title: isPendingTab ? l10n.noPendingRequests : l10n.noRequests,
+              message: isPendingTab
+                  ? l10n.noPendingRequestsMessage
+                  : l10n.noRequestsMessage,
             ),
           ],
         ),
@@ -192,21 +204,38 @@ class _BookingRequestsScreenState extends ConsumerState<BookingRequestsScreen>
       onRefresh: _refresh,
       child: ListView.builder(
         physics: const AlwaysScrollableScrollPhysics(),
-        padding: const EdgeInsets.all(DouriSpacing.page),
+        padding: const EdgeInsets.fromLTRB(
+          DouriSpacing.page,
+          DouriSpacing.page,
+          DouriSpacing.page,
+          116,
+        ),
         itemCount: bookings.length,
         itemBuilder: (context, i) {
           final booking = bookings[i];
           final meta = _bookingStatus(booking.status, l10n);
           return Padding(
+            key: ValueKey(booking.id),
             padding: const EdgeInsets.only(bottom: DouriSpacing.md),
-            child: DouriEntrance(
+            child: DouriStagger(
               index: i,
               child: AnimatedSwitcher(
                 duration: DouriDuration.normal,
+                // Keyed by id + status so a status change (approve /
+                // reject) cross-fades the card in place instead of
+                // snapping. True exit animation on removal would need an
+                // AnimatedList; the stream-driven ListView.builder is
+                // kept, so a removed card disappears with the next
+                // stream emission — the AnimatedSwitcher covers the
+                // status-change feedback.
                 child: DouriBookingCard(
-                  key: ValueKey(booking.status),
+                  key: ValueKey('${booking.id}_${booking.status}'),
                   title: booking.customerName,
-                  subtitle: booking.customerPhone,
+                  // customerPhone is a required String that can be
+                  // empty; never show a blank subtitle.
+                  subtitle: booking.customerPhone.isNotEmpty
+                      ? booking.customerPhone
+                      : '—',
                   statusLabel: meta.$1,
                   statusColor: meta.$2,
                   queueNumber: booking.queueNumber,
@@ -227,8 +256,9 @@ class _BookingRequestsScreenState extends ConsumerState<BookingRequestsScreen>
                           Expanded(
                             child: DouriButton(
                               label: l10n.reject,
-                              variant: DouriButtonVariant.secondary,
+                              variant: DouriButtonVariant.danger,
                               onPressed: _busyId == null ? () => _showRejectSheet(booking) : null,
+                              loading: _busyId == booking.id,
                             ),
                           ),
                         ]

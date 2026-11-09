@@ -12,6 +12,7 @@ import '../../../core/widgets/douri_button.dart';
 import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_chrome.dart';
 import '../../../core/widgets/douri_feedback.dart';
+import '../../../core/widgets/douri_motion.dart';
 import '../../../core/widgets/douri_theme_picker.dart';
 import '../../authentication/auth_providers.dart';
 import '../dashboard/shop_provider.dart';
@@ -34,11 +35,21 @@ class BarberProfileScreen extends ConsumerWidget {
     return Container(
       color: context.douriColors.background,
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(DouriSpacing.page),
+        padding: const EdgeInsets.fromLTRB(
+          DouriSpacing.page,
+          DouriSpacing.page,
+          DouriSpacing.page,
+          116,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DouriEntrance(
+            DouriStagger(
+              index: 0,
+              child: DouriSectionHeader(title: l10n.myShop),
+            ),
+            const SizedBox(height: DouriSpacing.md),
+            DouriStagger(
               index: 0,
               child: shopAsync.when(
                 loading: () => const DouriSkeletonList(itemCount: 1),
@@ -75,6 +86,7 @@ class BarberProfileScreen extends ConsumerWidget {
                     );
                   }
                   return DouriCard(
+                    onTap: onManageShop,
                     child: Row(
                       children: [
                         DouriAvatar(name: shop.shopName, imageUrl: shop.logoUrl, radius: 28),
@@ -99,9 +111,19 @@ class BarberProfileScreen extends ConsumerWidget {
                                 ),
                               ],
                               const SizedBox(height: DouriSpacing.sm),
-                              DouriStatusBadge(open: shop.isOpen),
+                              DouriAnimatedBadge(
+                                child: DouriStatusBadge(
+                                  key: ValueKey(shop.isOpen),
+                                  open: shop.isOpen,
+                                ),
+                              ),
                             ],
                           ),
+                        ),
+                        Icon(
+                          Icons.arrow_forward,
+                          size: 20,
+                          color: context.douriColors.textMuted,
                         ),
                       ],
                     ),
@@ -109,8 +131,13 @@ class BarberProfileScreen extends ConsumerWidget {
                 },
               ),
             ),
+            const SizedBox(height: DouriSpacing.xl),
+            DouriStagger(
+              index: 1,
+              child: DouriSectionHeader(title: l10n.account),
+            ),
             const SizedBox(height: DouriSpacing.md),
-            DouriEntrance(
+            DouriStagger(
               index: 1,
               child: profileAsync.when(
                 loading: () => const DouriSkeletonList(itemCount: 1),
@@ -119,63 +146,90 @@ class BarberProfileScreen extends ConsumerWidget {
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(l10n.account, style: Theme.of(context).textTheme.titleLarge),
+                      Row(
+                        children: [
+                          DouriAvatar(
+                            name: profile?.fullName ?? '',
+                            imageUrl: profile?.avatarUrl,
+                            radius: 24,
+                          ),
+                          const SizedBox(width: DouriSpacing.md),
+                          Expanded(
+                            child: Text(
+                              profile?.fullName ?? '—',
+                              style: Theme.of(context).textTheme.titleLarge,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
                       const SizedBox(height: DouriSpacing.md),
-                      _ProfileRow(label: l10n.fullName, value: profile?.fullName ?? '—'),
-                      const SizedBox(height: DouriSpacing.sm),
-                      _ProfileRow(label: l10n.phoneNumber, value: profile?.phoneNumber ?? '—'),
+                      _ProfileRow(
+                        label: l10n.phoneNumber,
+                        value: profile?.phoneNumber ?? '—',
+                        ltr: true,
+                      ),
+                      if (profile?.email != null && profile!.email!.isNotEmpty) ...[
+                        const SizedBox(height: DouriSpacing.sm),
+                        _ProfileRow(
+                          label: l10n.email,
+                          value: profile.email!,
+                          ltr: true,
+                        ),
+                      ],
                     ],
                   ),
                 ),
               ),
             ),
+            const SizedBox(height: DouriSpacing.xl),
+            DouriStagger(
+              index: 2,
+              child: DouriSectionHeader(title: l10n.language),
+            ),
             const SizedBox(height: DouriSpacing.md),
-            DouriEntrance(
+            DouriStagger(
               index: 2,
               child: DouriCard(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
+                child: Row(
                   children: [
-                    Text(l10n.language, style: Theme.of(context).textTheme.titleLarge),
-                    const SizedBox(height: DouriSpacing.md),
-                    Row(
-                      children: [
-                        Expanded(
-                          child: DouriButton(
-                            label: 'العربية',
-                            variant: locale.languageCode == 'ar'
-                                ? DouriButtonVariant.primary
-                                : DouriButtonVariant.secondary,
-                            onPressed: () =>
-                                ref.read(localeProvider.notifier).state = const Locale('ar'),
-                          ),
-                        ),
-                        const SizedBox(width: DouriSpacing.sm),
-                        Expanded(
-                          child: DouriButton(
-                            label: 'English',
-                            variant: locale.languageCode == 'en'
-                                ? DouriButtonVariant.primary
-                                : DouriButtonVariant.secondary,
-                            onPressed: () =>
-                                ref.read(localeProvider.notifier).state = const Locale('en'),
-                          ),
-                        ),
-                      ],
+                    Expanded(
+                      child: DouriButton(
+                        label: 'العربية',
+                        variant: locale.languageCode == 'ar'
+                            ? DouriButtonVariant.primary
+                            : DouriButtonVariant.secondary,
+                        onPressed: () =>
+                            ref.read(localeProvider.notifier).state = const Locale('ar'),
+                      ),
+                    ),
+                    const SizedBox(width: DouriSpacing.sm),
+                    Expanded(
+                      child: DouriButton(
+                        label: 'English',
+                        variant: locale.languageCode == 'en'
+                            ? DouriButtonVariant.primary
+                            : DouriButtonVariant.secondary,
+                        onPressed: () =>
+                            ref.read(localeProvider.notifier).state = const Locale('en'),
+                      ),
                     ),
                   ],
                 ),
               ),
             ),
             const SizedBox(height: DouriSpacing.xl),
-            DouriEntrance(
+            // No section header here: DouriThemePicker renders its own
+            // "Appearance" title inside the card.
+            DouriStagger(
               index: 3,
               child: DouriCard(
                 child: const DouriThemePicker(),
               ),
             ),
             const SizedBox(height: DouriSpacing.xl),
-            DouriEntrance(
+            DouriStagger(
               index: 4,
               child: DouriButton(
                 label: l10n.shopManagement,
@@ -185,7 +239,7 @@ class BarberProfileScreen extends ConsumerWidget {
               ),
             ),
             const SizedBox(height: DouriSpacing.md),
-            DouriEntrance(
+            DouriStagger(
               index: 5,
               child: DouriButton(
                 label: l10n.logout,
@@ -215,13 +269,23 @@ class BarberProfileScreen extends ConsumerWidget {
 }
 
 class _ProfileRow extends StatelessWidget {
-  const _ProfileRow({required this.label, required this.value});
+  const _ProfileRow({required this.label, required this.value, this.ltr = false});
 
   final String label;
   final String value;
 
+  /// Phone numbers and emails stay LTR even in the Arabic UI.
+  final bool ltr;
+
   @override
   Widget build(BuildContext context) {
+    final valueText = Text(
+      value,
+      style: Theme.of(context).textTheme.titleSmall,
+      textAlign: TextAlign.end,
+      maxLines: 1,
+      overflow: TextOverflow.ellipsis,
+    );
     return Row(
       children: [
         Expanded(
@@ -229,13 +293,12 @@ class _ProfileRow extends StatelessWidget {
         ),
         const SizedBox(width: DouriSpacing.md),
         Expanded(
-          child: Text(
-            value,
-            style: Theme.of(context).textTheme.titleSmall,
-            textAlign: TextAlign.end,
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
-          ),
+          child: ltr
+              ? Directionality(
+                  textDirection: TextDirection.ltr,
+                  child: valueText,
+                )
+              : valueText,
         ),
       ],
     );

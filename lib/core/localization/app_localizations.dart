@@ -337,6 +337,19 @@ class AppLocalizations {
   String get queueProgress => _t('queueProgress');
   String get minutesShort => _t('minutesShort');
 
+  // --- Phase 5: barber screens ---
+  String get queueEmpty => _t('queueEmpty');
+  String get queueEmptyMessage => _t('queueEmptyMessage');
+  String get queueDayEnded => _t('queueDayEnded');
+  String get queueDayEndedMessage => _t('queueDayEndedMessage');
+  String get queueNoCurrent => _t('queueNoCurrent');
+  String get noPendingRequests => _t('noPendingRequests');
+  String get noPendingRequestsMessage => _t('noPendingRequestsMessage');
+  String get shopDetails => _t('shopDetails');
+  String get shopPhotos => _t('shopPhotos');
+  String get shopSettings => _t('shopSettings');
+  String get myShop => _t('myShop');
+
   static const Map<String, Map<String, String>> _strings = {
     'ar': {
       'appName': 'دوري',
@@ -634,6 +647,17 @@ class AppLocalizations {
       'noCustomersYetMessage': 'ستظهر الحجوزات المقبولة هنا فور بدء الطابور.',
       'queueProgress': 'تقدّم الطابور',
       'minutesShort': 'دقيقة',
+      'queueEmpty': 'الطابور فارغ',
+      'queueEmptyMessage': 'لا يوجد عملاء بالانتظار حالياً. ستظهر الحجوزات المقبولة هنا فور وصولها.',
+      'queueDayEnded': 'انتهى يوم العمل',
+      'queueDayEndedMessage': 'انتهى طابور اليوم. يمكنك بدء يوم جديد من زر بدء اليوم.',
+      'queueNoCurrent': 'لا يوجد عميل يُخدم حالياً — التالي في الطابور:',
+      'noPendingRequests': 'لا توجد طلبات معلّقة',
+      'noPendingRequestsMessage': 'لا توجد طلبات حجز بانتظار ردك حالياً.',
+      'shopDetails': 'بيانات الصالون',
+      'shopPhotos': 'صور الصالون',
+      'shopSettings': 'إعدادات العمل',
+      'myShop': 'صالوني',
     },
     'en': {
       'appName': 'DOURI',
@@ -931,6 +955,17 @@ class AppLocalizations {
       'noCustomersYetMessage': 'Accepted bookings will appear here once the queue starts.',
       'queueProgress': 'Queue progress',
       'minutesShort': 'min',
+      'queueEmpty': 'Queue is empty',
+      'queueEmptyMessage': 'No customers are waiting right now. Accepted bookings will appear here as they arrive.',
+      'queueDayEnded': 'Working day ended',
+      'queueDayEndedMessage': "Today's queue has ended. You can start a new day from the Start day button.",
+      'queueNoCurrent': 'Nobody is being served yet — next in queue:',
+      'noPendingRequests': 'No pending requests',
+      'noPendingRequestsMessage': 'No booking requests are waiting for your reply right now.',
+      'shopDetails': 'Shop details',
+      'shopPhotos': 'Shop photos',
+      'shopSettings': 'Working settings',
+      'myShop': 'My shop',
     },
   };
 }
