@@ -92,7 +92,7 @@ class BookingConfirmationScreen extends ConsumerWidget {
                         ),
                         _Row(
                           label: l10n.shopName,
-                          value: shopAsync.valueOrNull?.shopName ?? '—',
+                          value: shopAsync.value?.shopName ?? '—',
                         ),
                         _Row(
                           label: l10n.date,

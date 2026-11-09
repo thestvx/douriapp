@@ -66,7 +66,7 @@ class _TicketView extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
     final entryAsync = ref.watch(_entryProvider(bookingId));
-    final entry = entryAsync.valueOrNull;
+    final entry = entryAsync.value;
 
     return Scaffold(
       appBar: AppBar(title: Text(l10n.queueTitle)),
@@ -115,7 +115,7 @@ class _TicketLoaded extends ConsumerWidget {
     final (label, color) = _statusLabelColor(l10n, status);
     final isApproaching = status == 'APPROACHING' || status == 'CURRENT';
     final shopAsync = ref.watch(shopByIdProvider(booking.barberShopId));
-    final shop = shopAsync.valueOrNull;
+    final shop = shopAsync.value;
 
     return SingleChildScrollView(
       padding: const EdgeInsets.all(DouriSpacing.page),

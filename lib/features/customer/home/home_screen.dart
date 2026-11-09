@@ -86,9 +86,9 @@ class _HomeBodyState extends ConsumerState<_HomeBody> {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
-    final profile = ref.watch(currentProfileProvider).valueOrNull;
+    final profile = ref.watch(currentProfileProvider).value;
     final displayName = (profile?.fullName ?? '').isNotEmpty
         ? profile!.fullName
         : l10n.appName;
@@ -282,7 +282,7 @@ class _ActiveBookingSection extends ConsumerWidget {
         }
         if (active == null) return const SizedBox.shrink();
         final booking = active;
-        final shop = ref.watch(shopByIdProvider(booking.barberShopId)).valueOrNull;
+        final shop = ref.watch(shopByIdProvider(booking.barberShopId)).value;
         final d = booking.bookingDate;
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,

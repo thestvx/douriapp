@@ -98,7 +98,7 @@ class _CustomerProfileScreenState extends ConsumerState<CustomerProfileScreen> {
   }
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final profileAsync = ref.watch(currentProfileProvider);
     final locale = ref.watch(localeProvider);

@@ -211,7 +211,7 @@ class _BookingRow extends ConsumerWidget {
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final l10n = AppLocalizations.of(context);
-    final shop = ref.watch(shopByIdProvider(booking.barberShopId)).valueOrNull;
+    final shop = ref.watch(shopByIdProvider(booking.barberShopId)).value;
     final d = booking.bookingDate;
     final cancellable = booking.status == 'PENDING' || booking.status == 'CONFIRMED';
     return DouriBookingCard(

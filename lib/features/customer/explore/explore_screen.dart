@@ -176,7 +176,7 @@ class ShopRatingCard extends ConsumerWidget {
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final rating = ref.watch(shopRatingProvider(shop.id)).valueOrNull;
+    final rating = ref.watch(shopRatingProvider(shop.id)).value;
     return DouriShopCard(
       shopId: shop.id,
       name: shop.shopName,

@@ -122,7 +122,7 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
     final l10n = AppLocalizations.of(context);
     final shopAsync = ref.watch(shopByIdProvider(widget.shopId));
     final profileAsync = ref.watch(currentProfileProvider);
-    final profile = profileAsync.valueOrNull;
+    final profile = profileAsync.value;
     if (profile != null && !_prefilled) {
       _prefilled = true;
       _nameController.text = profile.fullName;
