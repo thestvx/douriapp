@@ -77,6 +77,7 @@ class AppLocalizations {
   String get back => _t('back');
   String get next => _t('next');
   String get skip => _t('skip');
+  String get skipLogin => _t('skipLogin');
   String get done => _t('done');
   String get search => _t('search');
   String get viewAll => _t('viewAll');
@@ -328,6 +329,7 @@ class AppLocalizations {
       'back': 'رجوع',
       'next': 'التالي',
       'skip': 'تخطي',
+      'skipLogin': 'تخطي التسجيل (للتجربة)',
       'done': 'تم',
       'search': 'بحث',
       'viewAll': 'عرض الكل',
@@ -564,6 +566,7 @@ class AppLocalizations {
       'back': 'Back',
       'next': 'Next',
       'skip': 'Skip',
+      'skipLogin': 'Skip sign-in (for testing)',
       'done': 'Done',
       'search': 'Search',
       'viewAll': 'View all',

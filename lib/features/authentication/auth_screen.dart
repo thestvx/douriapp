@@ -286,6 +286,16 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   variant: DouriButtonVariant.ghost,
                   onPressed: _sending ? null : _backToPhone,
                 ),
+              ] else ...[
+                // TEMP (testing only): skip sign-in and browse as a guest.
+                // No profile is created, so booking / queue actions that
+                // need a signed-in user will not work. Remove before release.
+                const SizedBox(height: DouriSpacing.sm),
+                DouriButton(
+                  label: l10n.skipLogin,
+                  variant: DouriButtonVariant.ghost,
+                  onPressed: () => context.go('/customer'),
+                ),
               ],
               const SizedBox(height: DouriSpacing.xl),
             ],
