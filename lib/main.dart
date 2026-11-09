@@ -1,3 +1,4 @@
+import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_localizations/flutter_localizations.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
@@ -7,11 +8,14 @@ import 'core/localization/locale_controller.dart';
 import 'core/routing/app_router.dart';
 import 'core/services/supabase_service.dart';
 import 'core/theme/app_theme.dart';
+import 'firebase_options.dart';
 
 Future<void> main() async {
   WidgetsFlutterBinding.ensureInitialized();
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
   await SupabaseService.initialize();
-  // TODO: Initialize Firebase once google-services.json / firebase_options.dart are added.
   runApp(const ProviderScope(child: DouriApp()));
 }
 

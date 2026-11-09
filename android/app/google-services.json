@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "364956530160",
+    "project_id": "douriapp-98bd0",
+    "storage_bucket": "douriapp-98bd0.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:364956530160:android:7227c3b87a5fc8b6641935",
+        "android_client_info": {
+          "package_name": "com.douri.douri"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyBbDZrgVTSL43UbgPD--KjHRs_yZyPZ4Cw"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
