@@ -7,9 +7,14 @@ import '../../core/constants/app_colors.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_controller.dart';
 import '../../core/theme/app_tokens.dart';
-import '../../core/widgets/douri_button.dart';
 import '../../core/widgets/douri_feedback.dart';
+import '../../core/widgets/douri_visual.dart';
 
+/// Stylize-style onboarding (DOURI skin): full-bleed visual panel on top,
+/// bold title + subtitle at the bottom, animated dots and a round lime
+/// arrow CTA. No photos are copied from the Stylize template — the visual
+/// is a dark gradient panel with lime iconography (real shop photos do not
+/// exist in this repo).
 class OnboardingScreen extends ConsumerStatefulWidget {
   const OnboardingScreen({super.key});
 
@@ -27,19 +32,22 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
     super.dispose();
   }
 
-  void _goToPage(int page) {
-    _pageController.animateToPage(
-      page,
-      duration: DouriDuration.normal,
-      curve: DouriCurves.standard,
-    );
+  void _next() {
+    if (_page == 2) {
+      context.go('/auth');
+    } else {
+      _pageController.animateToPage(
+        _page + 1,
+        duration: DouriDuration.normal,
+        curve: DouriCurves.standard,
+      );
+    }
   }
 
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
     final locale = ref.watch(localeProvider);
-    final isLast = _page == 2;
 
     final slides = <({IconData icon, String title, String desc})>[
       (icon: Icons.storefront, title: l10n.onboarding1Title, desc: l10n.onboarding1Desc),
@@ -49,13 +57,105 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
 
     return Scaffold(
       backgroundColor: AppColors.primaryBackground,
-      body: SafeArea(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: DouriSpacing.page),
-          child: Column(
-            children: [
-              const SizedBox(height: DouriSpacing.md),
-              Row(
+      body: Stack(
+        children: [
+          PageView.builder(
+            controller: _pageController,
+            itemCount: slides.length,
+            onPageChanged: (index) => setState(() => _page = index),
+            itemBuilder: (context, index) {
+              final slide = slides[index];
+              return Column(
+                children: [
+                  Expanded(
+                    flex: 5,
+                    child: DouriVisualPanel(icon: slide.icon),
+                  ),
+                  Expanded(
+                    flex: 4,
+                    child: Padding(
+                      padding: const EdgeInsets.fromLTRB(
+                        DouriSpacing.page,
+                        DouriSpacing.xl,
+                        DouriSpacing.page,
+                        DouriSpacing.lg,
+                      ),
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          DouriEntrance(
+                            key: ValueKey('title-$index'),
+                            child: Text(
+                              slide.title,
+                              style: Theme.of(context).textTheme.headlineMedium,
+                            ),
+                          ),
+                          const SizedBox(height: DouriSpacing.md),
+                          DouriEntrance(
+                            key: ValueKey('desc-$index'),
+                            index: 1,
+                            child: Text(
+                              slide.desc,
+                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                    color: AppColors.secondaryText,
+                                  ),
+                            ),
+                          ),
+                          const Spacer(),
+                          Row(
+                            children: [
+                              _LanguageChip(
+                                label: 'العربية',
+                                selected: locale.languageCode == 'ar',
+                                onTap: () => ref.read(localeProvider.notifier).state = const Locale('ar'),
+                              ),
+                              const SizedBox(width: DouriSpacing.sm),
+                              _LanguageChip(
+                                label: 'English',
+                                selected: locale.languageCode == 'en',
+                                onTap: () => ref.read(localeProvider.notifier).state = const Locale('en'),
+                              ),
+                            ],
+                          ),
+                          const SizedBox(height: DouriSpacing.xl),
+                          Row(
+                            children: [
+                              Row(
+                                mainAxisSize: MainAxisSize.min,
+                                children: List.generate(slides.length, (i) {
+                                  final active = i == _page;
+                                  return AnimatedContainer(
+                                    duration: DouriDuration.normal,
+                                    curve: DouriCurves.standard,
+                                    margin: const EdgeInsets.symmetric(horizontal: 3),
+                                    width: active ? 24 : 8,
+                                    height: 8,
+                                    decoration: BoxDecoration(
+                                      color: active ? AppColors.primaryAccent : AppColors.border,
+                                      borderRadius: BorderRadius.circular(4),
+                                    ),
+                                  );
+                                }),
+                              ),
+                              const Spacer(),
+                              DouriRoundArrowButton(onPressed: _next),
+                            ],
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ],
+              );
+            },
+          ),
+          SafeArea(
+            child: Padding(
+              padding: const EdgeInsets.symmetric(
+                horizontal: DouriSpacing.page,
+                vertical: DouriSpacing.md,
+              ),
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
                   Text(
@@ -66,118 +166,21 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                           letterSpacing: 2,
                         ),
                   ),
-                  Row(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      _LanguageChip(
-                        label: 'العربية',
-                        selected: locale.languageCode == 'ar',
-                        onTap: () => ref.read(localeProvider.notifier).state = const Locale('ar'),
+                  if (_page < 2)
+                    TextButton(
+                      onPressed: () => context.go('/auth'),
+                      child: Text(
+                        l10n.skip,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                              color: AppColors.secondaryText,
+                            ),
                       ),
-                      const SizedBox(width: DouriSpacing.sm),
-                      _LanguageChip(
-                        label: 'English',
-                        selected: locale.languageCode == 'en',
-                        onTap: () => ref.read(localeProvider.notifier).state = const Locale('en'),
-                      ),
-                    ],
-                  ),
+                    ),
                 ],
               ),
-              Expanded(
-                child: PageView.builder(
-                  controller: _pageController,
-                  itemCount: slides.length,
-                  onPageChanged: (index) => setState(() => _page = index),
-                  itemBuilder: (context, index) {
-                    final slide = slides[index];
-                    return Padding(
-                      padding: const EdgeInsets.symmetric(horizontal: DouriSpacing.sm),
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          DouriEntrance(
-                            index: 0,
-                            child: Container(
-                              width: 160,
-                              height: 160,
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                                color: AppColors.elevatedSurface,
-                                border: Border.all(color: AppColors.primaryAccent, width: 1.5),
-                              ),
-                              child: Icon(slide.icon, size: 72, color: AppColors.primaryAccent),
-                            ),
-                          ),
-                          const SizedBox(height: DouriSpacing.xxxl),
-                          DouriEntrance(
-                            index: 1,
-                            child: Text(
-                              slide.title,
-                              style: Theme.of(context).textTheme.headlineMedium,
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                          const SizedBox(height: DouriSpacing.lg),
-                          DouriEntrance(
-                            index: 2,
-                            child: Text(
-                              slide.desc,
-                              style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: AppColors.secondaryText),
-                              textAlign: TextAlign.center,
-                            ),
-                          ),
-                        ],
-                      ),
-                    );
-                  },
-                ),
-              ),
-              DouriEntrance(
-                index: 0,
-                slide: false,
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: List.generate(slides.length, (index) {
-                    final active = index == _page;
-                    return AnimatedContainer(
-                      duration: DouriDuration.normal,
-                      curve: DouriCurves.standard,
-                      margin: const EdgeInsets.symmetric(horizontal: 3),
-                      width: active ? 24 : 8,
-                      height: 8,
-                      decoration: BoxDecoration(
-                        color: active ? AppColors.primaryAccent : AppColors.border,
-                        borderRadius: BorderRadius.circular(4),
-                      ),
-                    );
-                  }),
-                ),
-              ),
-              const SizedBox(height: DouriSpacing.xl),
-              DouriButton(
-                label: isLast ? l10n.getStarted : l10n.next,
-                onPressed: () {
-                  if (isLast) {
-                    context.go('/auth');
-                  } else {
-                    _goToPage(_page + 1);
-                  }
-                },
-              ),
-              const SizedBox(height: DouriSpacing.sm),
-              if (!isLast)
-                DouriButton(
-                  label: l10n.skip,
-                  variant: DouriButtonVariant.ghost,
-                  onPressed: () => context.go('/auth'),
-                )
-              else
-                const SizedBox(height: 48),
-              const SizedBox(height: DouriSpacing.lg),
-            ],
+            ),
           ),
-        ),
+        ],
       ),
     );
   }

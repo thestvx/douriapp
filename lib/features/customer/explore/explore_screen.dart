@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../core/widgets/douri_button.dart';
 import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_feedback.dart';
 import '../../../core/widgets/douri_fields.dart';
@@ -47,6 +48,75 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  /// Stylize-style Filters bottom sheet. Draft values are applied only on
+  /// "Apply Filter", so the sheet never changes the list by accident.
+  Future<void> _openFilters() async {
+    final l10n = AppLocalizations.of(context);
+    var draftOpenNow = _openNowOnly;
+    var draftSort = _sort;
+    final applied = await showDouriSheet<bool>(
+      context,
+      StatefulBuilder(
+        builder: (sheetContext, setSheetState) {
+          return Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Text(l10n.filters, style: Theme.of(context).textTheme.titleLarge),
+              const SizedBox(height: DouriSpacing.xl),
+              Text(l10n.sortBy, style: Theme.of(context).textTheme.titleMedium),
+              const SizedBox(height: DouriSpacing.md),
+              RadioListTile<_Sort>(
+                title: Text(l10n.name),
+                value: _Sort.name,
+                groupValue: draftSort,
+                activeColor: AppColors.primaryAccent,
+                contentPadding: EdgeInsets.zero,
+                onChanged: (v) => setSheetState(() => draftSort = v ?? _Sort.name),
+              ),
+              RadioListTile<_Sort>(
+                title: Text(l10n.openNow),
+                value: _Sort.openFirst,
+                groupValue: draftSort,
+                activeColor: AppColors.primaryAccent,
+                contentPadding: EdgeInsets.zero,
+                onChanged: (v) => setSheetState(() => draftSort = v ?? _Sort.name),
+              ),
+              SwitchListTile(
+                title: Text(l10n.openNow),
+                value: draftOpenNow,
+                activeThumbColor: AppColors.primaryAccent,
+                contentPadding: EdgeInsets.zero,
+                onChanged: (v) => setSheetState(() => draftOpenNow = v),
+              ),
+              const SizedBox(height: DouriSpacing.lg),
+              DouriButton(
+                label: l10n.applyFilters,
+                onPressed: () => Navigator.of(sheetContext).pop(true),
+              ),
+              const SizedBox(height: DouriSpacing.sm),
+              DouriButton(
+                label: l10n.resetFilters,
+                variant: DouriButtonVariant.ghost,
+                onPressed: () {
+                  draftOpenNow = false;
+                  draftSort = _Sort.name;
+                  setSheetState(() {});
+                  Navigator.of(sheetContext).pop(true);
+                },
+              ),
+            ],
+          );
+        },
+      ),
+    );
+    if (applied == true && mounted) {
+      setState(() {
+        _openNowOnly = draftOpenNow;
+        _sort = draftSort;
+      });
+    }
   }
 
   @override
@@ -96,14 +166,12 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                     checkmarkColor: AppColors.primaryAccent,
                   ),
                   const Spacer(),
-                  PopupMenuButton<_Sort>(
-                    icon: const Icon(Icons.sort, color: AppColors.secondaryText),
-                    tooltip: l10n.sortBy,
-                    onSelected: (s) => setState(() => _sort = s),
-                    itemBuilder: (_) => [
-                      PopupMenuItem(value: _Sort.name, child: Text(l10n.name)),
-                      PopupMenuItem(value: _Sort.openFirst, child: Text(l10n.openNow)),
-                    ],
+                  DouriButton(
+                    label: l10n.filters,
+                    icon: Icons.tune,
+                    variant: DouriButtonVariant.secondary,
+                    expanded: false,
+                    onPressed: _openFilters,
                   ),
                 ],
               ),

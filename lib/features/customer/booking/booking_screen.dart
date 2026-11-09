@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -179,14 +180,11 @@ class _BookingScreenState extends ConsumerState<BookingScreen> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    DouriProgress(value: (_step + 1) / 5),
-                    const SizedBox(height: DouriSpacing.sm),
-                    Text(
-                      '${_step + 1} / 5 — ${stepLabels[_step]}',
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.secondaryText,
-                          ),
-                    ),
+                    // Stylize shop header strip: cover + name.
+                    _ShopHeader(shop: shop),
+                    const SizedBox(height: DouriSpacing.lg),
+                    // Stylize step indicator: numbered circles + labels.
+                    _StepIndicator(step: _step, labels: stepLabels),
                   ],
                 ),
               ),
@@ -519,6 +517,130 @@ class _SummaryRow extends StatelessWidget {
           Text(value, style: Theme.of(context).textTheme.titleMedium),
         ],
       ),
+    );
+  }
+}
+
+/// Stylize shop header strip for the booking flow: cover image (real URL
+/// only) with the shop name overlaid, falling back to a lime icon panel.
+class _ShopHeader extends StatelessWidget {
+  const _ShopHeader({required this.shop});
+  final BarberShop shop;
+
+  @override
+  Widget build(BuildContext context) {
+    final hasImage = shop.coverImageUrl != null && shop.coverImageUrl!.isNotEmpty;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(DouriRadius.xl),
+      child: Container(
+        height: 110,
+        width: double.infinity,
+        color: AppColors.elevatedSurface,
+        child: Stack(
+          fit: StackFit.expand,
+          children: [
+            if (hasImage)
+              CachedNetworkImage(
+                imageUrl: shop.coverImageUrl!,
+                fit: BoxFit.cover,
+                errorWidget: (_, __, ___) => const SizedBox.shrink(),
+              )
+            else
+              const Center(
+                child: Icon(Icons.content_cut, size: 44, color: AppColors.primaryAccent),
+              ),
+            Positioned.fill(
+              child: DecoratedBox(
+                decoration: BoxDecoration(
+                  gradient: LinearGradient(
+                    begin: Alignment.topCenter,
+                    end: Alignment.bottomCenter,
+                    colors: [
+                      Colors.transparent,
+                      AppColors.primaryBackground.withValues(alpha: 0.85),
+                    ],
+                    stops: const [0.3, 1.0],
+                  ),
+                ),
+              ),
+            ),
+            Positioned(
+              left: DouriSpacing.lg,
+              right: DouriSpacing.lg,
+              bottom: DouriSpacing.md,
+              child: Text(
+                shop.shopName,
+                style: Theme.of(context).textTheme.titleLarge,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+/// Numbered step indicator (Stylize style): lime for the current/completed
+/// steps, muted outline for upcoming ones, with the current step label.
+class _StepIndicator extends StatelessWidget {
+  const _StepIndicator({required this.step, required this.labels});
+  final int step;
+  final List<String> labels;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            for (var i = 0; i < labels.length; i++) ...[
+              AnimatedContainer(
+                duration: DouriDuration.normal,
+                curve: DouriCurves.standard,
+                width: 30,
+                height: 30,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: i <= step ? AppColors.primaryAccent : AppColors.cardBackground,
+                  border: Border.all(
+                    color: i <= step ? AppColors.primaryAccent : AppColors.border,
+                  ),
+                ),
+                child: i < step
+                    ? const Icon(Icons.check, size: 16, color: AppColors.primaryBackground)
+                    : Text(
+                        '${i + 1}',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                              color: i == step
+                                  ? AppColors.primaryBackground
+                                  : AppColors.mutedText,
+                              fontWeight: FontWeight.w700,
+                            ),
+                      ),
+              ),
+              if (i < labels.length - 1)
+                Expanded(
+                  child: Container(
+                    height: 2,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    color: i < step ? AppColors.primaryAccent : AppColors.border,
+                  ),
+                ),
+            ],
+          ],
+        ),
+        const SizedBox(height: DouriSpacing.sm),
+        Text(
+          '${step + 1} / ${labels.length} — ${labels[step]}',
+          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                color: AppColors.secondaryText,
+              ),
+        ),
+      ],
     );
   }
 }

@@ -11,6 +11,8 @@ import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_chrome.dart';
 import '../../../core/widgets/douri_feedback.dart';
 import '../../../core/widgets/douri_fields.dart';
+import '../../../core/widgets/douri_visual.dart';
+import '../../../shared/models/barber_shop.dart';
 import '../../../shared/models/booking.dart';
 import '../../authentication/auth_providers.dart';
 import '../bookings/my_bookings_screen.dart';
@@ -167,6 +169,15 @@ class _HomeBodyState extends ConsumerState<_HomeBody> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
+                      // Stylize-style featured banner: the first open shop
+                      // as a large cover card with a Book Now pill.
+                      if (featured.isNotEmpty) ...[
+                        DouriEntrance(
+                          index: 2,
+                          child: _PromoBanner(shop: featured.first),
+                        ),
+                        const SizedBox(height: DouriSpacing.xl),
+                      ],
                       DouriEntrance(
                         index: 2,
                         child: Row(
@@ -186,7 +197,7 @@ class _HomeBodyState extends ConsumerState<_HomeBody> {
                         DouriEntrance(
                           index: 3,
                           child: DouriSectionHeader(
-                            title: l10n.featuredShops,
+                            title: l10n.nearestToYou,
                             actionLabel: l10n.viewAll,
                             onAction: widget.onViewAll,
                           ),
@@ -318,6 +329,30 @@ class _ActiveBookingSection extends ConsumerWidget {
           ],
         );
       },
+    );
+  }
+}
+
+/// Featured banner for the first open shop (Stylize home banner), with its
+/// real rating. Shown only when at least one open shop exists.
+class _PromoBanner extends ConsumerWidget {
+  const _PromoBanner({required this.shop});
+  final BarberShop shop;
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final l10n = AppLocalizations.of(context);
+    final rating = ref.watch(shopRatingProvider(shop.id)).value;
+    return DouriPromoBanner(
+      name: shop.shopName,
+      address: shop.address,
+      coverImageUrl: shop.coverImageUrl,
+      rating: rating?.rating,
+      reviewCount: rating?.count,
+      isOpen: shop.isOpen,
+      bookLabel: l10n.bookNow,
+      onTap: () => context.go('/shop/${shop.id}'),
+      onBook: () => context.go('/booking/${shop.id}'),
     );
   }
 }
