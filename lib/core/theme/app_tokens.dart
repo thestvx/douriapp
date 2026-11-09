@@ -31,6 +31,8 @@ class DouriDuration {
   static const Duration fast = Duration(milliseconds: 150);
   static const Duration normal = Duration(milliseconds: 250);
   static const Duration slow = Duration(milliseconds: 400);
+  static const Duration emphasized = Duration(milliseconds: 450);
+  static const Duration page = Duration(milliseconds: 350);
   static const Duration splash = Duration(milliseconds: 1400);
 }
 
@@ -39,6 +41,23 @@ class DouriCurves {
   static const Curve standard = Curves.easeOutCubic;
   static const Curve entrance = Curves.easeOut;
   static const Curve emphasis = Curves.easeInOutCubic;
+  /// Spring overshoot — use sparingly, only for small playful elements
+  /// (e.g. a pressed icon settling back). Never for page transitions.
+  static const Curve spring = Curves.easeOutBack;
+  static const Curve decelerate = Curves.decelerate;
+}
+
+/// Reduced-motion helpers. Every motion widget checks [reduced] and
+/// renders its final state immediately when the user asked for less motion
+/// (`MediaQuery.disableAnimations`).
+class DouriMotion {
+  const DouriMotion._();
+
+  static bool reduced(BuildContext context) =>
+      MediaQuery.of(context).disableAnimations;
+
+  static Duration scaled(BuildContext context, Duration d) =>
+      reduced(context) ? Duration.zero : d;
 }
 
 /// Staggered entrance delay for list item [index] (capped so long lists

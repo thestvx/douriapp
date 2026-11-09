@@ -1,5 +1,6 @@
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 
 import '../constants/app_colors.dart';
 import '../localization/app_localizations.dart';
@@ -142,8 +143,12 @@ class DouriAppBar extends StatelessWidget implements PreferredSizeWidget {
   }
 }
 
-/// Custom premium bottom navigation: floating dark pill with an animated
-/// lime indicator under the active item. Haptic feedback on tap.
+/// Custom premium bottom navigation: floating dark pill with a sliding
+/// lime pill behind the active item. Haptic feedback on tap.
+///
+/// The sliding pill is direction-aware: [AlignmentDirectional] keeps the
+/// first item at the start edge in both LTR and RTL. The active icon
+/// scales (transform only, no layout shift) and the label gains weight.
 class DouriBottomNav extends StatelessWidget {
   const DouriBottomNav({super.key, required this.currentIndex, required this.onTap, required this.items});
   final int currentIndex;
@@ -152,62 +157,98 @@ class DouriBottomNav extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.douriColors;
+    final labelStyle = Theme.of(context).textTheme.labelSmall ?? const TextStyle(fontSize: 11, height: 1.2);
     return SafeArea(
       child: Padding(
         padding: const EdgeInsets.fromLTRB(20, 0, 20, 12),
         child: Container(
           height: 68,
           decoration: BoxDecoration(
-            color: context.douriColors.elevated,
+            color: colors.elevated,
             borderRadius: BorderRadius.circular(34),
-            border: Border.all(color: context.douriColors.border),
+            border: Border.all(color: colors.border),
           ),
-          child: Row(
-            children: List.generate(items.length, (i) {
-              final active = i == currentIndex;
-              return Expanded(
-                child: InkWell(
-                  onTap: () => onTap(i),
-                  borderRadius: BorderRadius.circular(34),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      AnimatedSwitcher(
-                        duration: DouriDuration.fast,
-                        child: Icon(
-                          items[i].icon,
-                          key: ValueKey(active),
-                          size: 22,
-                          color: active ? AppColors.primaryAccent : context.douriColors.textSecondary,
+          child: Stack(
+            children: [
+              // Sliding lime pill behind the active item.
+              if (items.isNotEmpty)
+                AnimatedAlign(
+                  alignment: _pillAlignment(currentIndex, items.length),
+                  duration: DouriDuration.normal,
+                  curve: DouriCurves.standard,
+                  child: FractionallySizedBox(
+                    widthFactor: 1 / items.length,
+                    child: Padding(
+                      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 10),
+                      child: Container(
+                        decoration: BoxDecoration(
+                          color: AppColors.accentSoft,
+                          borderRadius: BorderRadius.circular(24),
                         ),
                       ),
-                      SizedBox(height: 3),
-                      Text(
-                        items[i].label,
-                        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-                              color: active ? AppColors.primaryAccent : context.douriColors.textSecondary,
-                            ),
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      const SizedBox(height: 3),
-                      AnimatedContainer(
-                        duration: DouriDuration.normal,
-                        curve: DouriCurves.standard,
-                        width: active ? 18 : 0,
-                        height: 3,
-                        decoration: BoxDecoration(color: AppColors.primaryAccent, borderRadius: BorderRadius.circular(2)),
-                      ),
-                    ],
+                    ),
                   ),
                 ),
-              );
-            }),
+              Row(
+                children: List.generate(items.length, (i) {
+                  final active = i == currentIndex;
+                  return Expanded(
+                    child: InkWell(
+                      onTap: () {
+                        HapticFeedback.selectionClick();
+                        onTap(i);
+                      },
+                      borderRadius: BorderRadius.circular(34),
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          AnimatedScale(
+                            scale: active ? 1.15 : 1.0,
+                            duration: DouriDuration.fast,
+                            curve: DouriCurves.standard,
+                            child: Icon(
+                              items[i].icon,
+                              size: 22,
+                              color: active ? AppColors.primaryAccent : colors.textSecondary,
+                            ),
+                          ),
+                          const SizedBox(height: 3),
+                          AnimatedDefaultTextStyle(
+                            duration: DouriDuration.fast,
+                            curve: DouriCurves.standard,
+                            style: labelStyle.copyWith(
+                              color: active ? AppColors.primaryAccent : colors.textSecondary,
+                              fontWeight: active ? FontWeight.w700 : FontWeight.w400,
+                            ),
+                            child: Text(
+                              items[i].label,
+                              maxLines: 1,
+                              overflow: TextOverflow.ellipsis,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  );
+                }),
+              ),
+            ],
           ),
         ),
       ),
     );
   }
+}
+
+/// Direction-aware pill alignment: -1 is the start edge (left in LTR,
+/// right in RTL), +1 the end edge. [index] is clamped to a valid item.
+/// Pure function of its arguments — uses no [BuildContext].
+AlignmentGeometry _pillAlignment(int index, int count) {
+  if (count <= 1) return AlignmentDirectional.center;
+  final clamped = index.clamp(0, count - 1);
+  final x = -1 + (2 * clamped / (count - 1));
+  return AlignmentDirectional(x, 0);
 }
 
 class DouriNavItem {
