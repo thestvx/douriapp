@@ -1,9 +1,10 @@
 class AppConfig {
   const AppConfig._();
 
-  // Replace with real values from Supabase project settings.
-  static const String supabaseUrl = 'https://YOUR_PROJECT.supabase.co';
-  static const String supabaseAnonKey = 'YOUR_SUPABASE_ANON_KEY';
+  // Supabase project qfkgftydtmgixikqgzcp — publishable (anon) key only.
+  // Never put a service_role key here.
+  static const String supabaseUrl = 'https://qfkgftydtmgixikqgzcp.supabase.co';
+  static const String supabaseAnonKey = 'sb_publishable_Cr3g4hGMjb3TfXA9Hv2UUg_rhEMy8_I';
 
   // Firebase is configured via google-services.json / firebase_options.dart.
 }
