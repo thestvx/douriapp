@@ -3,10 +3,10 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 
-import '../../../core/constants/app_colors.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/repository_providers.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/douri_button.dart';
 import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_chrome.dart';
@@ -305,7 +305,7 @@ class _BarberDetailsScreenState extends ConsumerState<BarberDetailsScreen> {
                                       children: [
                                         const Icon(
                                           Icons.people_outline,
-                                          color: AppColors.primaryAccent,
+                                          color: DouriTextStyles.accent(context),
                                         ),
                                         const SizedBox(width: DouriSpacing.md),
                                         Expanded(
@@ -321,7 +321,7 @@ class _BarberDetailsScreenState extends ConsumerState<BarberDetailsScreen> {
                                             style: Theme.of(context)
                                                 .textTheme
                                                 .titleLarge
-                                                ?.copyWith(color: AppColors.primaryAccent),
+                                                ?.copyWith(color: DouriTextStyles.accent(context)),
                                           ),
                                         ),
                                       ],
@@ -422,7 +422,7 @@ class _CoverFallback extends StatelessWidget {
     return Container(
       color: context.douriColors.elevated,
       alignment: Alignment.center,
-      child: const Icon(Icons.content_cut, size: 64, color: AppColors.primaryAccent),
+      child: Icon(Icons.content_cut, size: 64, color: DouriTextStyles.accent(context)),
     );
   }
 }

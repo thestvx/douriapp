@@ -96,10 +96,10 @@ class BookingConfirmationScreen extends ConsumerWidget {
                       color: AppColors.accentSoft,
                       border: Border.all(color: AppColors.primaryAccent, width: 1.5),
                     ),
-                    child: const Icon(
+                    child: Icon(
                       Icons.check,
                       size: 56,
-                      color: AppColors.primaryAccent,
+                      color: DouriTextStyles.accent(context),
                     ),
                   ),
                 )

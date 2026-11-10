@@ -7,6 +7,7 @@ import '../../core/localization/app_localizations.dart';
 import '../../core/services/notification_service.dart';
 import '../../core/services/repository_providers.dart';
 import '../../core/theme/app_tokens.dart';
+import '../../core/theme/app_typography.dart';
 import '../../core/widgets/douri_button.dart';
 import '../../core/widgets/douri_cards.dart';
 import '../../core/widgets/douri_chrome.dart';
@@ -154,10 +155,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                             shape: BoxShape.circle,
                             color: AppColors.accentSoft,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.person_outline,
                             size: 28,
-                            color: AppColors.primaryAccent,
+                            color: DouriTextStyles.accent(context),
                           ),
                         ),
                         const SizedBox(width: DouriSpacing.md),
@@ -205,10 +206,10 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                             shape: BoxShape.circle,
                             color: AppColors.accentSoft,
                           ),
-                          child: const Icon(
+                          child: Icon(
                             Icons.content_cut,
                             size: 28,
-                            color: AppColors.primaryAccent,
+                            color: DouriTextStyles.accent(context),
                           ),
                         ),
                         const SizedBox(width: DouriSpacing.md),
@@ -454,7 +455,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                     child: Text(
                       l10n.alreadyHaveAccount,
                       style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.primaryAccent,
+                            color: DouriTextStyles.accent(context),
                             fontWeight: FontWeight.w600,
                           ),
                     ),
