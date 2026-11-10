@@ -59,10 +59,13 @@ class DouriTextField extends StatelessWidget {
 }
 
 /// Search field with a clear button. Direction-aware (RTL/LTR safe).
+/// Pass a [focusNode] when the caller wants to react to focus changes
+/// (e.g. an animated glow / a cancel affordance on the Explore tab).
 class DouriSearchField extends StatelessWidget {
-  const DouriSearchField({super.key, required this.controller, required this.hint, this.onChanged, this.onSubmitted});
+  const DouriSearchField({super.key, required this.controller, required this.hint, this.focusNode, this.onChanged, this.onSubmitted});
   final TextEditingController controller;
   final String hint;
+  final FocusNode? focusNode;
   final ValueChanged<String>? onChanged;
   final ValueChanged<String>? onSubmitted;
 
@@ -70,6 +73,7 @@ class DouriSearchField extends StatelessWidget {
   Widget build(BuildContext context) {
     return TextField(
       controller: controller,
+      focusNode: focusNode,
       onChanged: onChanged,
       onSubmitted: onSubmitted,
       textInputAction: TextInputAction.search,

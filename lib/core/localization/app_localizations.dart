@@ -350,6 +350,10 @@ class AppLocalizations {
   String get shopSettings => _t('shopSettings');
   String get myShop => _t('myShop');
 
+  // --- Phase 6a: customer discovery ---
+  String get noOpenShops => _t('noOpenShops');
+  String get noOpenShopsMessage => _t('noOpenShopsMessage');
+
   static const Map<String, Map<String, String>> _strings = {
     'ar': {
       'appName': 'دوري',
@@ -658,6 +662,8 @@ class AppLocalizations {
       'shopPhotos': 'صور الصالون',
       'shopSettings': 'إعدادات العمل',
       'myShop': 'صالوني',
+      'noOpenShops': 'لا توجد صالونات مفتوحة الآن',
+      'noOpenShopsMessage': 'جميع الصالونات مغلقة حالياً. عُد لاحقاً أو تصفّح كل الصالونات.',
     },
     'en': {
       'appName': 'DOURI',
@@ -966,6 +972,8 @@ class AppLocalizations {
       'shopPhotos': 'Shop photos',
       'shopSettings': 'Working settings',
       'myShop': 'My shop',
+      'noOpenShops': 'No open shops right now',
+      'noOpenShopsMessage': 'All shops are closed right now. Check back later or browse all shops.',
     },
   };
 }

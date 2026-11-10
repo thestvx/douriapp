@@ -70,7 +70,7 @@ class DouriShopCard extends StatelessWidget {
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Hero(
-            tag: 'shop-cover-$shopId',
+            tag: 'shop-image-$shopId',
             child: ClipRRect(
               borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
               child: Container(
@@ -255,7 +255,10 @@ class DouriServiceCard extends StatelessWidget {
                 ),
                 SizedBox(width: DouriSpacing.md),
                 if (priceLabel != null)
-                  Text(priceLabel!, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.primaryAccent)),
+                  Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: Text(priceLabel!, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.primaryAccent)),
+                  ),
                 SizedBox(width: DouriSpacing.sm),
                 AnimatedSwitcher(
                   duration: DouriDuration.fast,
