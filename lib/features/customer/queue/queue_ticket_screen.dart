@@ -6,9 +6,11 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/repository_providers.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/douri_button.dart';
 import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_feedback.dart';
+import '../../../core/widgets/douri_motion.dart';
 import '../../../shared/models/booking.dart';
 import '../../../shared/models/queue_entry.dart';
 import '../home/shop_providers.dart';
@@ -36,19 +38,19 @@ class QueueTicketScreen extends ConsumerWidget {
         if (snapshot.connectionState == ConnectionState.waiting) {
           return Scaffold(
             appBar: AppBar(title: Text(l10n.queueTitle)),
-            body: const Center(
-              child: CircularProgressIndicator(color: AppColors.primaryAccent),
-            ),
+            body: const _TicketSkeleton(),
           );
         }
         final booking = snapshot.data;
         if (booking == null) {
           return Scaffold(
             appBar: AppBar(title: Text(l10n.queueTitle)),
-            body: DouriEmptyState(
-              icon: Icons.queue_outlined,
-              title: l10n.noActiveQueue,
-              message: l10n.noActiveQueueMessage,
+            body: DouriStagger(
+              child: DouriEmptyState(
+                icon: Icons.queue_outlined,
+                title: l10n.noActiveQueue,
+                message: l10n.noActiveQueueMessage,
+              ),
             ),
           );
         }
@@ -75,16 +77,16 @@ class _TicketView extends ConsumerWidget {
         future: ref.read(bookingRepositoryProvider).getBooking(bookingId),
         builder: (context, snapshot) {
           if (snapshot.connectionState == ConnectionState.waiting) {
-            return const Center(
-              child: CircularProgressIndicator(color: AppColors.primaryAccent),
-            );
+            return const _TicketSkeleton();
           }
           final booking = snapshot.data;
           if (booking == null) {
-            return DouriEmptyState(
-              icon: Icons.queue_outlined,
-              title: l10n.noActiveQueue,
-              message: l10n.noActiveQueueMessage,
+            return DouriStagger(
+              child: DouriEmptyState(
+                icon: Icons.queue_outlined,
+                title: l10n.noActiveQueue,
+                message: l10n.noActiveQueueMessage,
+              ),
             );
           }
           return _TicketLoaded(
@@ -93,6 +95,27 @@ class _TicketView extends ConsumerWidget {
             fallbackNumber: fallbackNumber,
           );
         },
+      ),
+    );
+  }
+}
+
+/// Skeleton shown while the ticket loads: a hero block plus the info
+/// card, matching the loaded layout's shapes.
+class _TicketSkeleton extends StatelessWidget {
+  const _TicketSkeleton();
+
+  @override
+  Widget build(BuildContext context) {
+    return const SingleChildScrollView(
+      padding: EdgeInsets.all(DouriSpacing.page),
+      child: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          DouriSkeleton(height: 250, radius: 18),
+          SizedBox(height: DouriSpacing.lg),
+          DouriSkeleton(height: 210, radius: 18),
+        ],
       ),
     );
   }
@@ -123,8 +146,10 @@ class _TicketLoaded extends ConsumerWidget {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: [
-          DouriEntrance(
-            child: Container(
+          DouriStagger(
+            child: AnimatedContainer(
+              duration: DouriDuration.normal,
+              curve: DouriCurves.standard,
               padding: const EdgeInsets.all(DouriSpacing.xxl),
               decoration: BoxDecoration(
                 color: isApproaching ? AppColors.accentSoft : context.douriColors.card,
@@ -138,33 +163,27 @@ class _TicketLoaded extends ConsumerWidget {
                 children: [
                   Text(l10n.queueNumber, style: Theme.of(context).textTheme.titleMedium),
                   const SizedBox(height: DouriSpacing.sm),
-                  AnimatedSwitcher(
-                    duration: DouriDuration.normal,
-                    transitionBuilder: (child, animation) => FadeTransition(
-                      opacity: animation,
-                      child: SlideTransition(
-                        position: Tween<Offset>(
-                          begin: const Offset(0, 0.25),
-                          end: Offset.zero,
-                        ).animate(animation),
-                        child: child,
-                      ),
-                    ),
-                    child: DouriQueueNumber(
-                      key: ValueKey(number),
-                      number: number,
+                  Directionality(
+                    textDirection: TextDirection.ltr,
+                    child: DouriAnimatedCounter(
+                      value: number,
+                      format: (v) => v.toString().padLeft(2, '0'),
+                      style: DouriTextStyles.queueNumber(context),
                     ),
                   ),
                   const SizedBox(height: DouriSpacing.md),
-                  Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
-                    decoration: BoxDecoration(
-                      color: color.withValues(alpha: 0.14),
-                      borderRadius: BorderRadius.circular(999),
-                    ),
-                    child: Text(
-                      label,
-                      style: Theme.of(context).textTheme.labelLarge?.copyWith(color: color),
+                  DouriAnimatedBadge(
+                    child: Container(
+                      key: ValueKey(status),
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      decoration: BoxDecoration(
+                        color: color.withValues(alpha: 0.14),
+                        borderRadius: BorderRadius.circular(999),
+                      ),
+                      child: Text(
+                        label,
+                        style: Theme.of(context).textTheme.labelLarge?.copyWith(color: color),
+                      ),
                     ),
                   ),
                   SizedBox(height: DouriSpacing.sm),
@@ -174,6 +193,8 @@ class _TicketLoaded extends ConsumerWidget {
                           color: context.douriColors.textSecondary,
                         ),
                     textAlign: TextAlign.center,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
                   ),
                 ],
               ),
@@ -181,7 +202,7 @@ class _TicketLoaded extends ConsumerWidget {
           ),
           const SizedBox(height: DouriSpacing.lg),
           if (shop != null)
-            DouriEntrance(
+            DouriStagger(
               index: 1,
               child: FutureBuilder<({int ahead, int? nowServing})>(
                 future: _loadQueueInfo(ref, shop.id, number),
@@ -207,11 +228,24 @@ class _TicketLoaded extends ConsumerWidget {
                                   ),
                             ),
                             const Spacer(),
-                            Text(
-                              nowServing == null ? '—' : '#$nowServing',
-                              style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                    color: AppColors.primaryAccent,
-                                  ),
+                            AnimatedSwitcher(
+                              duration: DouriMotion.scaled(
+                                  context, DouriDuration.normal),
+                              transitionBuilder: (child, animation) =>
+                                  FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
+                              child: Directionality(
+                                key: ValueKey(nowServing),
+                                textDirection: TextDirection.ltr,
+                                child: Text(
+                                  nowServing == null ? '—' : '#$nowServing',
+                                  style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                                        color: AppColors.primaryAccent,
+                                      ),
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -225,9 +259,22 @@ class _TicketLoaded extends ConsumerWidget {
                                   ),
                             ),
                             const Spacer(),
-                            Text(
-                              '$ahead',
-                              style: Theme.of(context).textTheme.titleLarge,
+                            AnimatedSwitcher(
+                              duration: DouriMotion.scaled(
+                                  context, DouriDuration.normal),
+                              transitionBuilder: (child, animation) =>
+                                  FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
+                              child: Directionality(
+                                key: ValueKey(ahead),
+                                textDirection: TextDirection.ltr,
+                                child: Text(
+                                  '$ahead',
+                                  style: Theme.of(context).textTheme.titleLarge,
+                                ),
+                              ),
                             ),
                           ],
                         ),
@@ -241,9 +288,19 @@ class _TicketLoaded extends ConsumerWidget {
                                   ),
                             ),
                             const Spacer(),
-                            Text(
-                              '$waitMinutes ${l10n.minutes}',
-                              style: Theme.of(context).textTheme.titleLarge,
+                            AnimatedSwitcher(
+                              duration: DouriMotion.scaled(
+                                  context, DouriDuration.normal),
+                              transitionBuilder: (child, animation) =>
+                                  FadeTransition(
+                                opacity: animation,
+                                child: child,
+                              ),
+                              child: Text(
+                                '$waitMinutes ${l10n.minutes}',
+                                key: ValueKey(waitMinutes),
+                                style: Theme.of(context).textTheme.titleLarge,
+                              ),
                             ),
                           ],
                         ),
@@ -264,7 +321,7 @@ class _TicketLoaded extends ConsumerWidget {
             ),
           if (booking.queueNumber == null && entry == null) ...[
             SizedBox(height: DouriSpacing.lg),
-            DouriEntrance(
+            DouriStagger(
               index: 2,
               child: Text(
                 l10n.queueNumberAfterApproval,
@@ -277,7 +334,7 @@ class _TicketLoaded extends ConsumerWidget {
           ],
           const SizedBox(height: DouriSpacing.xxl),
           if (booking.status == 'PENDING' || booking.status == 'CONFIRMED')
-            DouriEntrance(
+            DouriStagger(
               index: 3,
               child: DouriButton(
                 label: l10n.leaveQueue,

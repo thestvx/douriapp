@@ -9,6 +9,7 @@ import '../../../core/theme/app_tokens.dart';
 import '../../../core/widgets/douri_button.dart';
 import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_feedback.dart';
+import '../../../core/widgets/douri_motion.dart';
 import '../../../shared/models/booking.dart';
 import '../../authentication/auth_providers.dart';
 import '../home/shop_providers.dart';
@@ -68,21 +69,26 @@ class MyBookingsScreen extends ConsumerWidget {
                 DouriSpacing.page,
                 0,
               ),
-              child: Text(l10n.myBookings, style: Theme.of(context).textTheme.headlineMedium),
+              child: DouriStagger(
+                child: Text(l10n.myBookings, style: Theme.of(context).textTheme.headlineMedium),
+              ),
             ),
             SizedBox(height: DouriSpacing.md),
-            TabBar(
-              isScrollable: true,
-              tabAlignment: TabAlignment.start,
-              indicatorColor: AppColors.primaryAccent,
-              labelColor: AppColors.primaryAccent,
-              unselectedLabelColor: context.douriColors.textSecondary,
-              tabs: [
-                Tab(text: l10n.upcoming),
-                Tab(text: l10n.pending),
-                Tab(text: l10n.completed),
-                Tab(text: l10n.cancelled),
-              ],
+            DouriStagger(
+              index: 1,
+              child: TabBar(
+                isScrollable: true,
+                tabAlignment: TabAlignment.start,
+                indicatorColor: AppColors.primaryAccent,
+                labelColor: AppColors.primaryAccent,
+                unselectedLabelColor: context.douriColors.textSecondary,
+                tabs: [
+                  Tab(text: l10n.upcoming),
+                  Tab(text: l10n.pending),
+                  Tab(text: l10n.completed),
+                  Tab(text: l10n.cancelled),
+                ],
+              ),
             ),
             Expanded(
               child: auth.when(
@@ -127,10 +133,30 @@ class MyBookingsScreen extends ConsumerWidget {
                           .toList();
                       return TabBarView(
                         children: [
-                          _BookingsList(bookings: upcoming, uid: uid),
-                          _BookingsList(bookings: pending, uid: uid),
-                          _BookingsList(bookings: completed, uid: uid),
-                          _BookingsList(bookings: cancelled, uid: uid),
+                          _BookingsList(
+                            bookings: upcoming,
+                            uid: uid,
+                            emptyTitle: l10n.noUpcomingBookings,
+                            emptyMessage: l10n.noUpcomingBookingsMessage,
+                          ),
+                          _BookingsList(
+                            bookings: pending,
+                            uid: uid,
+                            emptyTitle: l10n.noPendingBookings,
+                            emptyMessage: l10n.noPendingBookingsMessage,
+                          ),
+                          _BookingsList(
+                            bookings: completed,
+                            uid: uid,
+                            emptyTitle: l10n.noCompletedBookings,
+                            emptyMessage: l10n.noCompletedBookingsMessage,
+                          ),
+                          _BookingsList(
+                            bookings: cancelled,
+                            uid: uid,
+                            emptyTitle: l10n.noCancelledBookings,
+                            emptyMessage: l10n.noCancelledBookingsMessage,
+                          ),
                         ],
                       );
                     },
@@ -146,18 +172,38 @@ class MyBookingsScreen extends ConsumerWidget {
 }
 
 class _BookingsList extends ConsumerWidget {
-  const _BookingsList({required this.bookings, required this.uid});
+  const _BookingsList({
+    required this.bookings,
+    required this.uid,
+    required this.emptyTitle,
+    required this.emptyMessage,
+  });
   final List<Booking> bookings;
   final String uid;
+  final String emptyTitle;
+  final String emptyMessage;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
-    final l10n = AppLocalizations.of(context);
     if (bookings.isEmpty) {
-      return DouriEmptyState(
-        icon: Icons.calendar_today_outlined,
-        title: l10n.noBookings,
-        message: l10n.noBookingsMessage,
+      // Empty tabs keep pull-to-refresh (same as the lists) via a
+      // fill-remaining sliver, so the user can check for new bookings.
+      return RefreshIndicator(
+        onRefresh: () async => ref.invalidate(customerBookingsProvider(uid)),
+        child: CustomScrollView(
+          physics: const AlwaysScrollableScrollPhysics(),
+          slivers: [
+            SliverFillRemaining(
+              child: DouriStagger(
+                child: DouriEmptyState(
+                  icon: Icons.calendar_today_outlined,
+                  title: emptyTitle,
+                  message: emptyMessage,
+                ),
+              ),
+            ),
+          ],
+        ),
       );
     }
     return RefreshIndicator(
@@ -167,9 +213,25 @@ class _BookingsList extends ConsumerWidget {
         padding: const EdgeInsets.all(DouriSpacing.page),
         itemCount: bookings.length,
         separatorBuilder: (_, __) => const SizedBox(height: DouriSpacing.md),
-        itemBuilder: (_, i) => DouriEntrance(
+        itemBuilder: (_, i) => DouriStagger(
+          key: ValueKey(bookings[i].id),
           index: i,
-          child: _BookingRow(booking: bookings[i]),
+          // Keyed by id + status so a status change (e.g. an approval
+          // arriving live) cross-fades the card in place instead of
+          // swapping abruptly — same pattern as the barber requests
+          // screen. The list-level key above keeps Realtime inserts
+          // and removals from rebuilding the whole list.
+          child: AnimatedSwitcher(
+            duration: DouriMotion.scaled(context, DouriDuration.normal),
+            transitionBuilder: (child, animation) => FadeTransition(
+              opacity: animation,
+              child: child,
+            ),
+            child: _BookingRow(
+              key: ValueKey('${bookings[i].id}_${bookings[i].status}'),
+              booking: bookings[i],
+            ),
+          ),
         ),
       ),
     );
@@ -177,7 +239,7 @@ class _BookingsList extends ConsumerWidget {
 }
 
 class _BookingRow extends ConsumerWidget {
-  const _BookingRow({required this.booking});
+  const _BookingRow({super.key, required this.booking});
   final Booking booking;
 
   void _open(BuildContext context) {
