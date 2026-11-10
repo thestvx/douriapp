@@ -8,6 +8,7 @@ import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_controller.dart';
 import '../../core/services/app_prefs.dart';
 import '../../core/theme/app_tokens.dart';
+import '../../core/theme/app_typography.dart';
 import '../../core/widgets/douri_motion.dart';
 import '../../core/widgets/douri_visual.dart';
 import '../../core/theme/douri_colors.dart';
@@ -168,7 +169,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                   Text(
                     l10n.appName,
                     style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                          color: AppColors.primaryAccent,
+                          color: DouriTextStyles.accent(context),
                           fontWeight: FontWeight.w800,
                           letterSpacing: 2,
                         ),
@@ -219,7 +220,7 @@ class _LanguageChip extends StatelessWidget {
           child: Text(
             label,
             style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                  color: selected ? AppColors.primaryAccent : context.douriColors.textSecondary,
+                  color: selected ? DouriTextStyles.accent(context) : context.douriColors.textSecondary,
                 ),
           ),
         ),

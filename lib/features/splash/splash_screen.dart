@@ -10,6 +10,7 @@ import '../../core/localization/app_localizations.dart';
 import '../../core/services/app_prefs.dart';
 import '../../core/services/repository_providers.dart';
 import '../../core/theme/app_tokens.dart';
+import '../../core/theme/app_typography.dart';
 import '../../core/theme/douri_colors.dart';
 import '../authentication/auth_providers.dart';
 
@@ -93,7 +94,7 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
             shape: BoxShape.circle,
             border: Border.all(color: context.douriColors.border),
           ),
-          child: const Icon(Icons.content_cut, size: 56, color: AppColors.primaryAccent),
+          child: Icon(Icons.content_cut, size: 56, color: DouriTextStyles.accent(context)),
         ),
       ],
     );
