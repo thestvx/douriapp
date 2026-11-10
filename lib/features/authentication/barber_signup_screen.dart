@@ -8,6 +8,7 @@ import '../../core/localization/app_localizations.dart';
 import '../../core/services/notification_service.dart';
 import '../../core/services/repository_providers.dart';
 import '../../core/theme/app_tokens.dart';
+import '../../core/theme/app_typography.dart';
 import '../../core/widgets/douri_button.dart';
 import '../../core/widgets/douri_fields.dart';
 import '../../core/widgets/douri_motion.dart';
@@ -508,7 +509,7 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
                 child: Text(
                   _locationStatus!,
                   style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.primaryAccent,
+                        color: DouriTextStyles.accent(context),
                       ),
                   textAlign: TextAlign.center,
                 ),
@@ -534,7 +535,7 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
                         height: 48,
                         child: IconButton(
                           icon: const Icon(Icons.remove_circle_outline),
-                          color: AppColors.primaryAccent,
+                          color: DouriTextStyles.accent(context),
                           iconSize: 32,
                           onPressed: _chairs > 1
                               ? () => setState(() => _chairs--)
@@ -564,7 +565,7 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
                         height: 48,
                         child: IconButton(
                           icon: const Icon(Icons.add_circle_outline),
-                          color: AppColors.primaryAccent,
+                          color: DouriTextStyles.accent(context),
                           iconSize: 32,
                           onPressed: _chairs < 20
                               ? () => setState(() => _chairs++)
@@ -804,14 +805,14 @@ class _WizardDayPill extends StatelessWidget {
             AnimatedOpacity(
               opacity: selected ? 1 : 0,
               duration: DouriDuration.fast,
-              child: const Icon(Icons.check, size: 16, color: AppColors.primaryAccent),
+              child: Icon(Icons.check, size: 16, color: DouriTextStyles.accent(context)),
             ),
             const SizedBox(width: DouriSpacing.xs),
             Text(
               label,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: selected
-                        ? AppColors.primaryAccent
+                        ? DouriTextStyles.accent(context)
                         : context.douriColors.text,
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                   ),

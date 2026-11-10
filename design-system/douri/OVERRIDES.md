@@ -40,6 +40,14 @@ conflict. Page files in `design-system/douri/pages/` override both.
 - Booking rule (unchanged): a booking starts PENDING; no queue number is
   shown before the barber accepts. The success screen shows the live queue
   number the moment acceptance arrives via Realtime.
+- **Theme-aware accent (Phase 9 QA):** brand lime `#C8F078` on a light
+  surface is ~1.5:1 (unreadable). Any lime TEXT or meaningful ICON must
+  use `DouriTextStyles.accent(context)` — lime in dark, deep lime
+  `#4E7416` (~5.5:1 on white) in light. Never raw
+  `AppColors.primaryAccent` for text/icons. Lime fills, borders and
+  progress indicators may stay brand lime (state is never conveyed by
+  border colour alone). `DouriQueueNumber` uses the theme-aware
+  `queueNumber` style.
 - No mock data, no new packages unless truly needed
   (`flutter_animate` is already a dependency — prefer it + native Flutter
   animation). No schema changes, no Firestore, no secrets in code.

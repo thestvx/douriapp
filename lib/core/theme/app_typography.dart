@@ -68,6 +68,12 @@ class DouriTextStyles {
           ? const Color(0xFFC8F078)
           : _deepLimeLight;
 
+  /// Theme-aware accent for TEXT and meaningful icons: brand lime in the
+  /// dark theme, deep lime in the light theme (brand lime on white is
+  /// ~1.5:1 and unreadable; deep lime is ~5.5:1). Use this — never raw
+  /// [AppColors.primaryAccent] — for any lime text or icon.
+  static Color accent(BuildContext context) => _accent(context);
+
   static TextStyle display(BuildContext context) => TextStyle(
       fontFamily: _family(context), fontWeight: FontWeight.w900, fontSize: 40, height: 1.1, color: _primary(context));
   static TextStyle screenTitle(BuildContext context) => TextStyle(

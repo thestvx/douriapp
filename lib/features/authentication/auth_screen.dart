@@ -7,6 +7,7 @@ import '../../core/localization/app_localizations.dart';
 import '../../core/services/notification_service.dart';
 import '../../core/services/repository_providers.dart';
 import '../../core/theme/app_tokens.dart';
+import '../../core/theme/app_typography.dart';
 import '../../core/widgets/douri_button.dart';
 import '../../core/widgets/douri_fields.dart';
 import '../../core/widgets/douri_motion.dart';
@@ -113,7 +114,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   child: Text(
                     l10n.appName,
                     style: Theme.of(context).textTheme.labelLarge?.copyWith(
-                          color: AppColors.primaryAccent,
+                          color: DouriTextStyles.accent(context),
                           fontWeight: FontWeight.w800,
                           letterSpacing: 4,
                         ),
@@ -257,7 +258,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                         child: Text(
                           l10n.noAccount,
                           style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                                color: AppColors.primaryAccent,
+                                color: DouriTextStyles.accent(context),
                                 fontWeight: FontWeight.w600,
                               ),
                         ),

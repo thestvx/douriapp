@@ -6,6 +6,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/localization/app_localizations.dart';
 import '../../core/services/repository_providers.dart';
 import '../../core/theme/app_tokens.dart';
+import '../../core/theme/app_typography.dart';
 import '../../core/widgets/douri_cards.dart';
 import '../../core/widgets/douri_chrome.dart';
 import '../../core/widgets/douri_fields.dart';
@@ -125,7 +126,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                             shape: BoxShape.circle,
                             color: AppColors.accentSoft,
                           ),
-                          child: Icon(Icons.person_outline, size: 28, color: AppColors.primaryAccent),
+                          child: Icon(Icons.person_outline, size: 28, color: DouriTextStyles.accent(context)),
                         ),
                         SizedBox(width: DouriSpacing.lg),
                         Expanded(
@@ -150,7 +151,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                             shape: BoxShape.circle,
                             color: AppColors.accentSoft,
                           ),
-                          child: Icon(Icons.content_cut, size: 28, color: AppColors.primaryAccent),
+                          child: Icon(Icons.content_cut, size: 28, color: DouriTextStyles.accent(context)),
                         ),
                         SizedBox(width: DouriSpacing.lg),
                         Expanded(
@@ -163,7 +164,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                 ),
                 if (_saving) ...[
                   const SizedBox(height: DouriSpacing.xxl),
-                  const Center(child: CircularProgressIndicator(color: AppColors.primaryAccent)),
+                  Center(child: CircularProgressIndicator(color: DouriTextStyles.accent(context))),
                 ],
                 const SizedBox(height: DouriSpacing.lg),
                 AnimatedSwitcher(

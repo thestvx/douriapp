@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
 import '../theme/app_tokens.dart';
+import '../theme/app_typography.dart';
 import 'douri_chrome.dart';
 import '../theme/douri_colors.dart';
 
@@ -81,8 +82,8 @@ class DouriShopCard extends StatelessWidget {
                   fit: StackFit.expand,
                   children: [
                     coverImageUrl != null && coverImageUrl!.isNotEmpty
-                        ? CachedNetworkImage(imageUrl: coverImageUrl!, fit: BoxFit.cover, errorWidget: (_, __, ___) => _coverFallback())
-                        : _coverFallback(),
+                        ? CachedNetworkImage(imageUrl: coverImageUrl!, fit: BoxFit.cover, errorWidget: (_, __, ___) => _coverFallback(context))
+                        : _coverFallback(context),
                     Positioned.fill(
                       child: DecoratedBox(
                         decoration: BoxDecoration(
@@ -159,7 +160,7 @@ class DouriShopCard extends StatelessWidget {
     );
   }
 
-  Widget _coverFallback() => const Center(child: Icon(Icons.content_cut, size: 44, color: AppColors.primaryAccent));
+  Widget _coverFallback(BuildContext context) => Center(child: Icon(Icons.content_cut, size: 44, color: DouriTextStyles.accent(context)));
 }
 
 /// Compact barber/person card (used for barbers when a shop lists them;
@@ -257,7 +258,7 @@ class DouriServiceCard extends StatelessWidget {
                 if (priceLabel != null)
                   Directionality(
                     textDirection: TextDirection.ltr,
-                    child: Text(priceLabel!, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: AppColors.primaryAccent)),
+                    child: Text(priceLabel!, style: Theme.of(context).textTheme.titleMedium?.copyWith(color: DouriTextStyles.accent(context))),
                   ),
                 SizedBox(width: DouriSpacing.sm),
                 AnimatedSwitcher(
@@ -265,7 +266,7 @@ class DouriServiceCard extends StatelessWidget {
                   child: Icon(
                     selected ? Icons.check_circle : Icons.circle_outlined,
                     key: ValueKey(selected),
-                    color: selected ? AppColors.primaryAccent : context.douriColors.textMuted,
+                    color: selected ? DouriTextStyles.accent(context) : context.douriColors.textMuted,
                   ),
                 ),
               ],
@@ -349,7 +350,7 @@ class DouriBookingCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(color: AppColors.accentSoft, borderRadius: BorderRadius.circular(999)),
-                  child: Text('#$queueNumber', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: AppColors.primaryAccent)),
+                  child: Text('#$queueNumber', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: DouriTextStyles.accent(context))),
                 ),
             ],
           ),
@@ -390,7 +391,7 @@ class DouriQueueCard extends StatelessWidget {
             height: 52,
             alignment: Alignment.center,
             decoration: BoxDecoration(color: context.douriColors.elevated, borderRadius: BorderRadius.circular(DouriRadius.md)),
-            child: Text('$queueNumber', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: AppColors.primaryAccent)),
+            child: Text('$queueNumber', style: Theme.of(context).textTheme.headlineSmall?.copyWith(color: DouriTextStyles.accent(context))),
           ),
           const SizedBox(width: DouriSpacing.md),
           Expanded(

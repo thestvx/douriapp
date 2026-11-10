@@ -106,7 +106,7 @@ class DouriEmptyState extends StatelessWidget {
               width: 72,
               height: 72,
               decoration: BoxDecoration(color: context.douriColors.elevated, shape: BoxShape.circle),
-              child: Icon(icon, size: 32, color: AppColors.primaryAccent),
+              child: Icon(icon, size: 32, color: DouriTextStyles.accent(context)),
             ),
             SizedBox(height: DouriSpacing.lg),
             Text(title, style: Theme.of(context).textTheme.titleLarge, textAlign: TextAlign.center),
@@ -246,7 +246,7 @@ Future<bool> showDouriConfirm(
         TextButton(onPressed: () => Navigator.of(ctx).pop(false), child: Text(cancelLabel)),
         TextButton(
           onPressed: () => Navigator.of(ctx).pop(true),
-          child: Text(confirmLabel, style: TextStyle(color: destructive ? AppColors.danger : AppColors.primaryAccent)),
+          child: Text(confirmLabel, style: TextStyle(color: destructive ? AppColors.danger : DouriTextStyles.accent(context))),
         ),
       ],
     ),
