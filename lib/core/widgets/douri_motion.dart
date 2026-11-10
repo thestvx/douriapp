@@ -234,9 +234,18 @@ class _DouriShimmerState extends State<DouriShimmer>
   ).animate(CurvedAnimation(parent: _controller, curve: Curves.linear));
 
   @override
-  void initState() {
-    super.initState();
-    if (!DouriMotion.reduced(context)) _controller.repeat();
+  void didChangeDependencies() {
+    super.didChangeDependencies();
+    // MediaQuery (via DouriMotion.reduced) cannot be read in initState —
+    // inherited widgets are only available from didChangeDependencies on.
+    // Reading it there crashed the app on every screen that mounts a
+    // shimmer. Starting/stopping here also honours a system reduced-motion
+    // change mid-session.
+    if (DouriMotion.reduced(context)) {
+      if (_controller.isAnimating) _controller.stop();
+    } else if (!_controller.isAnimating) {
+      _controller.repeat();
+    }
   }
 
   @override
