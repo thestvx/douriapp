@@ -11,33 +11,91 @@ import '../../../core/widgets/douri_button.dart';
 import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_chrome.dart';
 import '../../../core/widgets/douri_feedback.dart';
+import '../../../core/widgets/douri_motion.dart';
 import '../home/shop_providers.dart';
 import '../../../core/theme/douri_colors.dart';
 
-class BarberDetailsScreen extends ConsumerWidget {
+class BarberDetailsScreen extends ConsumerStatefulWidget {
   const BarberDetailsScreen({super.key, required this.shopId});
   final String shopId;
 
   @override
-  Widget build(BuildContext context, WidgetRef ref) {
+  ConsumerState<BarberDetailsScreen> createState() => _BarberDetailsScreenState();
+}
+
+class _BarberDetailsScreenState extends ConsumerState<BarberDetailsScreen> {
+  /// Locally selected service (visual state only). The booking screen owns
+  /// the real service choice — this screen never passes the selection on,
+  /// and the Book action still navigates to `/booking/:id` unchanged.
+  String? _selectedServiceId;
+
+  /// Back affordance for the loading/error/empty states, which have no
+  /// hero back button — without it the user would be stuck on this route.
+  Widget _stateWithBack({required Widget child}) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        SafeArea(
+          child: Padding(
+            padding: const EdgeInsets.all(DouriSpacing.md),
+            child: DouriIconButton(
+              icon: Icons.arrow_back_ios_new,
+              onPressed: () => context.pop(),
+            ),
+          ),
+        ),
+        Expanded(child: child),
+      ],
+    );
+  }
+
+  @override
+  Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    final shopId = widget.shopId;
     final shopAsync = ref.watch(shopByIdProvider(shopId));
 
     return Scaffold(
       body: shopAsync.when(
-        loading: () => const Center(
-          child: CircularProgressIndicator(color: AppColors.primaryAccent),
+        loading: () => SingleChildScrollView(
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              const DouriSkeleton(height: 320, radius: 0),
+              Padding(
+                padding: const EdgeInsets.all(DouriSpacing.page),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const DouriSkeleton(width: 180, height: 24, radius: 8),
+                    const SizedBox(height: DouriSpacing.md),
+                    const DouriSkeleton(width: 120, height: 14, radius: 8),
+                    const SizedBox(height: DouriSpacing.xl),
+                    const DouriSkeleton(height: 64, radius: 18),
+                    const SizedBox(height: DouriSpacing.xl),
+                    const DouriSkeleton(width: 110, height: 20, radius: 8),
+                    const SizedBox(height: DouriSpacing.md),
+                    const DouriSkeletonList(),
+                  ],
+                ),
+              ),
+            ],
+          ),
         ),
-        error: (e, _) => DouriErrorState(
-          message: e.toString(),
-          onRetry: () => ref.invalidate(shopByIdProvider(shopId)),
+        error: (e, _) => _stateWithBack(
+          child: DouriErrorState(
+            message: e.toString(),
+            onRetry: () => ref.invalidate(shopByIdProvider(shopId)),
+          ),
         ),
         data: (shop) {
           if (shop == null) {
-            return DouriEmptyState(
-              icon: Icons.store_outlined,
-              title: l10n.noShops,
-              message: l10n.noShopsMessage,
+            return _stateWithBack(
+              child: DouriEmptyState(
+                icon: Icons.store_outlined,
+                title: l10n.noShops,
+                message: l10n.noShopsMessage,
+              ),
             );
           }
           final ratingAsync = ref.watch(shopRatingProvider(shopId));
@@ -52,7 +110,9 @@ class BarberDetailsScreen extends ConsumerWidget {
                       Stack(
                         children: [
                           Hero(
-                            tag: 'shop-cover-$shopId',
+                            // Same tag as DouriShopCard ('shop-image-<id>')
+                            // so the cover flies in from Home / Explore.
+                            tag: 'shop-image-$shopId',
                             child: SizedBox(
                               height: 320,
                               width: double.infinity,
@@ -108,7 +168,12 @@ class BarberDetailsScreen extends ConsumerWidget {
                                         style: Theme.of(context).textTheme.headlineMedium,
                                       ),
                                     ),
-                                    DouriStatusBadge(open: shop.isOpen),
+                                    DouriAnimatedBadge(
+                                      child: DouriStatusBadge(
+                                        key: ValueKey(shop.isOpen),
+                                        open: shop.isOpen,
+                                      ),
+                                    ),
                                   ],
                                 ),
                                 SizedBox(height: DouriSpacing.sm),
@@ -134,11 +199,15 @@ class BarberDetailsScreen extends ConsumerWidget {
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
                           children: [
-                            // Name + rating already sit on the hero above.
+                            // Shop identity: address, description and phone,
+                            // grouped under one section header.
+                            DouriStagger(
+                              child: DouriSectionHeader(title: l10n.shopDetails),
+                            ),
                             if (shop.address != null && shop.address!.isNotEmpty) ...[
                               SizedBox(height: DouriSpacing.md),
-                              DouriEntrance(
-                                index: 2,
+                              DouriStagger(
+                                index: 1,
                                 child: Row(
                                   children: [
                                     Icon(
@@ -159,8 +228,8 @@ class BarberDetailsScreen extends ConsumerWidget {
                             ],
                             if (shop.description != null && shop.description!.isNotEmpty) ...[
                               SizedBox(height: DouriSpacing.md),
-                              DouriEntrance(
-                                index: 3,
+                              DouriStagger(
+                                index: 2,
                                 child: Text(
                                   shop.description!,
                                   style: Theme.of(context).textTheme.bodyMedium?.copyWith(
@@ -171,8 +240,8 @@ class BarberDetailsScreen extends ConsumerWidget {
                             ],
                             if (shop.phoneNumber != null && shop.phoneNumber!.isNotEmpty) ...[
                               SizedBox(height: DouriSpacing.md),
-                              DouriEntrance(
-                                index: 4,
+                              DouriStagger(
+                                index: 3,
                                 child: Row(
                                   children: [
                                     Icon(
@@ -182,9 +251,12 @@ class BarberDetailsScreen extends ConsumerWidget {
                                     ),
                                     const SizedBox(width: DouriSpacing.sm),
                                     Expanded(
-                                      child: Text(
-                                        shop.phoneNumber!,
-                                        style: Theme.of(context).textTheme.bodyMedium,
+                                      child: Directionality(
+                                        textDirection: TextDirection.ltr,
+                                        child: Text(
+                                          shop.phoneNumber!,
+                                          style: Theme.of(context).textTheme.bodyMedium,
+                                        ),
                                       ),
                                     ),
                                   ],
@@ -192,13 +264,13 @@ class BarberDetailsScreen extends ConsumerWidget {
                               ),
                             ],
                             const SizedBox(height: DouriSpacing.xl),
-                            DouriEntrance(
-                              index: 5,
+                            DouriStagger(
+                              index: 4,
                               child: DouriSectionHeader(title: l10n.currentQueue),
                             ),
                             const SizedBox(height: DouriSpacing.md),
-                            DouriEntrance(
-                              index: 6,
+                            DouriStagger(
+                              index: 5,
                               child: FutureBuilder<Map<String, dynamic>?>(
                                 future: ref
                                     .read(queueRepositoryProvider)
@@ -242,12 +314,15 @@ class BarberDetailsScreen extends ConsumerWidget {
                                             style: Theme.of(context).textTheme.bodyMedium,
                                           ),
                                         ),
-                                        Text(
-                                          current == null ? '—' : '#$current',
-                                          style: Theme.of(context)
-                                              .textTheme
-                                              .titleLarge
-                                              ?.copyWith(color: AppColors.primaryAccent),
+                                        Directionality(
+                                          textDirection: TextDirection.ltr,
+                                          child: Text(
+                                            current == null ? '—' : '#$current',
+                                            style: Theme.of(context)
+                                                .textTheme
+                                                .titleLarge
+                                                ?.copyWith(color: AppColors.primaryAccent),
+                                          ),
                                         ),
                                       ],
                                     ),
@@ -256,8 +331,8 @@ class BarberDetailsScreen extends ConsumerWidget {
                               ),
                             ),
                             const SizedBox(height: DouriSpacing.xl),
-                            DouriEntrance(
-                              index: 7,
+                            DouriStagger(
+                              index: 6,
                               child: DouriSectionHeader(title: l10n.services),
                             ),
                             const SizedBox(height: DouriSpacing.md),
@@ -279,8 +354,9 @@ class BarberDetailsScreen extends ConsumerWidget {
                                   children: [
                                     for (var i = 0; i < services.length; i++)
                                       Padding(
+                                        key: ValueKey(services[i].id),
                                         padding: const EdgeInsets.only(bottom: DouriSpacing.md),
-                                        child: DouriEntrance(
+                                        child: DouriStagger(
                                           index: i,
                                           child: DouriServiceCard(
                                             name: services[i].serviceName,
@@ -289,6 +365,16 @@ class BarberDetailsScreen extends ConsumerWidget {
                                             priceLabel: services[i].price == null
                                                 ? null
                                                 : services[i].price!.toStringAsFixed(0),
+                                            // Selection is lime border +
+                                            // filled check (never colour
+                                            // alone) via DouriServiceCard.
+                                            selected: _selectedServiceId == services[i].id,
+                                            onTap: () => setState(() {
+                                              _selectedServiceId =
+                                                  _selectedServiceId == services[i].id
+                                                      ? null
+                                                      : services[i].id;
+                                            }),
                                           ),
                                         ),
                                       ),
