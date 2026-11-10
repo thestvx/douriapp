@@ -354,6 +354,16 @@ class AppLocalizations {
   String get noOpenShops => _t('noOpenShops');
   String get noOpenShopsMessage => _t('noOpenShopsMessage');
 
+  // --- Phase 6b+7: booking journey / my bookings ---
+  String get noUpcomingBookings => _t('noUpcomingBookings');
+  String get noUpcomingBookingsMessage => _t('noUpcomingBookingsMessage');
+  String get noPendingBookings => _t('noPendingBookings');
+  String get noPendingBookingsMessage => _t('noPendingBookingsMessage');
+  String get noCompletedBookings => _t('noCompletedBookings');
+  String get noCompletedBookingsMessage => _t('noCompletedBookingsMessage');
+  String get noCancelledBookings => _t('noCancelledBookings');
+  String get noCancelledBookingsMessage => _t('noCancelledBookingsMessage');
+
   static const Map<String, Map<String, String>> _strings = {
     'ar': {
       'appName': 'دوري',
@@ -664,6 +674,14 @@ class AppLocalizations {
       'myShop': 'صالوني',
       'noOpenShops': 'لا توجد صالونات مفتوحة الآن',
       'noOpenShopsMessage': 'جميع الصالونات مغلقة حالياً. عُد لاحقاً أو تصفّح كل الصالونات.',
+      'noUpcomingBookings': 'لا توجد حجوزات قادمة',
+      'noUpcomingBookingsMessage': 'ليس لديك حجز قادم حالياً. احجز موعدك وسيظهر هنا.',
+      'noPendingBookings': 'لا توجد حجوزات معلّقة',
+      'noPendingBookingsMessage': 'لا توجد حجوزات بانتظار قبول الحلاق حالياً.',
+      'noCompletedBookings': 'لا توجد حجوزات مكتملة',
+      'noCompletedBookingsMessage': 'لم تكمل أي حجز بعد. ستظهر حجوزاتك المكتملة هنا.',
+      'noCancelledBookings': 'لا توجد حجوزات ملغاة',
+      'noCancelledBookingsMessage': 'لا توجد حجوزات ملغاة أو مرفوضة.',
     },
     'en': {
       'appName': 'DOURI',
@@ -974,6 +992,14 @@ class AppLocalizations {
       'myShop': 'My shop',
       'noOpenShops': 'No open shops right now',
       'noOpenShopsMessage': 'All shops are closed right now. Check back later or browse all shops.',
+      'noUpcomingBookings': 'No upcoming bookings',
+      'noUpcomingBookingsMessage': 'You have no upcoming booking right now. Book an appointment and it will appear here.',
+      'noPendingBookings': 'No pending bookings',
+      'noPendingBookingsMessage': 'No bookings are waiting for the barber to accept right now.',
+      'noCompletedBookings': 'No completed bookings',
+      'noCompletedBookingsMessage': 'You have not completed a booking yet. Completed bookings will appear here.',
+      'noCancelledBookings': 'No cancelled bookings',
+      'noCancelledBookingsMessage': 'No cancelled or rejected bookings.',
     },
   };
 }
