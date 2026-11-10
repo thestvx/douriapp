@@ -8,6 +8,7 @@ import '../../../core/localization/app_localizations.dart';
 import '../../../core/localization/locale_controller.dart';
 import '../../../core/services/repository_providers.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/douri_button.dart';
 import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_chrome.dart';
@@ -307,7 +308,7 @@ class _LanguageRow extends StatelessWidget {
           ),
         ),
         child: selected
-            ? Icon(Icons.check_circle, key: const ValueKey('on'), color: AppColors.primaryAccent)
+            ? Icon(Icons.check_circle, key: const ValueKey('on'), color: DouriTextStyles.accent(context))
             : Icon(Icons.circle_outlined, key: const ValueKey('off'), color: context.douriColors.textMuted),
       ),
       onTap: onTap,

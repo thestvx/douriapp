@@ -6,6 +6,7 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/localization/app_localizations.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/douri_button.dart';
 import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_feedback.dart';
@@ -168,10 +169,10 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             AnimatedOpacity(
               opacity: selected ? 1 : 0,
               duration: DouriMotion.scaled(context, DouriDuration.fast),
-              child: const Row(
+              child: Row(
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  Icon(Icons.check, size: 16, color: AppColors.primaryAccent),
+                  Icon(Icons.check, size: 16, color: DouriTextStyles.accent(context)),
                   SizedBox(width: 6),
                 ],
               ),
@@ -180,7 +181,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
               duration: DouriMotion.scaled(context, DouriDuration.normal),
               curve: DouriCurves.standard,
               style: labelStyle.copyWith(
-                color: selected ? AppColors.primaryAccent : colors.text,
+                color: selected ? DouriTextStyles.accent(context) : colors.text,
                 fontWeight: selected ? FontWeight.w700 : FontWeight.w400,
               ),
               child: Text(label),

@@ -242,7 +242,7 @@ class _TicketLoaded extends ConsumerWidget {
                                 child: Text(
                                   nowServing == null ? '—' : '#$nowServing',
                                   style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                                        color: AppColors.primaryAccent,
+                                        color: DouriTextStyles.accent(context),
                                       ),
                                 ),
                               ),
@@ -384,9 +384,9 @@ class _TicketLoaded extends ConsumerWidget {
     case 'WAITING':
       return (l10n.queueWaiting, context.douriColors.textSecondary);
     case 'APPROACHING':
-      return (l10n.queueApproaching, AppColors.primaryAccent);
+      return (l10n.queueApproaching, DouriTextStyles.accent(context));
     case 'CURRENT':
-      return (l10n.queueCurrent, AppColors.primaryAccent);
+      return (l10n.queueCurrent, DouriTextStyles.accent(context));
     case 'COMPLETED':
       return (l10n.queueCompleted, AppColors.success);
     case 'SKIPPED':

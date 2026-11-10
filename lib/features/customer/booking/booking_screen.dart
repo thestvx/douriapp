@@ -8,6 +8,7 @@ import '../../../core/localization/app_localizations.dart';
 import '../../../core/services/repository_providers.dart';
 import '../../../core/services/supabase_service.dart';
 import '../../../core/theme/app_tokens.dart';
+import '../../../core/theme/app_typography.dart';
 import '../../../core/widgets/douri_button.dart';
 import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_chrome.dart';
@@ -597,7 +598,7 @@ class _StepBody extends ConsumerWidget {
                       value: service?.price == null
                           ? '—'
                           : service!.price!.toStringAsFixed(0),
-                      valueColor: AppColors.primaryAccent,
+                      valueColor: DouriTextStyles.accent(context),
                       ltrValue: true,
                     ),
                     const SizedBox(height: DouriSpacing.md),
@@ -739,14 +740,14 @@ class _DayPill extends StatelessWidget {
             AnimatedOpacity(
               opacity: selected ? 1 : 0,
               duration: DouriDuration.fast,
-              child: const Icon(Icons.check, size: 16, color: AppColors.primaryAccent),
+              child: Icon(Icons.check, size: 16, color: DouriTextStyles.accent(context)),
             ),
             const SizedBox(width: DouriSpacing.xs),
             Text(
               label,
               style: Theme.of(context).textTheme.labelLarge?.copyWith(
                     color: selected
-                        ? AppColors.primaryAccent
+                        ? DouriTextStyles.accent(context)
                         : context.douriColors.text,
                     fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                   ),
@@ -803,7 +804,7 @@ class _TimeSlotChip extends StatelessWidget {
             AnimatedOpacity(
               opacity: selected ? 1 : 0,
               duration: DouriDuration.fast,
-              child: const Icon(Icons.check, size: 16, color: AppColors.primaryAccent),
+              child: Icon(Icons.check, size: 16, color: DouriTextStyles.accent(context)),
             ),
             const SizedBox(width: DouriSpacing.xs),
             Directionality(
@@ -814,7 +815,7 @@ class _TimeSlotChip extends StatelessWidget {
                       color: taken
                           ? context.douriColors.textMuted
                           : selected
-                              ? AppColors.primaryAccent
+                              ? DouriTextStyles.accent(context)
                               : context.douriColors.text,
                       fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
                       decoration: taken ? TextDecoration.lineThrough : null,
@@ -859,8 +860,8 @@ class _ShopHeader extends StatelessWidget {
                 ),
               )
             else
-              const Center(
-                child: Icon(Icons.content_cut, size: 44, color: AppColors.primaryAccent),
+              Center(
+                child: Icon(Icons.content_cut, size: 44, color: DouriTextStyles.accent(context)),
               ),
             Positioned.fill(
               child: DecoratedBox(
@@ -1023,7 +1024,7 @@ class _ConfirmBookingSheet extends StatelessWidget {
           child: DouriCard(
             child: Row(
               children: [
-                const Icon(Icons.phone_outlined, color: AppColors.primaryAccent),
+                Icon(Icons.phone_outlined, color: DouriTextStyles.accent(context)),
                 const SizedBox(width: DouriSpacing.md),
                 Expanded(
                   child: Text(
