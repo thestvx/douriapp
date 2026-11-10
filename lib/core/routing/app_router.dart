@@ -13,6 +13,7 @@ import '../../features/customer/barber_details/barber_details_screen.dart';
 import '../../features/customer/booking/booking_confirmation_screen.dart';
 import '../../features/customer/booking/booking_screen.dart';
 import '../../features/customer/home/home_screen.dart';
+import '../../features/customer/queue/queue_ticket_screen.dart';
 import '../../features/onboarding/onboarding_screen.dart';
 import '../../features/splash/splash_screen.dart';
 import 'transitions.dart';
