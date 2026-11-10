@@ -357,15 +357,22 @@ class DouriBookingCard extends StatelessWidget {
                 Text(timeLabel!, style: Theme.of(context).textTheme.bodySmall),
               ],
               const Spacer(),
+              // Local copy: `queueNumber` is a public field, so Dart cannot
+              // promote it after the null check — pass the local instead.
               if (queueNumber != null)
-                Container(
-                  padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
-                  decoration: BoxDecoration(color: AppColors.accentSoft, borderRadius: BorderRadius.circular(999)),
-                  child: DouriAnimatedCounter(
-                    value: queueNumber,
-                    format: (v) => '#$v',
-                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: DouriTextStyles.accent(context)),
-                  ),
+                Builder(
+                  builder: (context) {
+                    final qn = queueNumber!;
+                    return Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                      decoration: BoxDecoration(color: AppColors.accentSoft, borderRadius: BorderRadius.circular(999)),
+                      child: DouriAnimatedCounter(
+                        value: qn,
+                        format: (v) => '#$v',
+                        style: Theme.of(context).textTheme.labelMedium?.copyWith(color: DouriTextStyles.accent(context)),
+                      ),
+                    );
+                  },
                 ),
             ],
           ),
