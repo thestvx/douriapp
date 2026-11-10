@@ -9,8 +9,9 @@ import '../../core/services/repository_providers.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/widgets/douri_button.dart';
 import '../../core/widgets/douri_cards.dart';
-import '../../core/widgets/douri_feedback.dart';
+import '../../core/widgets/douri_chrome.dart';
 import '../../core/widgets/douri_fields.dart';
+import '../../core/widgets/douri_motion.dart';
 import '../../core/widgets/douri_visual.dart';
 import '../../shared/models/profile.dart';
 import 'auth_providers.dart';
@@ -99,7 +100,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              DouriEntrance(
+              DouriStagger(
                 index: 0,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(DouriRadius.xl),
@@ -111,7 +112,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 ),
               ),
               SizedBox(height: DouriSpacing.xxl),
-              DouriEntrance(
+              DouriStagger(
                 index: 1,
                 child: Text(
                   _showCustomerForm ? l10n.signupAsCustomer : l10n.signupTitle,
@@ -119,7 +120,7 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 ),
               ),
               SizedBox(height: DouriSpacing.sm),
-              DouriEntrance(
+              DouriStagger(
                 index: 2,
                 child: Text(
                   _showCustomerForm
@@ -131,17 +132,33 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 ),
               ),
               const SizedBox(height: DouriSpacing.xxl),
+              DouriStagger(
+                index: 3,
+                child: _SignupStepIndicator(
+                  step: _showCustomerForm ? 1 : 0,
+                  labels: [l10n.stepAccountType, l10n.stepYourDetails],
+                ),
+              ),
+              const SizedBox(height: DouriSpacing.xxl),
               if (!_showCustomerForm) ...[
-                DouriEntrance(
-                  index: 3,
+                DouriStagger(
+                  index: 4,
                   child: DouriCard(
                     onTap: () => setState(() => _showCustomerForm = true),
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.person_outline,
-                          size: 28,
-                          color: AppColors.primaryAccent,
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.accentSoft,
+                          ),
+                          child: const Icon(
+                            Icons.person_outline,
+                            size: 28,
+                            color: AppColors.primaryAccent,
+                          ),
                         ),
                         const SizedBox(width: DouriSpacing.md),
                         Expanded(
@@ -175,16 +192,24 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                   ),
                 ),
                 const SizedBox(height: DouriSpacing.md),
-                DouriEntrance(
-                  index: 4,
+                DouriStagger(
+                  index: 5,
                   child: DouriCard(
                     onTap: () => context.push('/signup/barber'),
                     child: Row(
                       children: [
-                        const Icon(
-                          Icons.content_cut,
-                          size: 28,
-                          color: AppColors.primaryAccent,
+                        Container(
+                          width: 56,
+                          height: 56,
+                          decoration: const BoxDecoration(
+                            shape: BoxShape.circle,
+                            color: AppColors.accentSoft,
+                          ),
+                          child: const Icon(
+                            Icons.content_cut,
+                            size: 28,
+                            color: AppColors.primaryAccent,
+                          ),
                         ),
                         const SizedBox(width: DouriSpacing.md),
                         Expanded(
@@ -221,9 +246,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                 Form(
                   key: _formKey,
                   child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      DouriEntrance(
-                        index: 3,
+                      DouriStagger(
+                        index: 4,
+                        child: DouriSectionHeader(title: l10n.fullName),
+                      ),
+                      const SizedBox(height: DouriSpacing.sm),
+                      DouriStagger(
+                        index: 5,
                         child: Row(
                           children: [
                             Expanded(
@@ -260,8 +291,13 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         ),
                       ),
                       const SizedBox(height: DouriSpacing.md),
-                      DouriEntrance(
-                        index: 4,
+                      DouriStagger(
+                        index: 5,
+                        child: DouriSectionHeader(title: l10n.accountInfo),
+                      ),
+                      const SizedBox(height: DouriSpacing.sm),
+                      DouriStagger(
+                        index: 6,
                         child: DouriTextField(
                           controller: _emailController,
                           label: l10n.email,
@@ -279,8 +315,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         ),
                       ),
                       const SizedBox(height: DouriSpacing.md),
-                      DouriEntrance(
-                        index: 5,
+                      DouriStagger(
+                        index: 6,
                         child: DouriTextField(
                           controller: _passwordController,
                           label: l10n.password,
@@ -309,8 +345,8 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                         ),
                       ),
                       SizedBox(height: DouriSpacing.md),
-                      DouriEntrance(
-                        index: 6,
+                      DouriStagger(
+                        index: 7,
                         child: DouriTextField(
                           controller: _confirmController,
                           label: l10n.confirmPassword,
@@ -337,20 +373,49 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                           },
                         ),
                       ),
-                      if (_error != null) ...[
-                        const SizedBox(height: DouriSpacing.lg),
-                        Text(
-                          _error!,
-                          style: Theme.of(context)
-                              .textTheme
-                              .bodySmall
-                              ?.copyWith(color: AppColors.danger),
-                          textAlign: TextAlign.center,
+                      const SizedBox(height: DouriSpacing.lg),
+                      AnimatedSwitcher(
+                        duration: DouriMotion.scaled(context, DouriDuration.normal),
+                        transitionBuilder: (child, animation) => FadeTransition(
+                          opacity: animation,
+                          child: child,
                         ),
-                      ],
+                        child: _error == null
+                            ? const SizedBox.shrink(key: ValueKey('no-error'))
+                            : Container(
+                                key: ValueKey(_error),
+                                padding: const EdgeInsets.all(DouriSpacing.md),
+                                decoration: BoxDecoration(
+                                  color: AppColors.dangerSoft,
+                                  borderRadius: BorderRadius.circular(DouriRadius.md),
+                                  border: Border.all(
+                                    color: AppColors.danger.withValues(alpha: 0.35),
+                                  ),
+                                ),
+                                child: Row(
+                                  crossAxisAlignment: CrossAxisAlignment.start,
+                                  children: [
+                                    const Icon(
+                                      Icons.error_outline,
+                                      size: 18,
+                                      color: AppColors.danger,
+                                    ),
+                                    const SizedBox(width: DouriSpacing.sm),
+                                    Expanded(
+                                      child: Text(
+                                        _error!,
+                                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                              color: AppColors.danger,
+                                            ),
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                      ),
                       const SizedBox(height: DouriSpacing.xxl),
-                      DouriEntrance(
-                        index: 7,
+                      DouriStagger(
+                        index: 8,
                         child: DouriButton(
                           label: l10n.signUp,
                           loading: _saving,
@@ -384,12 +449,15 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
                             context.go('/auth');
                           }
                         },
-                  child: Text(
-                    l10n.alreadyHaveAccount,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                          color: AppColors.primaryAccent,
-                          fontWeight: FontWeight.w600,
-                        ),
+                  child: Padding(
+                    padding: const EdgeInsets.symmetric(vertical: 14),
+                    child: Text(
+                      l10n.alreadyHaveAccount,
+                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                            color: AppColors.primaryAccent,
+                            fontWeight: FontWeight.w600,
+                          ),
+                    ),
                   ),
                 ),
               ),
@@ -398,6 +466,97 @@ class _SignupScreenState extends ConsumerState<SignupScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Numbered step indicator in the booking screen's language: lime
+/// circles for reached steps, muted outline for upcoming, the circle
+/// content cross-fading between number and check, and the `n / N — label`
+/// line cross-fading on every step change.
+class _SignupStepIndicator extends StatelessWidget {
+  const _SignupStepIndicator({required this.step, required this.labels});
+  final int step;
+  final List<String> labels;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            for (var i = 0; i < labels.length; i++) ...[
+              AnimatedContainer(
+                duration: DouriDuration.normal,
+                curve: DouriCurves.standard,
+                width: 30,
+                height: 30,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: i <= step ? AppColors.primaryAccent : context.douriColors.card,
+                  border: Border.all(
+                    color: i <= step ? AppColors.primaryAccent : context.douriColors.border,
+                  ),
+                ),
+                child: AnimatedSwitcher(
+                  duration: DouriDuration.fast,
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.85, end: 1.0).animate(animation),
+                      child: child,
+                    ),
+                  ),
+                  child: i < step
+                      ? Icon(
+                          Icons.check,
+                          key: const ValueKey('done'),
+                          size: 16,
+                          color: context.douriColors.background,
+                        )
+                      : Text(
+                          '${i + 1}',
+                          key: const ValueKey('number'),
+                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                color: i == step
+                                    ? context.douriColors.background
+                                    : context.douriColors.textMuted,
+                                fontWeight: FontWeight.w700,
+                              ),
+                        ),
+                ),
+              ),
+              if (i < labels.length - 1)
+                Expanded(
+                  child: AnimatedContainer(
+                    duration: DouriDuration.normal,
+                    curve: DouriCurves.standard,
+                    height: 2,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    color: i < step ? AppColors.primaryAccent : context.douriColors.border,
+                  ),
+                ),
+            ],
+          ],
+        ),
+        SizedBox(height: DouriSpacing.sm),
+        AnimatedSwitcher(
+          duration: DouriMotion.scaled(context, DouriDuration.normal),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+          child: Text(
+            '${step + 1} / ${labels.length} — ${labels[step]}',
+            key: ValueKey(step),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: context.douriColors.textSecondary,
+                ),
+          ),
+        ),
+      ],
     );
   }
 }

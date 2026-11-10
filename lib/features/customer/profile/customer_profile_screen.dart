@@ -13,6 +13,7 @@ import '../../../core/widgets/douri_cards.dart';
 import '../../../core/widgets/douri_chrome.dart';
 import '../../../core/widgets/douri_feedback.dart';
 import '../../../core/widgets/douri_fields.dart';
+import '../../../core/widgets/douri_motion.dart';
 import '../../../core/widgets/douri_theme_picker.dart';
 import '../../../shared/models/profile.dart';
 import '../../authentication/auth_providers.dart';
@@ -107,11 +108,18 @@ class _CustomerProfileScreenState extends ConsumerState<CustomerProfileScreen> {
 
     return SafeArea(
       child: SingleChildScrollView(
-        padding: const EdgeInsets.all(DouriSpacing.page),
+        // 116dp bottom inset so the logout button clears the floating
+        // pill nav (same value as the other customer tab screens).
+        padding: const EdgeInsets.fromLTRB(
+          DouriSpacing.page,
+          DouriSpacing.page,
+          DouriSpacing.page,
+          116,
+        ),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            DouriEntrance(
+            DouriStagger(
               child: Text(l10n.profile, style: Theme.of(context).textTheme.headlineMedium),
             ),
             const SizedBox(height: DouriSpacing.xl),
@@ -125,27 +133,64 @@ class _CustomerProfileScreenState extends ConsumerState<CustomerProfileScreen> {
                 final name = (profile?.fullName ?? '').isNotEmpty
                     ? profile!.fullName
                     : l10n.hello;
-                return DouriEntrance(
+                return DouriStagger(
                   index: 1,
                   child: DouriCard(
                     child: Row(
                       children: [
-                        DouriAvatar(name: name, imageUrl: profile?.avatarUrl, radius: 30),
+                        Container(
+                          padding: const EdgeInsets.all(3),
+                          decoration: BoxDecoration(
+                            shape: BoxShape.circle,
+                            border: Border.all(
+                              color: AppColors.primaryAccent.withValues(alpha: 0.45),
+                              width: 1.5,
+                            ),
+                          ),
+                          child: DouriAvatar(name: name, imageUrl: profile?.avatarUrl, radius: 30),
+                        ),
                         SizedBox(width: DouriSpacing.lg),
                         Expanded(
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
-                              Text(name, style: Theme.of(context).textTheme.titleLarge),
+                              Text(
+                                name,
+                                style: Theme.of(context).textTheme.titleLarge,
+                                maxLines: 1,
+                                overflow: TextOverflow.ellipsis,
+                              ),
                               SizedBox(height: 4),
                               if (profile?.phoneNumber != null &&
                                   profile!.phoneNumber!.isNotEmpty)
-                                Text(
-                                  profile.phoneNumber!,
-                                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                                        color: context.douriColors.textSecondary,
-                                      ),
+                                Directionality(
+                                  textDirection: TextDirection.ltr,
+                                  child: Text(
+                                    profile.phoneNumber!,
+                                    style: Theme.of(context).textTheme.bodyMedium?.copyWith(
+                                          color: context.douriColors.textSecondary,
+                                        ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.left,
+                                  ),
                                 ),
+                              if (profile?.email != null &&
+                                  profile!.email!.isNotEmpty) ...[
+                                const SizedBox(height: 2),
+                                Directionality(
+                                  textDirection: TextDirection.ltr,
+                                  child: Text(
+                                    profile.email!,
+                                    style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                          color: context.douriColors.textSecondary,
+                                        ),
+                                    maxLines: 1,
+                                    overflow: TextOverflow.ellipsis,
+                                    textAlign: TextAlign.left,
+                                  ),
+                                ),
+                              ],
                             ],
                           ),
                         ),
@@ -161,12 +206,12 @@ class _CustomerProfileScreenState extends ConsumerState<CustomerProfileScreen> {
               },
             ),
             SizedBox(height: DouriSpacing.xl),
-            DouriEntrance(
+            DouriStagger(
               index: 2,
               child: DouriSectionHeader(title: l10n.preferences),
             ),
             SizedBox(height: DouriSpacing.md),
-            DouriEntrance(
+            DouriStagger(
               index: 3,
               child: DouriCard(
                 padding: EdgeInsets.zero,
@@ -195,14 +240,14 @@ class _CustomerProfileScreenState extends ConsumerState<CustomerProfileScreen> {
               ),
             ),
             SizedBox(height: DouriSpacing.lg),
-            DouriEntrance(
+            DouriStagger(
               index: 4,
               child: DouriCard(
                 child: const DouriThemePicker(),
               ),
             ),
             const SizedBox(height: DouriSpacing.xl),
-            DouriEntrance(
+            DouriStagger(
               index: 5,
               child: DouriButton(
                 label: l10n.bookingHistory,
@@ -212,12 +257,12 @@ class _CustomerProfileScreenState extends ConsumerState<CustomerProfileScreen> {
               ),
             ),
             const SizedBox(height: DouriSpacing.xl),
-            DouriEntrance(
+            DouriStagger(
               index: 6,
               child: DouriSectionHeader(title: l10n.favoriteShops),
             ),
             const SizedBox(height: DouriSpacing.md),
-            DouriEntrance(
+            DouriStagger(
               index: 7,
               child: DouriEmptyState(
                 icon: Icons.favorite_border,
@@ -226,7 +271,7 @@ class _CustomerProfileScreenState extends ConsumerState<CustomerProfileScreen> {
               ),
             ),
             const SizedBox(height: DouriSpacing.xl),
-            DouriEntrance(
+            DouriStagger(
               index: 8,
               child: DouriButton(
                 label: l10n.logout,
@@ -252,9 +297,19 @@ class _LanguageRow extends StatelessWidget {
   Widget build(BuildContext context) {
     return ListTile(
       title: Text(label),
-      trailing: selected
-          ? Icon(Icons.check_circle, color: AppColors.primaryAccent)
-          : Icon(Icons.circle_outlined, color: context.douriColors.textMuted),
+      trailing: AnimatedSwitcher(
+        duration: DouriDuration.fast,
+        transitionBuilder: (child, animation) => FadeTransition(
+          opacity: animation,
+          child: ScaleTransition(
+            scale: Tween<double>(begin: 0.85, end: 1.0).animate(animation),
+            child: child,
+          ),
+        ),
+        child: selected
+            ? Icon(Icons.check_circle, key: const ValueKey('on'), color: AppColors.primaryAccent)
+            : Icon(Icons.circle_outlined, key: const ValueKey('off'), color: context.douriColors.textMuted),
+      ),
       onTap: onTap,
     );
   }

@@ -8,7 +8,7 @@ import '../../core/localization/app_localizations.dart';
 import '../../core/localization/locale_controller.dart';
 import '../../core/services/app_prefs.dart';
 import '../../core/theme/app_tokens.dart';
-import '../../core/widgets/douri_feedback.dart';
+import '../../core/widgets/douri_motion.dart';
 import '../../core/widgets/douri_visual.dart';
 import '../../core/theme/douri_colors.dart';
 
@@ -90,7 +90,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                       child: Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          DouriEntrance(
+                          DouriStagger(
                             key: ValueKey('title-$index'),
                             child: Text(
                               slide.title,
@@ -98,7 +98,7 @@ class _OnboardingScreenState extends ConsumerState<OnboardingScreen> {
                             ),
                           ),
                           SizedBox(height: DouriSpacing.md),
-                          DouriEntrance(
+                          DouriStagger(
                             key: ValueKey('desc-$index'),
                             index: 1,
                             child: Text(
@@ -202,14 +202,17 @@ class _LanguageChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Material(
-      color: selected ? AppColors.accentSoft : Colors.transparent,
+      color: Colors.transparent,
       borderRadius: BorderRadius.circular(DouriRadius.pill),
       child: InkWell(
         onTap: onTap,
         borderRadius: BorderRadius.circular(DouriRadius.pill),
-        child: Container(
+        child: AnimatedContainer(
+          duration: DouriDuration.normal,
+          curve: DouriCurves.standard,
           padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 7),
           decoration: BoxDecoration(
+            color: selected ? AppColors.accentSoft : Colors.transparent,
             borderRadius: BorderRadius.circular(DouriRadius.pill),
             border: Border.all(color: selected ? AppColors.primaryAccent : context.douriColors.border),
           ),

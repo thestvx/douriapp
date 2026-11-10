@@ -9,8 +9,8 @@ import '../../core/services/notification_service.dart';
 import '../../core/services/repository_providers.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/widgets/douri_button.dart';
-import '../../core/widgets/douri_feedback.dart';
 import '../../core/widgets/douri_fields.dart';
+import '../../core/widgets/douri_motion.dart';
 import '../../core/widgets/douri_visual.dart';
 import '../../shared/models/profile.dart';
 import 'auth_providers.dart';
@@ -37,6 +37,7 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
   static const int _totalSteps = 5;
 
   int _step = 0;
+  bool _forward = true;
   bool _saving = false;
   bool _locating = false;
   String? _error;
@@ -131,6 +132,7 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
       return;
     }
     setState(() {
+      _forward = true;
       _error = null;
       _step++;
     });
@@ -260,7 +262,7 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              DouriEntrance(
+              DouriStagger(
                 index: 0,
                 child: ClipRRect(
                   borderRadius: BorderRadius.circular(DouriRadius.xl),
@@ -272,7 +274,7 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
                 ),
               ),
               SizedBox(height: DouriSpacing.xxl),
-              DouriEntrance(
+              DouriStagger(
                 index: 1,
                 child: Text(
                   l10n.signupAsBarber,
@@ -280,48 +282,82 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
                 ),
               ),
               SizedBox(height: DouriSpacing.sm),
-              DouriEntrance(
+              // Numbered step indicator in the booking screen's language;
+              // its `n / N — label` line replaces the old subtitle text.
+              DouriStagger(
                 index: 2,
-                child: Text(
-                  '${l10n.step} ${_step + 1} / $_totalSteps — ${titles[_step]}',
-                  style: Theme.of(context).textTheme.bodyMedium?.copyWith(
-                        color: context.douriColors.textSecondary,
-                      ),
-                ),
-              ),
-              SizedBox(height: DouriSpacing.sm),
-              // Step progress dots.
-              Row(
-                children: List.generate(
-                  _totalSteps,
-                  (i) => Expanded(
-                    child: Container(
-                      height: 4,
-                      margin: EdgeInsets.only(
-                        right: i == _totalSteps - 1 ? 0 : 6,
-                      ),
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(2),
-                        color: i <= _step
-                            ? AppColors.primaryAccent
-                            : context.douriColors.border,
-                      ),
-                    ),
-                  ),
-                ),
+                child: _WizardStepIndicator(step: _step, labels: titles),
               ),
               const SizedBox(height: DouriSpacing.xxl),
-              _buildStep(l10n),
-              if (_error != null) ...[
-                const SizedBox(height: DouriSpacing.lg),
-                Text(
-                  _error!,
-                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                        color: AppColors.danger,
-                      ),
-                  textAlign: TextAlign.center,
+              AnimatedSwitcher(
+                duration: DouriMotion.scaled(context, DouriDuration.normal),
+                switchInCurve: DouriCurves.standard,
+                switchOutCurve: DouriCurves.standard,
+                transitionBuilder: (child, animation) {
+                  if (DouriMotion.reduced(context)) {
+                    return FadeTransition(opacity: animation, child: child);
+                  }
+                  // Forward enters from the end side (right in LTR,
+                  // left in RTL); back reverses — same as the booking flow.
+                  final rtl =
+                      Directionality.of(context) == TextDirection.rtl;
+                  final dx = (_forward ? 0.12 : -0.12) * (rtl ? -1 : 1);
+                  return FadeTransition(
+                    opacity: animation,
+                    child: SlideTransition(
+                      position: Tween<Offset>(
+                        begin: Offset(dx, 0),
+                        end: Offset.zero,
+                      ).animate(animation),
+                      child: child,
+                    ),
+                  );
+                },
+                child: Container(
+                  key: ValueKey(_step),
+                  child: _buildStep(l10n),
                 ),
-              ],
+              ),
+              const SizedBox(height: DouriSpacing.lg),
+              AnimatedSwitcher(
+                duration: DouriMotion.scaled(context, DouriDuration.normal),
+                transitionBuilder: (child, animation) => FadeTransition(
+                  opacity: animation,
+                  child: child,
+                ),
+                child: _error == null
+                    ? const SizedBox.shrink(key: ValueKey('no-error'))
+                    : Container(
+                        key: ValueKey(_error),
+                        padding: const EdgeInsets.all(DouriSpacing.md),
+                        decoration: BoxDecoration(
+                          color: AppColors.dangerSoft,
+                          borderRadius: BorderRadius.circular(DouriRadius.md),
+                          border: Border.all(
+                            color: AppColors.danger.withValues(alpha: 0.35),
+                          ),
+                        ),
+                        child: Row(
+                          crossAxisAlignment: CrossAxisAlignment.start,
+                          children: [
+                            const Icon(
+                              Icons.error_outline,
+                              size: 18,
+                              color: AppColors.danger,
+                            ),
+                            const SizedBox(width: DouriSpacing.sm),
+                            Expanded(
+                              child: Text(
+                                _error!,
+                                style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                      color: AppColors.danger,
+                                    ),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+              ),
               const SizedBox(height: DouriSpacing.xxl),
               if (_step < _totalSteps - 1)
                 DouriButton(
@@ -342,6 +378,7 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
                   onPressed: _saving
                       ? null
                       : () => setState(() {
+                            _forward = false;
                             _error = null;
                             _step--;
                           }),
@@ -358,54 +395,61 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
   Widget _buildStep(AppLocalizations l10n) {
     switch (_step) {
       case 0:
-        return DouriTextField(
-          controller: _emailController,
-          label: l10n.email,
-          hint: l10n.enterEmail,
-          prefixIcon: Icons.email_outlined,
-          keyboardType: TextInputType.emailAddress,
-          textInputAction: TextInputAction.done,
+        return DouriStagger(
+          child: DouriTextField(
+            controller: _emailController,
+            label: l10n.email,
+            hint: l10n.enterEmail,
+            prefixIcon: Icons.email_outlined,
+            keyboardType: TextInputType.emailAddress,
+            textInputAction: TextInputAction.done,
+          ),
         );
       case 1:
         return Column(
           children: [
-            DouriTextField(
-              controller: _passwordController,
-              label: l10n.password,
-              hint: l10n.enterPassword,
-              prefixIcon: Icons.lock_outline,
-              obscureText: _obscurePassword,
-              textInputAction: TextInputAction.next,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscurePassword
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  size: 20,
-                  color: context.douriColors.textSecondary,
-                ),
-                onPressed: () => setState(
-                  () => _obscurePassword = !_obscurePassword,
+            DouriStagger(
+              child: DouriTextField(
+                controller: _passwordController,
+                label: l10n.password,
+                hint: l10n.enterPassword,
+                prefixIcon: Icons.lock_outline,
+                obscureText: _obscurePassword,
+                textInputAction: TextInputAction.next,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscurePassword
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                    size: 20,
+                    color: context.douriColors.textSecondary,
+                  ),
+                  onPressed: () => setState(
+                    () => _obscurePassword = !_obscurePassword,
+                  ),
                 ),
               ),
             ),
             SizedBox(height: DouriSpacing.md),
-            DouriTextField(
-              controller: _confirmController,
-              label: l10n.confirmPassword,
-              prefixIcon: Icons.lock_outline,
-              obscureText: _obscureConfirm,
-              textInputAction: TextInputAction.done,
-              suffixIcon: IconButton(
-                icon: Icon(
-                  _obscureConfirm
-                      ? Icons.visibility_outlined
-                      : Icons.visibility_off_outlined,
-                  size: 20,
-                  color: context.douriColors.textSecondary,
-                ),
-                onPressed: () => setState(
-                  () => _obscureConfirm = !_obscureConfirm,
+            DouriStagger(
+              index: 1,
+              child: DouriTextField(
+                controller: _confirmController,
+                label: l10n.confirmPassword,
+                prefixIcon: Icons.lock_outline,
+                obscureText: _obscureConfirm,
+                textInputAction: TextInputAction.done,
+                suffixIcon: IconButton(
+                  icon: Icon(
+                    _obscureConfirm
+                        ? Icons.visibility_outlined
+                        : Icons.visibility_off_outlined,
+                    size: 20,
+                    color: context.douriColors.textSecondary,
+                  ),
+                  onPressed: () => setState(
+                    () => _obscureConfirm = !_obscureConfirm,
+                  ),
                 ),
               ),
             ),
@@ -414,49 +458,60 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
       case 2:
         return Column(
           children: [
-            DouriTextField(
-              controller: _salonNameController,
-              label: l10n.salonName,
-              prefixIcon: Icons.store_outlined,
-              textInputAction: TextInputAction.next,
+            DouriStagger(
+              child: DouriTextField(
+                controller: _salonNameController,
+                label: l10n.salonName,
+                prefixIcon: Icons.store_outlined,
+                textInputAction: TextInputAction.next,
+              ),
             ),
             const SizedBox(height: DouriSpacing.md),
-            Row(
-              children: [
-                Expanded(
-                  child: DouriTextField(
-                    controller: _districtController,
-                    label: l10n.district,
-                    prefixIcon: Icons.location_on_outlined,
-                    textInputAction: TextInputAction.next,
+            DouriStagger(
+              index: 1,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DouriTextField(
+                      controller: _districtController,
+                      label: l10n.district,
+                      prefixIcon: Icons.location_on_outlined,
+                      textInputAction: TextInputAction.next,
+                    ),
                   ),
-                ),
-                const SizedBox(width: DouriSpacing.md),
-                Expanded(
-                  child: DouriTextField(
-                    controller: _cityController,
-                    label: l10n.city,
-                    textInputAction: TextInputAction.next,
+                  const SizedBox(width: DouriSpacing.md),
+                  Expanded(
+                    child: DouriTextField(
+                      controller: _cityController,
+                      label: l10n.city,
+                      textInputAction: TextInputAction.next,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: DouriSpacing.md),
-            DouriButton(
-              label: l10n.detectLocation,
-              icon: Icons.my_location,
-              variant: DouriButtonVariant.secondary,
-              loading: _locating,
-              onPressed: _locating ? null : () => _detectLocation(l10n),
+            DouriStagger(
+              index: 2,
+              child: DouriButton(
+                label: l10n.detectLocation,
+                icon: Icons.my_location,
+                variant: DouriButtonVariant.secondary,
+                loading: _locating,
+                onPressed: _locating ? null : () => _detectLocation(l10n),
+              ),
             ),
             if (_locationStatus != null) ...[
               const SizedBox(height: DouriSpacing.sm),
-              Text(
-                _locationStatus!,
-                style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                      color: AppColors.primaryAccent,
-                    ),
-                textAlign: TextAlign.center,
+              DouriStagger(
+                index: 3,
+                child: Text(
+                  _locationStatus!,
+                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                        color: AppColors.primaryAccent,
+                      ),
+                  textAlign: TextAlign.center,
+                ),
               ),
             ],
           ],
@@ -465,114 +520,305 @@ class _BarberSignupScreenState extends ConsumerState<BarberSignupScreen> {
         return Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Text(l10n.chairs, style: Theme.of(context).textTheme.titleSmall),
-            const SizedBox(height: DouriSpacing.sm),
-            Row(
-              mainAxisAlignment: MainAxisAlignment.center,
-              children: [
-                IconButton(
-                  icon: const Icon(Icons.remove_circle_outline),
-                  color: AppColors.primaryAccent,
-                  iconSize: 32,
-                  onPressed: _chairs > 1
-                      ? () => setState(() => _chairs--)
-                      : null,
-                ),
-                const SizedBox(width: DouriSpacing.md),
-                Text(
-                  '$_chairs',
-                  style: Theme.of(context).textTheme.headlineMedium,
-                ),
-                const SizedBox(width: DouriSpacing.md),
-                IconButton(
-                  icon: const Icon(Icons.add_circle_outline),
-                  color: AppColors.primaryAccent,
-                  iconSize: 32,
-                  onPressed: _chairs < 20
-                      ? () => setState(() => _chairs++)
-                      : null,
-                ),
-              ],
+            DouriStagger(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(l10n.chairs, style: Theme.of(context).textTheme.titleSmall),
+                  const SizedBox(height: DouriSpacing.sm),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      SizedBox(
+                        width: 48,
+                        height: 48,
+                        child: IconButton(
+                          icon: const Icon(Icons.remove_circle_outline),
+                          color: AppColors.primaryAccent,
+                          iconSize: 32,
+                          onPressed: _chairs > 1
+                              ? () => setState(() => _chairs--)
+                              : null,
+                        ),
+                      ),
+                      const SizedBox(width: DouriSpacing.md),
+                      AnimatedSwitcher(
+                        duration: DouriMotion.scaled(context, DouriDuration.fast),
+                        transitionBuilder: (child, animation) => FadeTransition(
+                          opacity: animation,
+                          child: ScaleTransition(
+                            scale: Tween<double>(begin: 0.85, end: 1.0)
+                                .animate(animation),
+                            child: child,
+                          ),
+                        ),
+                        child: Text(
+                          '$_chairs',
+                          key: ValueKey(_chairs),
+                          style: Theme.of(context).textTheme.headlineMedium,
+                        ),
+                      ),
+                      const SizedBox(width: DouriSpacing.md),
+                      SizedBox(
+                        width: 48,
+                        height: 48,
+                        child: IconButton(
+                          icon: const Icon(Icons.add_circle_outline),
+                          color: AppColors.primaryAccent,
+                          iconSize: 32,
+                          onPressed: _chairs < 20
+                              ? () => setState(() => _chairs++)
+                              : null,
+                        ),
+                      ),
+                    ],
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: DouriSpacing.xl),
-            Text(
-              l10n.workingDays,
-              style: Theme.of(context).textTheme.titleSmall,
-            ),
-            const SizedBox(height: DouriSpacing.sm),
-            Wrap(
-              spacing: 8,
-              runSpacing: 8,
-              children: _dayOptions(l10n).map((day) {
-                final selected = _days.contains(day.$1);
-                return FilterChip(
-                  label: Text(day.$2),
-                  selected: selected,
-                  onSelected: (value) => setState(() {
-                    if (value) {
-                      _days.add(day.$1);
-                    } else {
-                      _days.remove(day.$1);
-                    }
-                  }),
-                  selectedColor: AppColors.primaryAccent,
-                  checkmarkColor: AppColors.accentOnDark,
-                );
-              }).toList(),
+            DouriStagger(
+              index: 1,
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(
+                    l10n.workingDays,
+                    style: Theme.of(context).textTheme.titleSmall,
+                  ),
+                  const SizedBox(height: DouriSpacing.sm),
+                  Wrap(
+                    spacing: 8,
+                    runSpacing: 8,
+                    children: _dayOptions(l10n).map((day) {
+                      final selected = _days.contains(day.$1);
+                      return _WizardDayPill(
+                        label: day.$2,
+                        selected: selected,
+                        onTap: () => setState(() {
+                          if (selected) {
+                            _days.remove(day.$1);
+                          } else {
+                            _days.add(day.$1);
+                          }
+                        }),
+                      );
+                    }).toList(),
+                  ),
+                ],
+              ),
             ),
             const SizedBox(height: DouriSpacing.xl),
-            Row(
-              children: [
-                Expanded(
-                  child: DouriButton(
-                    label: '${l10n.openTime}: ${_openTime.format(context)}',
-                    variant: DouriButtonVariant.secondary,
-                    onPressed: () => _pickTime(true),
+            DouriStagger(
+              index: 2,
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DouriButton(
+                      label: '${l10n.openTime}: ${_openTime.format(context)}',
+                      variant: DouriButtonVariant.secondary,
+                      onPressed: () => _pickTime(true),
+                    ),
                   ),
-                ),
-                const SizedBox(width: DouriSpacing.md),
-                Expanded(
-                  child: DouriButton(
-                    label: '${l10n.closeTime}: ${_closeTime.format(context)}',
-                    variant: DouriButtonVariant.secondary,
-                    onPressed: () => _pickTime(false),
+                  const SizedBox(width: DouriSpacing.md),
+                  Expanded(
+                    child: DouriButton(
+                      label: '${l10n.closeTime}: ${_closeTime.format(context)}',
+                      variant: DouriButtonVariant.secondary,
+                      onPressed: () => _pickTime(false),
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
           ],
         );
       default:
         return Column(
           children: [
-            Row(
-              children: [
-                Expanded(
-                  child: DouriTextField(
-                    controller: _firstNameController,
-                    label: l10n.firstName,
-                    prefixIcon: Icons.person_outline,
-                    textInputAction: TextInputAction.next,
+            DouriStagger(
+              child: Row(
+                children: [
+                  Expanded(
+                    child: DouriTextField(
+                      controller: _firstNameController,
+                      label: l10n.firstName,
+                      prefixIcon: Icons.person_outline,
+                      textInputAction: TextInputAction.next,
+                    ),
                   ),
-                ),
-                const SizedBox(width: DouriSpacing.md),
-                Expanded(
-                  child: DouriTextField(
-                    controller: _lastNameController,
-                    label: l10n.lastName,
-                    textInputAction: TextInputAction.next,
+                  const SizedBox(width: DouriSpacing.md),
+                  Expanded(
+                    child: DouriTextField(
+                      controller: _lastNameController,
+                      label: l10n.lastName,
+                      textInputAction: TextInputAction.next,
+                    ),
                   ),
-                ),
-              ],
+                ],
+              ),
             ),
             const SizedBox(height: DouriSpacing.md),
-            DouriPhoneField(
-              controller: _phoneController,
-              countryCode: '+213',
-              hint: l10n.phoneHint,
+            DouriStagger(
+              index: 1,
+              child: DouriPhoneField(
+                controller: _phoneController,
+                countryCode: '+213',
+                hint: l10n.phoneHint,
+              ),
             ),
           ],
         );
     }
+  }
+}
+
+/// Numbered step indicator in the booking screen's language: lime
+/// circles for reached steps, muted outline for upcoming, the circle
+/// content cross-fading between number and check, and the `n / N — label`
+/// line cross-fading on every step change.
+class _WizardStepIndicator extends StatelessWidget {
+  const _WizardStepIndicator({required this.step, required this.labels});
+  final int step;
+  final List<String> labels;
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Row(
+          children: [
+            for (var i = 0; i < labels.length; i++) ...[
+              AnimatedContainer(
+                duration: DouriDuration.normal,
+                curve: DouriCurves.standard,
+                width: 30,
+                height: 30,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: i <= step ? AppColors.primaryAccent : context.douriColors.card,
+                  border: Border.all(
+                    color: i <= step ? AppColors.primaryAccent : context.douriColors.border,
+                  ),
+                ),
+                child: AnimatedSwitcher(
+                  duration: DouriDuration.fast,
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: ScaleTransition(
+                      scale: Tween<double>(begin: 0.85, end: 1.0).animate(animation),
+                      child: child,
+                    ),
+                  ),
+                  child: i < step
+                      ? Icon(
+                          Icons.check,
+                          key: const ValueKey('done'),
+                          size: 16,
+                          color: context.douriColors.background,
+                        )
+                      : Text(
+                          '${i + 1}',
+                          key: const ValueKey('number'),
+                          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                                color: i == step
+                                    ? context.douriColors.background
+                                    : context.douriColors.textMuted,
+                                fontWeight: FontWeight.w700,
+                              ),
+                        ),
+                ),
+              ),
+              if (i < labels.length - 1)
+                Expanded(
+                  child: AnimatedContainer(
+                    duration: DouriDuration.normal,
+                    curve: DouriCurves.standard,
+                    height: 2,
+                    margin: const EdgeInsets.symmetric(horizontal: 4),
+                    color: i < step ? AppColors.primaryAccent : context.douriColors.border,
+                  ),
+                ),
+            ],
+          ],
+        ),
+        SizedBox(height: DouriSpacing.sm),
+        AnimatedSwitcher(
+          duration: DouriMotion.scaled(context, DouriDuration.normal),
+          transitionBuilder: (child, animation) => FadeTransition(
+            opacity: animation,
+            child: child,
+          ),
+          child: Text(
+            '${step + 1} / ${labels.length} — ${labels[step]}',
+            key: ValueKey(step),
+            style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                  color: context.douriColors.textSecondary,
+                ),
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// Animated working-day pill, same language as the booking day pills:
+/// selected = lime-soft fill + lime border + check icon + bold lime
+/// label (border + icon + weight, never colour alone). The check slot is
+/// always laid out and only its opacity animates, so toggling a day
+/// never shifts the label or the row.
+class _WizardDayPill extends StatelessWidget {
+  const _WizardDayPill({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+  });
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+
+  @override
+  Widget build(BuildContext context) {
+    return DouriPressable(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: DouriDuration.normal,
+        curve: DouriCurves.standard,
+        padding: const EdgeInsets.symmetric(
+          horizontal: DouriSpacing.md,
+          vertical: DouriSpacing.sm,
+        ),
+        decoration: BoxDecoration(
+          color: selected ? AppColors.accentSoft : context.douriColors.card,
+          borderRadius: BorderRadius.circular(DouriRadius.pill),
+          border: Border.all(
+            color: selected ? AppColors.primaryAccent : context.douriColors.border,
+            width: selected ? 1.5 : 1,
+          ),
+        ),
+        child: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AnimatedOpacity(
+              opacity: selected ? 1 : 0,
+              duration: DouriDuration.fast,
+              child: const Icon(Icons.check, size: 16, color: AppColors.primaryAccent),
+            ),
+            const SizedBox(width: DouriSpacing.xs),
+            Text(
+              label,
+              style: Theme.of(context).textTheme.labelLarge?.copyWith(
+                    color: selected
+                        ? AppColors.primaryAccent
+                        : context.douriColors.text,
+                    fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+                  ),
+            ),
+          ],
+        ),
+      ),
+    );
   }
 }

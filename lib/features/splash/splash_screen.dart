@@ -66,44 +66,81 @@ class _SplashScreenState extends ConsumerState<SplashScreen> {
   @override
   Widget build(BuildContext context) {
     final l10n = AppLocalizations.of(context);
+    // Under reduced motion every element renders in its final state
+    // immediately — no entrance animation at all.
+    final reduced = DouriMotion.reduced(context);
+
+    final logo = Stack(
+      alignment: Alignment.center,
+      children: [
+        // Lime ring around the mark (the pulse the doc comment promised).
+        Container(
+          width: 136,
+          height: 136,
+          decoration: BoxDecoration(
+            shape: BoxShape.circle,
+            border: Border.all(
+              color: AppColors.primaryAccent.withValues(alpha: 0.3),
+              width: 1.5,
+            ),
+          ),
+        ),
+        Container(
+          width: 120,
+          height: 120,
+          decoration: BoxDecoration(
+            color: context.douriColors.surface,
+            shape: BoxShape.circle,
+            border: Border.all(color: context.douriColors.border),
+          ),
+          child: const Icon(Icons.content_cut, size: 56, color: AppColors.primaryAccent),
+        ),
+      ],
+    );
+    final logoChild = reduced
+        ? logo
+        : logo
+            .animate()
+            .scale(duration: DouriDuration.slow, curve: DouriCurves.emphasis, begin: const Offset(0.7, 0.7))
+            .fadeIn(duration: DouriDuration.slow);
+
+    final wordmark = Text('DOURI', style: Theme.of(context).textTheme.displayMedium?.copyWith(letterSpacing: 6));
+    final wordmarkChild = reduced
+        ? wordmark
+        : wordmark
+            .animate(delay: 250.ms)
+            .fadeIn(duration: DouriDuration.slow)
+            .slideY(begin: 0.2, end: 0, duration: DouriDuration.slow, curve: DouriCurves.entrance);
+
+    final tagline = Text(l10n.splashTagline, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.douriColors.textSecondary));
+    final taglineChild = reduced
+        ? tagline
+        : tagline.animate(delay: 450.ms).fadeIn(duration: DouriDuration.slow);
+
+    final progress = SizedBox(
+      width: 120,
+      child: LinearProgressIndicator(
+        backgroundColor: context.douriColors.elevated,
+        valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryAccent),
+        minHeight: 3,
+        borderRadius: BorderRadius.circular(2),
+      ),
+    );
+    final progressChild = reduced ? progress : progress.animate(delay: 500.ms).fadeIn();
+
     return Scaffold(
       backgroundColor: context.douriColors.background,
       body: Center(
         child: Column(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Container(
-              width: 120,
-              height: 120,
-              decoration: BoxDecoration(
-                color: context.douriColors.surface,
-                shape: BoxShape.circle,
-                border: Border.all(color: context.douriColors.border),
-              ),
-              child: const Icon(Icons.content_cut, size: 56, color: AppColors.primaryAccent),
-            )
-                .animate()
-                .scale(duration: DouriDuration.slow, curve: DouriCurves.emphasis, begin: const Offset(0.7, 0.7))
-                .fadeIn(duration: DouriDuration.slow),
+            logoChild,
             const SizedBox(height: DouriSpacing.xxl),
-            Text('DOURI', style: Theme.of(context).textTheme.displayMedium?.copyWith(letterSpacing: 6))
-                .animate(delay: 250.ms)
-                .fadeIn(duration: DouriDuration.slow)
-                .slideY(begin: 0.2, end: 0, duration: DouriDuration.slow, curve: DouriCurves.entrance),
+            wordmarkChild,
             const SizedBox(height: DouriSpacing.sm),
-            Text(l10n.splashTagline, style: Theme.of(context).textTheme.bodyMedium?.copyWith(color: context.douriColors.textSecondary))
-                .animate(delay: 450.ms)
-                .fadeIn(duration: DouriDuration.slow),
+            taglineChild,
             const SizedBox(height: DouriSpacing.xxxl),
-            SizedBox(
-              width: 120,
-              child: LinearProgressIndicator(
-                backgroundColor: context.douriColors.elevated,
-                valueColor: const AlwaysStoppedAnimation<Color>(AppColors.primaryAccent),
-                minHeight: 3,
-                borderRadius: BorderRadius.circular(2),
-              ),
-            ).animate(delay: 500.ms).fadeIn(),
+            progressChild,
           ],
         ),
       ),

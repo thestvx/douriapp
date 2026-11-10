@@ -8,8 +8,8 @@ import '../../core/services/repository_providers.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/widgets/douri_cards.dart';
 import '../../core/widgets/douri_chrome.dart';
-import '../../core/widgets/douri_feedback.dart';
 import '../../core/widgets/douri_fields.dart';
+import '../../core/widgets/douri_motion.dart';
 import '../../shared/models/profile.dart';
 import '../../core/theme/douri_colors.dart';
 
@@ -75,12 +75,12 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
                 SizedBox(height: DouriSpacing.xxl),
-                DouriEntrance(
+                DouriStagger(
                   index: 0,
                   child: Text(l10n.roleTitle, style: Theme.of(context).textTheme.headlineMedium),
                 ),
                 SizedBox(height: DouriSpacing.sm),
-                DouriEntrance(
+                DouriStagger(
                   index: 1,
                   child: Text(
                     l10n.roleSubtitle,
@@ -88,12 +88,12 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                   ),
                 ),
                 const SizedBox(height: DouriSpacing.xxxl),
-                DouriEntrance(
+                DouriStagger(
                   index: 2,
                   child: DouriSectionHeader(title: l10n.fullName),
                 ),
                 const SizedBox(height: DouriSpacing.sm),
-                DouriEntrance(
+                DouriStagger(
                   index: 3,
                   child: DouriTextField(
                     controller: _nameController,
@@ -107,8 +107,13 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                   ),
                 ),
                 SizedBox(height: DouriSpacing.xxxl),
-                DouriEntrance(
+                DouriStagger(
                   index: 4,
+                  child: DouriSectionHeader(title: l10n.chooseAccountType),
+                ),
+                const SizedBox(height: DouriSpacing.sm),
+                DouriStagger(
+                  index: 5,
                   child: DouriCard(
                     onTap: _saving ? null : () => _choose('customer'),
                     child: Row(
@@ -116,9 +121,9 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                         Container(
                           width: 56,
                           height: 56,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: context.douriColors.elevated,
+                            color: AppColors.accentSoft,
                           ),
                           child: Icon(Icons.person_outline, size: 28, color: AppColors.primaryAccent),
                         ),
@@ -126,14 +131,14 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                         Expanded(
                           child: Text(l10n.iamCustomer, style: Theme.of(context).textTheme.titleMedium),
                         ),
-                        Icon(Icons.chevron_right, color: context.douriColors.textSecondary),
+                        Icon(Icons.arrow_forward, color: context.douriColors.textSecondary),
                       ],
                     ),
                   ),
                 ),
                 SizedBox(height: DouriSpacing.md),
-                DouriEntrance(
-                  index: 5,
+                DouriStagger(
+                  index: 6,
                   child: DouriCard(
                     onTap: _saving ? null : () => _choose('barber'),
                     child: Row(
@@ -141,9 +146,9 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                         Container(
                           width: 56,
                           height: 56,
-                          decoration: BoxDecoration(
+                          decoration: const BoxDecoration(
                             shape: BoxShape.circle,
-                            color: context.douriColors.elevated,
+                            color: AppColors.accentSoft,
                           ),
                           child: Icon(Icons.content_cut, size: 28, color: AppColors.primaryAccent),
                         ),
@@ -151,7 +156,7 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                         Expanded(
                           child: Text(l10n.iamBarber, style: Theme.of(context).textTheme.titleMedium),
                         ),
-                        Icon(Icons.chevron_right, color: context.douriColors.textSecondary),
+                        Icon(Icons.arrow_forward, color: context.douriColors.textSecondary),
                       ],
                     ),
                   ),
@@ -160,13 +165,46 @@ class _RoleSelectionScreenState extends ConsumerState<RoleSelectionScreen> {
                   const SizedBox(height: DouriSpacing.xxl),
                   const Center(child: CircularProgressIndicator(color: AppColors.primaryAccent)),
                 ],
-                if (_error != null) ...[
-                  const SizedBox(height: DouriSpacing.lg),
-                  Text(
-                    _error!,
-                    style: Theme.of(context).textTheme.bodySmall?.copyWith(color: AppColors.danger),
+                const SizedBox(height: DouriSpacing.lg),
+                AnimatedSwitcher(
+                  duration: DouriMotion.scaled(context, DouriDuration.normal),
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: child,
                   ),
-                ],
+                  child: _error == null
+                      ? const SizedBox.shrink(key: ValueKey('no-error'))
+                      : Container(
+                          key: ValueKey(_error),
+                          padding: const EdgeInsets.all(DouriSpacing.md),
+                          decoration: BoxDecoration(
+                            color: AppColors.dangerSoft,
+                            borderRadius: BorderRadius.circular(DouriRadius.md),
+                            border: Border.all(
+                              color: AppColors.danger.withValues(alpha: 0.35),
+                            ),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                size: 18,
+                                color: AppColors.danger,
+                              ),
+                              const SizedBox(width: DouriSpacing.sm),
+                              Expanded(
+                                child: Text(
+                                  _error!,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: AppColors.danger,
+                                      ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
                 const SizedBox(height: DouriSpacing.xl),
               ],
             ),
