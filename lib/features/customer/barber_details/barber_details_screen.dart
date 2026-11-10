@@ -303,7 +303,7 @@ class _BarberDetailsScreenState extends ConsumerState<BarberDetailsScreen> {
                                   return DouriCard(
                                     child: Row(
                                       children: [
-                                        const Icon(
+                                        Icon(
                                           Icons.people_outline,
                                           color: DouriTextStyles.accent(context),
                                         ),
