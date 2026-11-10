@@ -4,6 +4,7 @@ import 'package:flutter_animate/flutter_animate.dart';
 import '../constants/app_colors.dart';
 import '../localization/app_localizations.dart';
 import '../theme/app_tokens.dart';
+import '../theme/app_typography.dart';
 import 'douri_button.dart';
 import '../theme/douri_colors.dart';
 
@@ -196,7 +197,9 @@ class DouriQueueNumber extends StatelessWidget {
       child: Text(
         number.toString().padLeft(2, '0'),
         key: ValueKey(number),
-        style: Theme.of(context).textTheme.displayLarge?.copyWith(color: AppColors.primaryAccent, fontSize: fontSize, height: 1),
+        style: DouriTextStyles.queueNumber(
+          context,
+        ).copyWith(fontSize: fontSize, height: 1),
       ),
     );
   }
