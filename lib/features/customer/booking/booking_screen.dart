@@ -831,9 +831,8 @@ class _TimeSlotChip extends StatelessWidget {
 
 /// Stylize shop header strip for the booking flow: cover image (real URL
 /// only) with the shop name overlaid, falling back to a lime icon panel.
-/// The cover shares the `'shop-image-<id>'` Hero tag with the details
-/// screen, so it flies in from the shop cover the user just saw; the
-/// fallback has no image and therefore no Hero.
+/// No Hero here: the shared-element flight crashed the app (see
+/// DouriShopCard); the slide+fade page transition still animates it.
 class _ShopHeader extends StatelessWidget {
   const _ShopHeader({required this.shop});
   final BarberShop shop;
@@ -851,13 +850,10 @@ class _ShopHeader extends StatelessWidget {
           fit: StackFit.expand,
           children: [
             if (hasImage)
-              Hero(
-                tag: 'shop-image-${shop.id}',
-                child: CachedNetworkImage(
-                  imageUrl: shop.coverImageUrl!,
-                  fit: BoxFit.cover,
-                  errorWidget: (_, __, ___) => const SizedBox.shrink(),
-                ),
+              CachedNetworkImage(
+                imageUrl: shop.coverImageUrl!,
+                fit: BoxFit.cover,
+                errorWidget: (_, __, ___) => const SizedBox.shrink(),
               )
             else
               Center(

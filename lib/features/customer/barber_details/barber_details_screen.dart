@@ -109,22 +109,20 @@ class _BarberDetailsScreenState extends ConsumerState<BarberDetailsScreen> {
                     children: [
                       Stack(
                         children: [
-                          Hero(
-                            // Same tag as DouriShopCard ('shop-image-<id>')
-                            // so the cover flies in from Home / Explore.
-                            tag: 'shop-image-$shopId',
-                            child: SizedBox(
-                              height: 400,
-                              width: double.infinity,
-                              child: shop.coverImageUrl != null &&
-                                      shop.coverImageUrl!.isNotEmpty
-                                  ? CachedNetworkImage(
-                                      imageUrl: shop.coverImageUrl!,
-                                      fit: BoxFit.cover,
-                                      errorWidget: (_, __, ___) => const _CoverFallback(),
-                                    )
-                                  : const _CoverFallback(),
-                            ),
+                          // No Hero here: the shared-element flight crashed
+                          // the app (see DouriShopCard) — the slide+fade
+                          // page transition still animates navigation.
+                          SizedBox(
+                            height: 400,
+                            width: double.infinity,
+                            child: shop.coverImageUrl != null &&
+                                    shop.coverImageUrl!.isNotEmpty
+                                ? CachedNetworkImage(
+                                    imageUrl: shop.coverImageUrl!,
+                                    fit: BoxFit.cover,
+                                    errorWidget: (_, __, ___) => const _CoverFallback(),
+                                  )
+                                : const _CoverFallback(),
                           ),
                           // Stylize hero: gradient + name/rating overlaid
                           // at the bottom of the cover.

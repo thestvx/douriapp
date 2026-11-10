@@ -80,56 +80,59 @@ class DouriShopCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Hero(
-              tag: 'shop-image-$shopId',
-              child: ClipRRect(
-                borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-                child: Container(
-                  height: coverHeight,
-                  width: double.infinity,
-                  color: context.douriColors.elevated,
-                  child: Stack(
-                    fit: StackFit.expand,
-                    children: [
-                      coverImageUrl != null && coverImageUrl!.isNotEmpty
-                          ? CachedNetworkImage(imageUrl: coverImageUrl!, fit: BoxFit.cover, errorWidget: (_, __, ___) => _coverFallback(context))
-                          : _coverFallback(context),
-                      Positioned.fill(
-                        child: DecoratedBox(
-                          decoration: BoxDecoration(
-                            gradient: LinearGradient(
-                              begin: Alignment.topCenter,
-                              end: Alignment.bottomCenter,
-                              colors: [
-                                Colors.transparent,
-                                context.douriColors.background.withValues(alpha: 0.45),
-                              ],
-                              stops: const [0.55, 1.0],
-                            ),
+            // No Hero here: the shared-element flight crashed the app
+            // (Flutter assertion '_elements.contains(element)' - the Hero
+            // wraps its child in a GlobalKey'd KeyedSubtree, and Heroes
+            // inside this AnimatedSwitcher + ListView get their elements
+            // deactivated mid-flight). The slide+fade page transition
+            // still animates every navigation.
+            ClipRRect(
+              borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+              child: Container(
+                height: coverHeight,
+                width: double.infinity,
+                color: context.douriColors.elevated,
+                child: Stack(
+                  fit: StackFit.expand,
+                  children: [
+                    coverImageUrl != null && coverImageUrl!.isNotEmpty
+                        ? CachedNetworkImage(imageUrl: coverImageUrl!, fit: BoxFit.cover, errorWidget: (_, __, ___) => _coverFallback(context))
+                        : _coverFallback(context),
+                    Positioned.fill(
+                      child: DecoratedBox(
+                        decoration: BoxDecoration(
+                          gradient: LinearGradient(
+                            begin: Alignment.topCenter,
+                            end: Alignment.bottomCenter,
+                            colors: [
+                              Colors.transparent,
+                              context.douriColors.background.withValues(alpha: 0.45),
+                            ],
+                            stops: const [0.55, 1.0],
                           ),
                         ),
                       ),
-                      if (rating != null)
-                        Positioned(
-                          left: DouriSpacing.md,
-                          bottom: DouriSpacing.sm,
-                          child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
-                            decoration: BoxDecoration(
-                              color: context.douriColors.background.withValues(alpha: 0.85),
-                              borderRadius: BorderRadius.circular(999),
-                            ),
-                            child: DouriRating(value: rating!, count: reviewCount),
+                    ),
+                    if (rating != null)
+                      Positioned(
+                        left: DouriSpacing.md,
+                        bottom: DouriSpacing.sm,
+                        child: Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: context.douriColors.background.withValues(alpha: 0.85),
+                            borderRadius: BorderRadius.circular(999),
                           ),
+                          child: DouriRating(value: rating!, count: reviewCount),
                         ),
-                      if (isOpen != null)
-                        Positioned(
-                          top: DouriSpacing.sm,
-                          right: DouriSpacing.sm,
-                          child: DouriStatusBadge(open: isOpen!),
-                        ),
-                    ],
-                  ),
+                      ),
+                    if (isOpen != null)
+                      Positioned(
+                        top: DouriSpacing.sm,
+                        right: DouriSpacing.sm,
+                        child: DouriStatusBadge(open: isOpen!),
+                      ),
+                  ],
                 ),
               ),
             ),
