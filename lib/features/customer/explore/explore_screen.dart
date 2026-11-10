@@ -276,20 +276,34 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
             const SizedBox(height: DouriSpacing.md),
             DouriStagger(
               index: 2,
+              // Filter row: the two chips live in a horizontally scrolling
+              // strip and the Filters button stays pinned at the end, so
+              // the row can never overflow (Arabic labels + the check slot
+              // made the old fixed Row wider than narrow screens — the
+              // "All" chip was clipped with overflow stripes).
               child: Row(
                 children: [
-                  _filterChip(
-                    label: l10n.all,
-                    selected: !_openNowOnly,
-                    onTap: () => setState(() => _openNowOnly = false),
+                  Expanded(
+                    child: SingleChildScrollView(
+                      scrollDirection: Axis.horizontal,
+                      child: Row(
+                        children: [
+                          _filterChip(
+                            label: l10n.all,
+                            selected: !_openNowOnly,
+                            onTap: () => setState(() => _openNowOnly = false),
+                          ),
+                          const SizedBox(width: DouriSpacing.sm),
+                          _filterChip(
+                            label: l10n.openNow,
+                            selected: _openNowOnly,
+                            onTap: () => setState(() => _openNowOnly = true),
+                          ),
+                        ],
+                      ),
+                    ),
                   ),
                   const SizedBox(width: DouriSpacing.sm),
-                  _filterChip(
-                    label: l10n.openNow,
-                    selected: _openNowOnly,
-                    onTap: () => setState(() => _openNowOnly = true),
-                  ),
-                  const Spacer(),
                   DouriButton(
                     label: l10n.filters,
                     icon: Icons.tune,
