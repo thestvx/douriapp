@@ -364,6 +364,10 @@ class AppLocalizations {
   String get noCancelledBookings => _t('noCancelledBookings');
   String get noCancelledBookingsMessage => _t('noCancelledBookingsMessage');
 
+  // --- Phase 8: auth / onboarding / profile ---
+  String get stepAccountType => _t('stepAccountType');
+  String get stepYourDetails => _t('stepYourDetails');
+
   static const Map<String, Map<String, String>> _strings = {
     'ar': {
       'appName': 'دوري',
@@ -513,6 +517,8 @@ class AppLocalizations {
       'ownerInfo': 'بيانات صاحب الصالون',
       'createBarberAccount': 'إنشاء حساب الحلاق',
       'step': 'خطوة',
+      'stepAccountType': 'نوع الحساب',
+      'stepYourDetails': 'بياناتك',
       'daySat': 'السبت',
       'daySun': 'الأحد',
       'dayMon': 'الاثنين',
@@ -831,6 +837,8 @@ class AppLocalizations {
       'ownerInfo': 'Salon owner details',
       'createBarberAccount': 'Create barber account',
       'step': 'Step',
+      'stepAccountType': 'Account type',
+      'stepYourDetails': 'Your details',
       'daySat': 'Saturday',
       'daySun': 'Sunday',
       'dayMon': 'Monday',

@@ -8,8 +8,8 @@ import '../../core/services/notification_service.dart';
 import '../../core/services/repository_providers.dart';
 import '../../core/theme/app_tokens.dart';
 import '../../core/widgets/douri_button.dart';
-import '../../core/widgets/douri_feedback.dart';
 import '../../core/widgets/douri_fields.dart';
+import '../../core/widgets/douri_motion.dart';
 import '../../core/widgets/douri_visual.dart';
 import 'auth_providers.dart';
 import '../../core/theme/douri_colors.dart';
@@ -35,6 +35,11 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
   bool _obscurePassword = true;
   bool _saving = false;
   String? _error;
+  // Focus glow state: the field widget itself owns the lime focus
+  // border (theme); the glow below is layered around it, so the field
+  // widget is never rebuilt.
+  bool _emailFocused = false;
+  bool _passwordFocused = false;
 
   @override
   void dispose() {
@@ -91,7 +96,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                DouriEntrance(
+                DouriStagger(
                   index: 0,
                   child: ClipRRect(
                     borderRadius: BorderRadius.circular(DouriRadius.xl),
@@ -103,7 +108,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   ),
                 ),
                 const SizedBox(height: DouriSpacing.xxl),
-                DouriEntrance(
+                DouriStagger(
                   index: 1,
                   child: Text(
                     l10n.appName,
@@ -115,7 +120,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   ),
                 ),
                 SizedBox(height: DouriSpacing.sm),
-                DouriEntrance(
+                DouriStagger(
                   index: 3,
                   child: Text(
                     l10n.loginTitle,
@@ -123,7 +128,7 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   ),
                 ),
                 SizedBox(height: DouriSpacing.sm),
-                DouriEntrance(
+                DouriStagger(
                   index: 4,
                   child: Text(
                     l10n.loginSubtitle,
@@ -133,69 +138,107 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   ),
                 ),
                 const SizedBox(height: DouriSpacing.xxl),
-                DouriEntrance(
+                DouriStagger(
                   index: 5,
-                  child: DouriTextField(
-                    controller: _emailController,
-                    label: l10n.email,
-                    hint: l10n.enterEmail,
-                    prefixIcon: Icons.email_outlined,
-                    keyboardType: TextInputType.emailAddress,
-                    textInputAction: TextInputAction.next,
-                    validator: (value) {
-                      if (value == null || !_isValidEmail(value.trim())) {
-                        return l10n.invalidEmail;
-                      }
-                      return null;
-                    },
+                  child: _FocusGlow(
+                    focused: _emailFocused,
+                    child: Focus(
+                      onFocusChange: (v) => setState(() => _emailFocused = v),
+                      child: DouriTextField(
+                        controller: _emailController,
+                        label: l10n.email,
+                        hint: l10n.enterEmail,
+                        prefixIcon: Icons.email_outlined,
+                        keyboardType: TextInputType.emailAddress,
+                        textInputAction: TextInputAction.next,
+                        validator: (value) {
+                          if (value == null || !_isValidEmail(value.trim())) {
+                            return l10n.invalidEmail;
+                          }
+                          return null;
+                        },
+                      ),
+                    ),
                   ),
                 ),
                 SizedBox(height: DouriSpacing.md),
-                DouriEntrance(
+                DouriStagger(
                   index: 6,
-                  child: DouriTextField(
-                    controller: _passwordController,
-                    label: l10n.password,
-                    hint: l10n.enterPassword,
-                    prefixIcon: Icons.lock_outline,
-                    obscureText: _obscurePassword,
-                    textInputAction: TextInputAction.done,
-                    suffixIcon: IconButton(
-                      icon: Icon(
-                        _obscurePassword
-                            ? Icons.visibility_outlined
-                            : Icons.visibility_off_outlined,
-                        size: 20,
-                        color: context.douriColors.textSecondary,
-                      ),
-                      onPressed: () => setState(
-                        () => _obscurePassword = !_obscurePassword,
+                  child: _FocusGlow(
+                    focused: _passwordFocused,
+                    child: Focus(
+                      onFocusChange: (v) => setState(() => _passwordFocused = v),
+                      child: DouriTextField(
+                        controller: _passwordController,
+                        label: l10n.password,
+                        hint: l10n.enterPassword,
+                        prefixIcon: Icons.lock_outline,
+                        obscureText: _obscurePassword,
+                        textInputAction: TextInputAction.done,
+                        suffixIcon: IconButton(
+                          icon: Icon(
+                            _obscurePassword
+                                ? Icons.visibility_outlined
+                                : Icons.visibility_off_outlined,
+                            size: 20,
+                            color: context.douriColors.textSecondary,
+                          ),
+                          onPressed: () => setState(
+                            () => _obscurePassword = !_obscurePassword,
+                          ),
+                        ),
+                        validator: (value) {
+                          if (value == null || value.length < 6) {
+                            return l10n.passwordTooShort;
+                          }
+                          return null;
+                        },
                       ),
                     ),
-                    validator: (value) {
-                      if (value == null || value.length < 6) {
-                        return l10n.passwordTooShort;
-                      }
-                      return null;
-                    },
                   ),
                 ),
-                if (_error != null) ...[
-                  const SizedBox(height: DouriSpacing.lg),
-                  DouriEntrance(
-                    index: 7,
-                    slide: false,
-                    child: Text(
-                      _error!,
-                      style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                            color: AppColors.danger,
-                          ),
-                      textAlign: TextAlign.center,
-                    ),
+                const SizedBox(height: DouriSpacing.lg),
+                AnimatedSwitcher(
+                  duration: DouriMotion.scaled(context, DouriDuration.normal),
+                  transitionBuilder: (child, animation) => FadeTransition(
+                    opacity: animation,
+                    child: child,
                   ),
-                ],
+                  child: _error == null
+                      ? const SizedBox.shrink(key: ValueKey('no-error'))
+                      : Container(
+                          key: ValueKey(_error),
+                          padding: const EdgeInsets.all(DouriSpacing.md),
+                          decoration: BoxDecoration(
+                            color: AppColors.dangerSoft,
+                            borderRadius: BorderRadius.circular(DouriRadius.md),
+                            border: Border.all(
+                              color: AppColors.danger.withValues(alpha: 0.35),
+                            ),
+                          ),
+                          child: Row(
+                            crossAxisAlignment: CrossAxisAlignment.start,
+                            children: [
+                              const Icon(
+                                Icons.error_outline,
+                                size: 18,
+                                color: AppColors.danger,
+                              ),
+                              const SizedBox(width: DouriSpacing.sm),
+                              Expanded(
+                                child: Text(
+                                  _error!,
+                                  style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                        color: AppColors.danger,
+                                      ),
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                ),
                 const SizedBox(height: DouriSpacing.xxl),
-                DouriEntrance(
+                DouriStagger(
                   index: 8,
                   child: DouriButton(
                     label: l10n.signIn,
@@ -204,17 +247,20 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
                   ),
                 ),
                 const SizedBox(height: DouriSpacing.md),
-                DouriEntrance(
+                DouriStagger(
                   index: 9,
                   child: Center(
                     child: GestureDetector(
                       onTap: _saving ? null : () => context.push('/signup'),
-                      child: Text(
-                        l10n.noAccount,
-                        style: Theme.of(context).textTheme.bodySmall?.copyWith(
-                              color: AppColors.primaryAccent,
-                              fontWeight: FontWeight.w600,
-                            ),
+                      child: Padding(
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                        child: Text(
+                          l10n.noAccount,
+                          style: Theme.of(context).textTheme.bodySmall?.copyWith(
+                                color: AppColors.primaryAccent,
+                                fontWeight: FontWeight.w600,
+                              ),
+                        ),
                       ),
                     ),
                   ),
@@ -234,6 +280,36 @@ class _AuthScreenState extends ConsumerState<AuthScreen> {
           ),
         ),
       ),
+    );
+  }
+}
+
+/// Soft lime glow that fades in around a field while it has focus —
+/// the same focus-glow language as the Explore search field. The field
+/// widget itself is untouched; this only wraps it.
+class _FocusGlow extends StatelessWidget {
+  const _FocusGlow({required this.focused, required this.child});
+  final bool focused;
+  final Widget child;
+
+  @override
+  Widget build(BuildContext context) {
+    return AnimatedContainer(
+      duration: DouriMotion.scaled(context, DouriDuration.normal),
+      curve: DouriCurves.standard,
+      decoration: BoxDecoration(
+        borderRadius: BorderRadius.circular(DouriRadius.md),
+        boxShadow: focused
+            ? [
+                BoxShadow(
+                  color: AppColors.primaryAccent.withValues(alpha: 0.18),
+                  blurRadius: 16,
+                  spreadRadius: 0,
+                ),
+              ]
+            : const [],
+      ),
+      child: child,
     );
   }
 }
