@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 
 import '../constants/app_colors.dart';
 import '../theme/app_tokens.dart';
+import '../theme/app_typography.dart';
 import 'douri_chrome.dart';
 import '../theme/douri_colors.dart';
 
@@ -171,6 +172,13 @@ class DouriRoundArrowButton extends StatelessWidget {
 /// gradient overlay, shop name + rating + address at the bottom and a lime
 /// Book Now pill. Built only from real shop data; callers must not pass
 /// invented values.
+///
+/// [large] + [bleed] is the home hero mode: a tall (340dp) full-bleed cover
+/// with display-size type, an [eyebrow] label and a bigger CTA. [bleed]
+/// rounds only the bottom corners so the banner can sit flush against the
+/// screen edges. The banner has no Hero tag by design — the same shop also
+/// appears in the home carousel, and two Heroes sharing a tag on one route
+/// would break the transition.
 class DouriPromoBanner extends StatelessWidget {
   const DouriPromoBanner({
     super.key,
@@ -183,6 +191,10 @@ class DouriPromoBanner extends StatelessWidget {
     this.onTap,
     this.onBook,
     this.bookLabel,
+    this.height = 190,
+    this.large = false,
+    this.bleed = false,
+    this.eyebrow,
   });
 
   final String name;
@@ -194,19 +206,26 @@ class DouriPromoBanner extends StatelessWidget {
   final VoidCallback? onTap;
   final VoidCallback? onBook;
   final String? bookLabel;
+  final double height;
+  final bool large;
+  final bool bleed;
+  final String? eyebrow;
 
   @override
   Widget build(BuildContext context) {
     final hasImage = coverImageUrl != null && coverImageUrl!.isNotEmpty;
+    final radius = bleed
+        ? const BorderRadius.vertical(bottom: Radius.circular(28))
+        : BorderRadius.circular(DouriRadius.xl);
     return Material(
       color: Colors.transparent,
       child: InkWell(
         onTap: onTap,
-        borderRadius: BorderRadius.circular(DouriRadius.xl),
+        borderRadius: radius,
         child: ClipRRect(
-          borderRadius: BorderRadius.circular(DouriRadius.xl),
+          borderRadius: radius,
           child: Container(
-            height: 190,
+            height: height,
             width: double.infinity,
             color: context.douriColors.elevated,
             child: Stack(
@@ -219,10 +238,10 @@ class DouriPromoBanner extends StatelessWidget {
                     errorWidget: (_, __, ___) => const SizedBox.shrink(),
                   )
                 else
-                  const Center(
+                  Center(
                     child: Icon(
                       Icons.content_cut,
-                      size: 64,
+                      size: large ? 96 : 64,
                       color: AppColors.primaryAccent,
                     ),
                   ),
@@ -249,9 +268,9 @@ class DouriPromoBanner extends StatelessWidget {
                     child: DouriStatusBadge(open: isOpen!),
                   ),
                 Positioned(
-                  left: DouriSpacing.lg,
-                  right: DouriSpacing.lg,
-                  bottom: DouriSpacing.lg,
+                  left: large ? DouriSpacing.page : DouriSpacing.lg,
+                  right: large ? DouriSpacing.page : DouriSpacing.lg,
+                  bottom: large ? DouriSpacing.xl : DouriSpacing.lg,
                   child: Row(
                     crossAxisAlignment: CrossAxisAlignment.end,
                     children: [
@@ -260,17 +279,29 @@ class DouriPromoBanner extends StatelessWidget {
                           crossAxisAlignment: CrossAxisAlignment.start,
                           mainAxisSize: MainAxisSize.min,
                           children: [
+                            if (large && eyebrow != null) ...[
+                              Text(
+                                eyebrow!,
+                                style: Theme.of(context).textTheme.labelSmall?.copyWith(
+                                      color: DouriTextStyles.accent(context),
+                                      fontWeight: FontWeight.w700,
+                                    ),
+                              ),
+                              const SizedBox(height: 6),
+                            ],
                             if (rating != null)
                               DouriRating(value: rating!, count: reviewCount),
-                            SizedBox(height: 4),
+                            const SizedBox(height: 4),
                             Text(
                               name,
-                              style: Theme.of(context).textTheme.titleLarge,
-                              maxLines: 1,
+                              style: large
+                                  ? Theme.of(context).textTheme.displayMedium
+                                  : Theme.of(context).textTheme.titleLarge,
+                              maxLines: large ? 2 : 1,
                               overflow: TextOverflow.ellipsis,
                             ),
                             if (address != null && address!.isNotEmpty) ...[
-                              SizedBox(height: 2),
+                              const SizedBox(height: 2),
                               Text(
                                 address!,
                                 style: Theme.of(context).textTheme.bodySmall?.copyWith(
@@ -292,14 +323,20 @@ class DouriPromoBanner extends StatelessWidget {
                           child: InkWell(
                             onTap: onBook,
                             child: Padding(
-                              padding: const EdgeInsets.symmetric(
-                                horizontal: 16,
-                                vertical: 10,
+                              padding: EdgeInsets.symmetric(
+                                horizontal: large ? 20 : 16,
+                                vertical: large ? 12 : 10,
                               ),
                               child: Text(
                                 bookLabel!,
-                                style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                                      color: context.douriColors.background,
+                                style: (large
+                                        ? Theme.of(context).textTheme.labelLarge
+                                        : Theme.of(context).textTheme.labelMedium)
+                                    ?.copyWith(
+                                      // Dark text on lime in both themes
+                                      // (douriColors.background is near-white
+                                      // in the light theme — unreadable here).
+                                      color: AppColors.accentOnDark,
                                       fontWeight: FontWeight.w700,
                                     ),
                               ),

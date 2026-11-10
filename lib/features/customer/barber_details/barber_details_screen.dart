@@ -61,7 +61,7 @@ class _BarberDetailsScreenState extends ConsumerState<BarberDetailsScreen> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-              const DouriSkeleton(height: 320, radius: 0),
+              const DouriSkeleton(height: 400, radius: 0),
               Padding(
                 padding: const EdgeInsets.all(DouriSpacing.page),
                 child: Column(
@@ -114,7 +114,7 @@ class _BarberDetailsScreenState extends ConsumerState<BarberDetailsScreen> {
                             // so the cover flies in from Home / Explore.
                             tag: 'shop-image-$shopId',
                             child: SizedBox(
-                              height: 320,
+                              height: 400,
                               width: double.infinity,
                               child: shop.coverImageUrl != null &&
                                       shop.coverImageUrl!.isNotEmpty
@@ -165,7 +165,7 @@ class _BarberDetailsScreenState extends ConsumerState<BarberDetailsScreen> {
                                     Expanded(
                                       child: Text(
                                         shop.shopName,
-                                        style: Theme.of(context).textTheme.headlineMedium,
+                                        style: Theme.of(context).textTheme.headlineLarge,
                                       ),
                                     ),
                                     DouriAnimatedBadge(

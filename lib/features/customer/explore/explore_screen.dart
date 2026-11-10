@@ -212,7 +212,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
             DouriStagger(
-              child: Text(l10n.explore, style: Theme.of(context).textTheme.headlineMedium),
+              child: Text(l10n.explore, style: Theme.of(context).textTheme.headlineLarge),
             ),
             const SizedBox(height: DouriSpacing.lg),
             DouriStagger(
@@ -355,7 +355,7 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
                         itemBuilder: (_, i) => DouriStagger(
                           key: ValueKey(filtered[i].id),
                           index: i,
-                          child: ShopRatingCard(shop: filtered[i]),
+                          child: ShopRatingCard(shop: filtered[i], coverHeight: 170),
                         ),
                       ),
                     );
@@ -371,10 +371,12 @@ class _ExploreScreenState extends ConsumerState<ExploreScreen> {
 }
 
 /// A shop card with its real average rating (null when no reviews).
-/// Shared with the Home tab.
+/// Shared with the Home tab. [coverHeight] makes result cards image-first
+/// and larger (170 on Explore, 190 in the home carousel).
 class ShopRatingCard extends ConsumerWidget {
-  const ShopRatingCard({super.key, required this.shop});
+  const ShopRatingCard({super.key, required this.shop, this.coverHeight = 140});
   final BarberShop shop;
+  final double coverHeight;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -388,6 +390,7 @@ class ShopRatingCard extends ConsumerWidget {
       rating: rating?.rating,
       reviewCount: rating?.count,
       isOpen: shop.isOpen,
+      coverHeight: coverHeight,
       onTap: () => context.push('/shop/${shop.id}'),
     );
   }

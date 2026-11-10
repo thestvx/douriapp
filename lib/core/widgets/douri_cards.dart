@@ -5,6 +5,7 @@ import '../constants/app_colors.dart';
 import '../theme/app_tokens.dart';
 import '../theme/app_typography.dart';
 import 'douri_chrome.dart';
+import 'douri_motion.dart';
 import '../theme/douri_colors.dart';
 
 /// Shared card shell: dark card surface, subtle border, rounded corners.
@@ -36,6 +37,11 @@ class DouriCard extends StatelessWidget {
 /// Shop card used on Home and Explore. Hero-tagged cover so the details
 /// screen can animate from it. Never invents a rating: [rating] is null
 /// when the shop has no reviews yet.
+///
+/// Press feedback is a visible 0.96 scale via [DouriPressable] (the tap is
+/// handled there, not by an inner InkWell, so a tap can never fire twice).
+/// [coverHeight] lets callers make image-first cards larger (home carousel
+/// 190, lists 170) while the default 140 stays for compact uses.
 class DouriShopCard extends StatelessWidget {
   const DouriShopCard({
     super.key,
@@ -48,6 +54,7 @@ class DouriShopCard extends StatelessWidget {
     this.reviewCount,
     this.isOpen,
     this.distanceLabel,
+    this.coverHeight = 140,
     this.onTap,
   });
 
@@ -60,102 +67,106 @@ class DouriShopCard extends StatelessWidget {
   final int? reviewCount;
   final bool? isOpen;
   final String? distanceLabel;
+  final double coverHeight;
   final VoidCallback? onTap;
 
   @override
   Widget build(BuildContext context) {
-    return DouriCard(
-      padding: EdgeInsets.zero,
+    return DouriPressable(
+      scale: 0.96,
       onTap: onTap,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Hero(
-            tag: 'shop-image-$shopId',
-            child: ClipRRect(
-              borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
-              child: Container(
-                height: 140,
-                width: double.infinity,
-                color: context.douriColors.elevated,
-                child: Stack(
-                  fit: StackFit.expand,
-                  children: [
-                    coverImageUrl != null && coverImageUrl!.isNotEmpty
-                        ? CachedNetworkImage(imageUrl: coverImageUrl!, fit: BoxFit.cover, errorWidget: (_, __, ___) => _coverFallback(context))
-                        : _coverFallback(context),
-                    Positioned.fill(
-                      child: DecoratedBox(
-                        decoration: BoxDecoration(
-                          gradient: LinearGradient(
-                            begin: Alignment.topCenter,
-                            end: Alignment.bottomCenter,
-                            colors: [
-                              Colors.transparent,
-                              context.douriColors.background.withValues(alpha: 0.45),
-                            ],
-                            stops: const [0.55, 1.0],
-                          ),
-                        ),
-                      ),
-                    ),
-                    if (rating != null)
-                      Positioned(
-                        left: DouriSpacing.md,
-                        bottom: DouriSpacing.sm,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+      child: DouriCard(
+        padding: EdgeInsets.zero,
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            Hero(
+              tag: 'shop-image-$shopId',
+              child: ClipRRect(
+                borderRadius: const BorderRadius.vertical(top: Radius.circular(18)),
+                child: Container(
+                  height: coverHeight,
+                  width: double.infinity,
+                  color: context.douriColors.elevated,
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      coverImageUrl != null && coverImageUrl!.isNotEmpty
+                          ? CachedNetworkImage(imageUrl: coverImageUrl!, fit: BoxFit.cover, errorWidget: (_, __, ___) => _coverFallback(context))
+                          : _coverFallback(context),
+                      Positioned.fill(
+                        child: DecoratedBox(
                           decoration: BoxDecoration(
-                            color: context.douriColors.background.withValues(alpha: 0.85),
-                            borderRadius: BorderRadius.circular(999),
+                            gradient: LinearGradient(
+                              begin: Alignment.topCenter,
+                              end: Alignment.bottomCenter,
+                              colors: [
+                                Colors.transparent,
+                                context.douriColors.background.withValues(alpha: 0.45),
+                              ],
+                              stops: const [0.55, 1.0],
+                            ),
                           ),
-                          child: DouriRating(value: rating!, count: reviewCount),
                         ),
                       ),
-                    if (isOpen != null)
-                      Positioned(
-                        top: DouriSpacing.sm,
-                        right: DouriSpacing.sm,
-                        child: DouriStatusBadge(open: isOpen!),
-                      ),
-                  ],
+                      if (rating != null)
+                        Positioned(
+                          left: DouriSpacing.md,
+                          bottom: DouriSpacing.sm,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 9, vertical: 4),
+                            decoration: BoxDecoration(
+                              color: context.douriColors.background.withValues(alpha: 0.85),
+                              borderRadius: BorderRadius.circular(999),
+                            ),
+                            child: DouriRating(value: rating!, count: reviewCount),
+                          ),
+                        ),
+                      if (isOpen != null)
+                        Positioned(
+                          top: DouriSpacing.sm,
+                          right: DouriSpacing.sm,
+                          child: DouriStatusBadge(open: isOpen!),
+                        ),
+                    ],
+                  ),
                 ),
               ),
             ),
-          ),
-          Padding(
-            padding: const EdgeInsets.all(DouriSpacing.lg),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text(name, style: Theme.of(context).textTheme.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
-                SizedBox(height: 6),
-                if (address != null && address!.isNotEmpty)
-                  Row(
-                    children: [
-                      Icon(Icons.location_on_outlined, size: 14, color: context.douriColors.textSecondary),
-                      const SizedBox(width: 4),
-                      Expanded(
-                        child: Text(address!, style: Theme.of(context).textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
-                      ),
-                    ],
-                  ),
-                // Rating + open state live on the cover now (Stylize style);
-                // only the distance (when a real one exists) stays here.
-                if (distanceLabel != null) ...[
-                  SizedBox(height: 8),
-                  Row(
-                    children: [
-                      Icon(Icons.near_me_outlined, size: 14, color: context.douriColors.textSecondary),
-                      SizedBox(width: 4),
-                      Text(distanceLabel!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.douriColors.textSecondary)),
-                    ],
-                  ),
+            Padding(
+              padding: const EdgeInsets.all(DouriSpacing.lg),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(name, style: Theme.of(context).textTheme.titleMedium, maxLines: 1, overflow: TextOverflow.ellipsis),
+                  SizedBox(height: 6),
+                  if (address != null && address!.isNotEmpty)
+                    Row(
+                      children: [
+                        Icon(Icons.location_on_outlined, size: 14, color: context.douriColors.textSecondary),
+                        const SizedBox(width: 4),
+                        Expanded(
+                          child: Text(address!, style: Theme.of(context).textTheme.bodySmall, maxLines: 1, overflow: TextOverflow.ellipsis),
+                        ),
+                      ],
+                    ),
+                  // Rating + open state live on the cover now (Stylize style);
+                  // only the distance (when a real one exists) stays here.
+                  if (distanceLabel != null) ...[
+                    SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Icon(Icons.near_me_outlined, size: 14, color: context.douriColors.textSecondary),
+                        SizedBox(width: 4),
+                        Text(distanceLabel!, style: Theme.of(context).textTheme.bodySmall?.copyWith(color: context.douriColors.textSecondary)),
+                      ],
+                    ),
+                  ],
                 ],
-              ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
@@ -350,7 +361,11 @@ class DouriBookingCard extends StatelessWidget {
                 Container(
                   padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                   decoration: BoxDecoration(color: AppColors.accentSoft, borderRadius: BorderRadius.circular(999)),
-                  child: Text('#$queueNumber', style: Theme.of(context).textTheme.labelMedium?.copyWith(color: DouriTextStyles.accent(context))),
+                  child: DouriAnimatedCounter(
+                    value: queueNumber,
+                    format: (v) => '#$v',
+                    style: Theme.of(context).textTheme.labelMedium?.copyWith(color: DouriTextStyles.accent(context)),
+                  ),
                 ),
             ],
           ),
